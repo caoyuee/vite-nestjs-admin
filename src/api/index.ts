@@ -72,8 +72,6 @@ class RequestHttp {
     this.service.interceptors.response.use(
       (response: AxiosResponse & { config: CustomAxiosRequestConfig }) => {
         const { data, config } = response;
-        console.log(data, config, "=======报错");
-
         const userStore = useUserStore();
         axiosCanceler.removePending(config);
         config.loading && tryHideFullScreenLoading();
