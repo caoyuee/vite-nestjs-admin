@@ -2,13 +2,13 @@ import router from "@/routers";
 import { defineStore } from "pinia";
 import { getUrlWithParams } from "@/utils";
 import { useKeepAliveStore } from "./keepAlive";
-import { TabsState, TabsMenuProps } from "@/stores/interface";
+import type{ TabsState, TabsMenuProps } from "@/stores/interface";
 import piniaPersistConfig from "@/stores/helper/persist";
 
 const keepAliveStore = useKeepAliveStore();
 
-export const useTabsStore = defineStore({
-  id: "geeker-tabs",
+export const useTabsStore = defineStore("geeker-tabs",{
+  // id: "geeker-tabs",
   state: (): TabsState => ({
     tabsMenuList: []
   }),

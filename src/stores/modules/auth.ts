@@ -7,8 +7,8 @@ import {
   getAllBreadcrumbList,
 } from "@/utils";
 
-export const useAuthStore = defineStore({
-  id: "geeker-auth",
+export const useAuthStore = defineStore("geeker-auth",{
+  // id: "geeker-auth",
   state: (): AuthState => ({
     // 按钮权限列表
     authButtonList: {},
