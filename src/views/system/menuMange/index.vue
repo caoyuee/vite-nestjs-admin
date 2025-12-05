@@ -22,15 +22,13 @@
 
 <script setup lang="ts" name="menuMange">
 import { ref } from "vue";
-import { ColumnProps } from "@/components/ProTable/interface";
+import type{ ColumnProps } from "@/components/ProTable/interface";
 import { Delete, EditPen, CirclePlus } from "@element-plus/icons-vue";
 import authMenuList from "@/assets/json/authMenuList.json";
 import ProTable from "@/components/ProTable/index.vue";
-
+import {getMenuList} from '@/api/modules/system.ts'
 const proTable = ref();
-
 const menuData = ref(authMenuList.data);
-
 // 表格配置项
 const columns: ColumnProps[] = [
   { prop: "meta.title", label: "菜单名称", align: "left", search: { el: "input" } },
@@ -40,4 +38,11 @@ const columns: ColumnProps[] = [
   { prop: "component", label: "组件路径", width: 300 },
   { prop: "operation", label: "操作", width: 250, fixed: "right" }
 ];
+
+
+const getTableList = async (params: any) => {
+  const res = await getMenuList(params);
+  console.log(res,'res========');
+  
+};
 </script>

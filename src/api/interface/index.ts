@@ -88,3 +88,35 @@ export namespace User {
     children?: ResDepartment[];
   }
 }
+
+
+export namespace Menu {
+   export interface ReqMenuParams extends ReqPage {
+    parentId: number | string,
+    status: boolean,
+    path: string,
+    name: string,
+    redirect?: string,
+    createTime: string[];
+  }
+  export interface Meta {
+    icon: string,
+    title: string,
+    isLink: string,
+    isHide: boolean,
+    isFull: boolean,
+    isAffix: boolean,
+    isKeepAlive: boolean
+  }
+  export interface ResMenuList {
+    index: number | string,
+    parentId: number | string,
+    status: boolean,
+    path: string,
+    name: string,
+    redirect?: string,
+    meta: Meta,
+    children?: ResMenuList[];
+  }
+
+}
