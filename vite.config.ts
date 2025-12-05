@@ -7,8 +7,6 @@ import {wrapperEnv} from "./build/getEnv";
 import {createProxy} from "./build/proxy";
 // https://vite.dev/config/
 
-  
-
 export default defineConfig(({ mode }: ConfigEnv): UserConfig =>{
   const root = process.cwd();
   const env = loadEnv(mode, root);

@@ -1,4 +1,7 @@
 // Read all environment variable configuration files to process.env
+type Recordable<T = any> = Record<string, T>;
+type ViteEnv = Recordable;
+
 export function wrapperEnv(envConf: Recordable): ViteEnv {
   const ret: any = {};
 
@@ -9,7 +12,7 @@ export function wrapperEnv(envConf: Recordable): ViteEnv {
     if (envName === "VITE_PROXY") {
       try {
         realName = JSON.parse(realName);
-      } catch (error) {}
+      } catch (error) { }
     }
     ret[envName] = realName;
   }

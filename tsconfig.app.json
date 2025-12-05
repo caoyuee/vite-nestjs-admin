@@ -1,13 +1,12 @@
-{
+{//src文件内的规范配置
   "extends": "@vue/tsconfig/tsconfig.dom.json",
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "types": ["vite/client"],
+    "types": ["vite/client","element-plus/global"],
     "target": "ESNext",
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
     "paths": {
-      "@": ["./src"],
       "@/*": ["./src/*"]
     },
     /* Linting */
