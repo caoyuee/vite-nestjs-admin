@@ -1,6 +1,6 @@
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" title="菜单列表" row-key="path" :indent="20" :columns="columns" :data="menuData">
+    <ProTable ref="proTable" title="菜单列表" row-key="path" :indent="20" :columns="columns" :requestApi="getMenuList" :pagination="false">
       <!-- 表格 header 按钮 -->
       <template #tableHeader>
         <el-button type="primary" :icon="CirclePlus">新增菜单 </el-button>
@@ -21,14 +21,15 @@
 </template>
 
 <script setup lang="ts" name="menuMange">
-import { ref } from "vue";
+import { ref} from "vue";
 import type{ ColumnProps } from "@/components/ProTable/interface";
 import { Delete, EditPen, CirclePlus } from "@element-plus/icons-vue";
-import authMenuList from "@/assets/json/authMenuList.json";
+// import authMenuList from "@/assets/json/authMenuList.json";
 import ProTable from "@/components/ProTable/index.vue";
 import {getMenuList} from '@/api/modules/system.ts'
 const proTable = ref();
-const menuData = ref(authMenuList.data);
+
+
 // 表格配置项
 const columns: ColumnProps[] = [
   { prop: "meta.title", label: "菜单名称", align: "left", search: { el: "input" } },
@@ -38,11 +39,4 @@ const columns: ColumnProps[] = [
   { prop: "component", label: "组件路径", width: 300 },
   { prop: "operation", label: "操作", width: 250, fixed: "right" }
 ];
-
-
-const getTableList = async (params: any) => {
-  const res = await getMenuList(params);
-  console.log(res,'res========');
-  
-};
 </script>

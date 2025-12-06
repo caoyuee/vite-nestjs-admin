@@ -1,6 +1,6 @@
 <template>
   <div class="webgpu-container">
-    <canvas id="canvas" ref="canvas" style="width: 800px; height: 500px" />
+    <canvas id="canvas" ref="canvas" style="width:100%; height: 100%" />
   </div>
 </template>
 <script setup lang="ts" name="webgpu">

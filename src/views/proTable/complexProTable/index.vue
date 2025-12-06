@@ -39,12 +39,12 @@
 <script setup lang="tsx" name="complexProTable">
 import { reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
-import { User } from "@/api/interface";
+import type { User } from "@/api/interface";
 import { useHandleData } from "@/hooks/useHandleData";
 import ProTable from "@/components/ProTable/index.vue";
 import { CirclePlus, Pointer, Delete, Refresh } from "@element-plus/icons-vue";
 import type { TableColumnCtx } from "element-plus/es/components/table/src/table-column/defaults";
-import { ProTableInstance, ColumnProps, HeaderRenderScope } from "@/components/ProTable/interface";
+import type { ProTableInstance, ColumnProps, HeaderRenderScope } from "@/components/ProTable/interface";
 import { getUserList, deleteUser, resetUserPassWord, getUserStatus, getUserGender } from "@/api/modules/user";
 
 // ProTable 实例
