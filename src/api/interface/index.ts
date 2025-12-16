@@ -89,34 +89,50 @@ export namespace User {
   }
 }
 
-
+// 菜单管理模块
 export namespace Menu {
-   export interface ReqMenuParams extends ReqPage {
-    parentId: number | string,
-    status: boolean,
-    path: string,
-    name: string,
-    redirect?: string,
-    createTime: string[];
-  }
   export interface Meta {
-    icon: string,
-    title: string,
-    isLink: string,
-    isHide: boolean,
-    isFull: boolean,
-    isAffix: boolean,
-    isKeepAlive: boolean
+    icon?: string;
+    title: string;
+    isLink?: string;
+    isHide?: boolean;
+    isFull?: boolean;
+    isAffix?: boolean;
+    isKeepAlive?: boolean;
+    activeMenu?: string;
   }
-  export interface ResMenuList {
-    index: number | string,
-    parentId: number | string,
-    status: boolean,
-    path: string,
-    name: string,
-    redirect?: string,
-    meta: Meta,
-    children?: ResMenuList[];
+  export interface BaseMenu {
+    index: number; //菜单排序
+    parentId: number; //父级ID
+    type: number,//菜单类型 0分组 1页面
+    path: string; //路由路径
+    name: string; //路由名称
+    component?: string; //组件路径
+    redirect?: string; //路由重定向
+    status: boolean; //状态
+    meta: Meta; //meta 信息
   }
 
+  export interface QueryMenuList extends ReqPage {
+    path?: string; //路由路径
+    name?: string; //路由名称
+    component?: string; //组件路径
+    status?: boolean;
+    [key: string]: unknown;
+  }
+
+  export interface CreateMenu extends BaseMenu {
+    meta: Meta; //meta 信息
+  }
+
+  export interface UpdateMenu extends Partial<BaseMenu> {
+    id: number; //菜单ID
+  }
+
+  export interface MenuTreeItem extends BaseMenu {
+    id: number;
+    children?: MenuTreeItem[];
+    createTime?: Date | string;
+    updateTime?: Date | null | string;
+  }
 }

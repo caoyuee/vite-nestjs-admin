@@ -7,6 +7,14 @@ import http from "@/api";
  */
 
 // 获取菜单列表
-export const getMenuList = (params: Menu.ReqMenuParams) => {
-  return http.get<ResPage<Menu.ResMenuList>>(PORT1 + `/menuList`, params);
+export const getMenuList = (params: Menu.QueryMenuList) => {
+  return http.get<ResPage<Menu.MenuTreeItem>>(PORT1 + `/menuList`, params);
 };
+// 新增菜单
+export const addMenu = (data: Menu.CreateMenu) => {
+  return http.post<void>(PORT1 + `/addMenu`, data);
+}
+// 编辑菜单
+export const editMenu = (data: Menu.UpdateMenu) => {
+  return http.put<void>(PORT1 + `/editMenu`, data);
+}
