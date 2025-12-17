@@ -92,14 +92,14 @@ export namespace User {
 // 菜单管理模块
 export namespace Menu {
   export interface Meta {
-    icon?: string;
+    icon: string|undefined;
     title: string;
-    isLink?: string;
-    isHide?: boolean;
-    isFull?: boolean;
-    isAffix?: boolean;
-    isKeepAlive?: boolean;
-    activeMenu?: string;
+    isLink: string|undefined;
+    isHide: boolean;
+    isFull: boolean;
+    isAffix: boolean;
+    isKeepAlive: boolean;
+    activeMenu: string|undefined;
   }
   export interface BaseMenu {
     index: number; //菜单排序

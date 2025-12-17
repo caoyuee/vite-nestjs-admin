@@ -13,8 +13,8 @@
         </el-icon>
       </template>
       <!-- 菜单操作 -->
-      <template #operation>
-        <el-button type="primary" link :icon="EditPen"> 编辑 </el-button>
+      <template #operation="scope">
+        <el-button type="primary" link :icon="EditPen" @click="openDrawer('编辑', scope.row)"> 编辑 </el-button>
         <el-button type="primary" link :icon="Delete"> 删除 </el-button>
       </template>
     </ProTable>
@@ -36,9 +36,10 @@ const proTable = ref<ProTableInstance>();
 
 // 表格配置项
 const columns: ColumnProps[] = [
+  { prop: "index", label: "排序", align: "left"},
   { prop: "meta.title", label: "菜单名称", align: "left", search: { el: "input" } },
   { prop: "meta.icon", label: "菜单图标" },
-  { prop: "name", label: "菜单 name", search: { el: "input" } },
+  { prop: "name", label: "路径名称", search: { el: "input" } },
   {
     prop: "type", label: "类型", enum: [
       { label: "分组", value: 0 },
@@ -53,10 +54,20 @@ const columns: ColumnProps[] = [
 // 打开 drawer(新增、查看、编辑)
 const drawerRef = ref<InstanceType<typeof MenuDrawer> | null>(null);
 const openDrawer = (title: string, row: Partial<Menu.MenuTreeItem> = {}) => {
+  const meta: Menu.Meta = row.meta || {
+    icon: undefined,
+    title: "",
+    isLink: undefined,
+    isHide: false,
+    isFull: false,
+    isAffix: false,
+    isKeepAlive: false,
+    activeMenu: undefined
+  };
   const params = {
     title,
     isView: title === "查看",
-    row: { ...row },
+    row: { meta, ...row },
     api: title === "新增" ? addMenu : title === "编辑" ? editMenu : undefined,
     getTableList: proTable.value?.getTableList
   };
