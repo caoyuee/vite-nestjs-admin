@@ -92,7 +92,7 @@ import type { Menu } from "@/api/interface";
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 const iconOptions = Object.entries(ElementPlusIconsVue).map(([key,icon]) => ({key,icon}));
 const rules = reactive({
-  index: [{ required: true, message: "请上传用户头像填写排序" }],
+  index: [{ required: true, message: "请上填写排序" }],
   type: [{ required: true, message: "请选择类型" }],
   path: [{ required: true, message: "请填写路由路径" }],
   name: [{ required: true, message: "请填写名称" }],
