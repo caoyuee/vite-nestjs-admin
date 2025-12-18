@@ -136,10 +136,34 @@ const acceptParams = (params: DrawerProps) => {
 };
 
 // 提交数据（新增/编辑）
-const ruleFormRef = ref<FormInstance>();
+const ruleFormMeta = ref<FormInstance>();
+  const ruleFormRef = ref<FormInstance>();
 const handleSubmit = () => {
-  ruleFormRef.value!.validate(async valid => {
-    if (!valid) return;
+  let dispatchValidate = new Promise<void>((resolve, reject) => {  
+ ruleFormMeta.value!.validate((valid) => {  
+        if (valid) {  
+            resolve();  
+        } else {  
+            reject(new Error('错误'));   
+        }  
+    });  
+});  
+
+// 校验表单二  
+let formValidate = new Promise<void>((resolve, reject) => {  
+    ruleFormRef.value!.validate((valid) => {  
+        if (valid) {  
+            resolve();  
+        } else {  
+            reject(new Error('错误'));    
+        }  
+    });  
+});  
+
+// Promise.all统一处理  
+Promise.all([dispatchValidate, formValidate])  
+.then(async() => {  
+    // 调用接口  
     try {
       await drawerProps.value.api!(drawerProps.value.row);
       ElMessage.success({ message: `${drawerProps.value.title}菜单成功！` });
@@ -147,8 +171,10 @@ const handleSubmit = () => {
       drawerVisible.value = false;
     } catch (error) {
       console.log(error);
-    }
-  });
+    }  
+}).catch(_error => {  
+    
+})
 };
 
 defineExpose({
