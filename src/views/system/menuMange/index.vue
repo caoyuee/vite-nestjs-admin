@@ -17,7 +17,7 @@
         <el-button type="primary" :disabled="scope.row.type === 1" link :icon="CirclePlus"
           @click="openDrawer('新增', scope.row)"> 新增 </el-button>
         <el-button type="primary" link :icon="EditPen" @click="openDrawer('编辑', scope.row)"> 编辑 </el-button>
-        <el-button type="primary" link :icon="Delete"> 删除 </el-button>
+        <el-button type="primary" link :icon="Delete" @click="handleDelMenu(scope.row)"> 删除 </el-button>
       </template>
     </ProTable>
     <MenuDrawer ref="drawerRef" />
@@ -27,9 +27,11 @@
 <script setup lang="ts" name="menuMange">
 import { ref } from "vue";
 import { Delete, EditPen, CirclePlus } from "@element-plus/icons-vue";
+import { ElMessage } from "element-plus";
 // import authMenuList from "@/assets/json/authMenuList.json";
 import ProTable from "@/components/ProTable/index.vue";
-import { getMenuList, addMenu, editMenu } from '@/api/modules/system.ts'
+import { getMenuList, addMenu, editMenu, delMenu } from '@/api/modules/system.ts'
+import { ResultEnum } from "@/enums/httpEnum";
 import type { Menu } from "@/api/interface";
 import type { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
 import MenuDrawer from "@/views/system/menuMange/components/MenuDrawer.vue";
@@ -55,6 +57,11 @@ const columns: ColumnProps[] = [
 
 // 打开 drawer(新增、查看、编辑)
 const drawerRef = ref<InstanceType<typeof MenuDrawer> | null>(null);
+  /**
+   * 
+   * @param title 
+   * @param row 
+   */
 const openDrawer = (title: string, row: Partial<Menu.MenuTreeItem> = {}) => {
   const meta: Menu.Meta = title === "编辑" && row.meta ? row.meta : {
     icon: undefined,
@@ -76,5 +83,17 @@ const openDrawer = (title: string, row: Partial<Menu.MenuTreeItem> = {}) => {
     getTableList: proTable.value?.getTableList
   };
   drawerRef.value?.acceptParams(params);
+};
+
+const handleDelMenu = (row: Partial<Menu.MenuTreeItem>) => {
+  delMenu(row.id as number|string).then((res) => {
+    if(res.code === ResultEnum.SUCCESS) {
+      ElMessage.success('删除成功');
+    } else {
+      ElMessage.error(res.message);
+      return;
+    }
+    proTable.value?.getTableList?.();
+  });
 };
 </script>

@@ -130,7 +130,7 @@ export namespace Menu {
   }
 
   export interface MenuTreeItem extends BaseMenu {
-    id: number;
+    id: number|string;
     children?: MenuTreeItem[];
     createTime?: Date | string;
     updateTime?: Date | null | string;

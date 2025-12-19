@@ -18,3 +18,7 @@ export const addMenu = (data: Menu.CreateMenu) => {
 export const editMenu = (data: Menu.UpdateMenu) => {
   return http.put<void>(PORT1 + `/editMenu`, data);
 }
+// 删除菜单
+export const delMenu = (id: number|string) => {
+  return http.delete<void>(PORT1 + `/deleteMenu/${id}`);
+}

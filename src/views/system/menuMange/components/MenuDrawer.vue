@@ -6,7 +6,7 @@
         <el-input v-model="drawerProps.row!.index" placeholder="请填写排序" clearable></el-input>
       </el-form-item>
       <el-form-item label="类型" prop="type">
-        <el-radio-group v-model="drawerProps.row!.type">
+        <el-radio-group v-model="drawerProps.row!.type" @input="updateRules">
           <el-radio :value="0">分组</el-radio>
           <el-radio :value="1">页面</el-radio>
         </el-radio-group>
@@ -97,9 +97,8 @@ const rules = reactive({
   path: [{ required: true, message: "请填写路由路径" }],
   name: [{ required: true, message: "请填写名称" }],
   component: [{ required: true, message: "请填写组件路径" }],
-  redirect: [{ required: true, message: "请填写重定向路径" }],
+  redirect: [{ required: false, message: "请填写重定向路径" }],
   status: [{ required: true, message: "请选择状态" }],
-  metaIcon: [{ required: true, message: "请填写图标名称" }],
 });
 const metaRules = reactive({
   icon: [{ required: false, message: "请输入图标名称" }],
@@ -135,6 +134,16 @@ const acceptParams = (params: DrawerProps) => {
   drawerVisible.value = true;
 };
 
+
+
+// 根据类型动态更新校验规则
+const updateRules = () => {
+  if (drawerProps.value.row.type === 1) {
+    rules.component[0]!.required = true;
+  } else {
+    rules.component[0]!.required = false;
+  }
+}
 // 提交数据（新增/编辑）
 const ruleFormMeta = ref<FormInstance>();
   const ruleFormRef = ref<FormInstance>();
