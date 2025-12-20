@@ -24,7 +24,7 @@
   </div>
 </template>
 
-<script setup lang="ts" name="menuMange">
+<script setup lang="ts" name="menuManage">
 import { ref } from "vue";
 import { Delete, EditPen, CirclePlus } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
