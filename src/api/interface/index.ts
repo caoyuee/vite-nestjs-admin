@@ -103,7 +103,7 @@ export namespace Menu {
   }
   export interface BaseMenu {
     index: number; //菜单排序
-    parentId: number; //父级ID
+    parentId: number | string; //父级ID
     type: number; //菜单类型 0分组 1页面
     path: string; //路由路径
     name: string; //路由名称
@@ -153,7 +153,7 @@ export namespace Account {
     phone: string;
     avatar: string;
     status: boolean;
-    roleIds?: number[];
+    roles?: number[];
   }
 
   export interface QueryUser extends ReqPage {
@@ -169,11 +169,11 @@ export namespace Account {
   }
 
   export interface UpdateUser extends Partial<BaseUser> {
-    id: number;
+    id: number | string;
   }
 
   export interface UserItem extends BaseUser {
-    id: number;
+    id: number | string;
     createTime: Date | string;
     updateTime: Date | null | string;
   }

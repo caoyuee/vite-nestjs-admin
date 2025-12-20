@@ -27,11 +27,10 @@
 <script setup lang="ts" name="menuManage">
 import { ref } from "vue";
 import { Delete, EditPen, CirclePlus } from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
 // import authMenuList from "@/assets/json/authMenuList.json";
 import ProTable from "@/components/ProTable/index.vue";
 import { getMenuList, addMenu, editMenu, delMenu } from '@/api/modules/system.ts'
-import { ResultEnum } from "@/enums/httpEnum";
+import { useHandleData } from "@/hooks/useHandleData";
 import type { Menu } from "@/api/interface";
 import type { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
 import MenuDrawer from "@/views/system/menuMange/components/MenuDrawer.vue";
@@ -84,16 +83,9 @@ const openDrawer = (title: string, row: Partial<Menu.MenuTreeItem> = {}) => {
   };
   drawerRef.value?.acceptParams(params);
 };
-
-const handleDelMenu = (row: Partial<Menu.MenuTreeItem>) => {
-  delMenu(row.id as number|string).then((res) => {
-    if(res.code === ResultEnum.SUCCESS) {
-      ElMessage.success('删除成功');
-    } else {
-      ElMessage.error(res.message);
-      return;
-    }
+// 删除菜单
+const handleDelMenu = async (row: Partial<Menu.MenuTreeItem>) => {
+  await useHandleData(delMenu, row.id , `删除【${row.meta!.title}】菜单`);
     proTable.value?.getTableList?.();
-  });
 };
 </script>

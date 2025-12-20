@@ -19,11 +19,10 @@
 <script setup lang="ts" name="accountManage">
 import { ref } from "vue";
 import { Delete, EditPen, CirclePlus, CollectionTag } from "@element-plus/icons-vue";
-import { ElMessage } from "element-plus";
 // import authMenuList from "@/assets/json/authMenuList.json";
 import ProTable from "@/components/ProTable/index.vue";
 import { getAccountList, addAccount, editAccount, delAccount   } from '@/api/modules/system.ts'
-import { ResultEnum } from "@/enums/httpEnum";
+import { useHandleData } from "@/hooks/useHandleData";
 import type { Account } from "@/api/interface";
 import type { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
 import UserDrawer from "@/views/system/accountManage/components/UserDrawer.vue";
@@ -61,15 +60,9 @@ const openDrawer = (title: string, row: Partial<Account.UserItem> = {}) => {
   drawerRef.value?.acceptParams(params);
 };
 
-const handleDelAccount = (row: Partial<Account.UserItem>) => {
-  delAccount(row.id as number|string).then((res) => {
-    if(res.code === ResultEnum.SUCCESS) {
-      ElMessage.success('删除成功');
-    } else {
-      ElMessage.error(res.message);
-      return;
-    }
+const handleDelAccount = async (row: Partial<Account.UserItem>) => {
+   await useHandleData(delAccount, row.id , `删除【${row.name}】账号`);
     proTable.value?.getTableList?.();
-  });
+  
 };
 </script>

@@ -67,10 +67,8 @@ const acceptParams = (params: DrawerProps) => {
   const ruleFormRef = ref<FormInstance>();
 const handleSubmit = () => {
 // 校验表单
-    ruleFormRef.value!.validate((valid) => {  
-        if (valid) {  
-            async() => {  
-    // 调用接口  
+    ruleFormRef.value!.validate(async (valid) => {
+        if (valid) {   
     try {
       await drawerProps.value.api!(drawerProps.value.row);
       ElMessage.success({ message: `${drawerProps.value.title}账号成功！` });
@@ -78,7 +76,7 @@ const handleSubmit = () => {
       drawerVisible.value = false;
     } catch (error) {
       console.log(error);
-    }  }
+    }  
         } else {  
                
         }  

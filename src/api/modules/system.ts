@@ -29,15 +29,13 @@ export const getAccountList = (params: Account.QueryUser) => {
 };
 // 新增账号
 export const addAccount = (data: Account.BaseUser) => {
-  return http.post<void>(PORT1 + `/addAccount`, data);
+  return http.post<void>(PORT1 + `/addUser`, data);
 };
 // 编辑账号
-export const editAccount = (
-  data: Partial<Account.BaseUser> & { id: number }
-) => {
-  return http.put<void>(PORT1 + `/editAccount`, data);
+export const editAccount = (data: Partial<Account.UpdateUser>) => {
+  return http.put<void>(PORT1 + `/editUser`, data);
 };
 // 删除账号
 export const delAccount = (id: number | string) => {
-  return http.delete<void>(PORT1 + `/deleteAccount/${id}`);
+  return http.delete<void>(PORT1 + `/deleteUser/${id}`);
 };
