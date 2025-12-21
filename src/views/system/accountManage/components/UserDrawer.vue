@@ -8,6 +8,9 @@
       <el-form-item label="账号" prop="username">
         <el-input v-model="drawerProps.row!.username" placeholder="请填写账号" clearable></el-input>
       </el-form-item>
+      <el-form-item label="密码" prop="password" v-if="drawerProps.title==='新增'">
+        <el-input v-model="drawerProps.row!.password" placeholder="请填写密码" clearable></el-input>
+      </el-form-item>
       <el-form-item label="邮箱" prop="email">
         <el-input v-model="drawerProps.row!.email" placeholder="请填写邮箱" clearable></el-input>
       </el-form-item>
@@ -35,6 +38,7 @@ import type { Account } from "@/api/interface";
 const rules = reactive({
   name: [{ required: true, message: "请填写名称" }],
   username: [{ required: true, message: "请填写账号" }],
+  password: [{ required: true, message: "请填写密码" }],
   email: [{ required: false, message: "请填写邮箱" }],
   phone: [{ required: true, message: "请填写电话" }],
   status: [{ required: true, message: "请选择状态" }],

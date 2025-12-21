@@ -7,7 +7,7 @@
         <el-button type="primary" :icon="CirclePlus" @click="openDrawer('新增')">新增账号 </el-button>
       </template>
       <template #operation="scope">
-        <el-button type="primary" :disabled="scope.row.type === 1" link :icon="CollectionTag"> 授权 </el-button>
+        <el-button type="primary" link :icon="Link"> 绑定 </el-button>
         <el-button type="primary" link :icon="EditPen" @click="openDrawer('编辑', scope.row)"> 编辑 </el-button>
         <el-button type="primary" link :icon="Delete" @click="handleDelAccount(scope.row)"> 删除 </el-button>
       </template>
@@ -18,7 +18,7 @@
 
 <script setup lang="ts" name="accountManage">
 import { ref } from "vue";
-import { Delete, EditPen, CirclePlus, CollectionTag } from "@element-plus/icons-vue";
+import { Delete, EditPen, CirclePlus, Link } from "@element-plus/icons-vue";
 // import authMenuList from "@/assets/json/authMenuList.json";
 import ProTable from "@/components/ProTable/index.vue";
 import { getAccountList, addAccount, editAccount, delAccount   } from '@/api/modules/system.ts'
@@ -35,8 +35,16 @@ const columns: ColumnProps[] = [
   { prop: "name", label: "昵称",search: { el: "input" }  },
   { prop: "username", label: "账号", search: { el: "input" } },
   { prop: "roles", label: "角色", search: { el: "input" } },
-  { prop: "createdTime", label: "创建时间"},
-  { prop: "updatedTime", label: "更新时间"},
+  {
+    prop: "status", label: "状态", enum: [
+      { label: "正常", value: true},
+      { label: "禁用", value: false }
+    ], search: { el: "input" }
+  },
+  { prop: "email", label: "邮箱" },
+  { prop: "phone", label: "手机号" },
+  { prop: "createdTime", label: "创建时间" },
+  { prop: "updatedTime", label: "更新时间" },
   { prop: "operation", label: "操作", width: 250, fixed: "right" }
 ];
 
@@ -49,7 +57,7 @@ const drawerRef = ref<InstanceType<typeof UserDrawer> | null>(null);
    */
 const openDrawer = (title: string, row: Partial<Account.UserItem> = {}) => {
 
-  const rowData = title === "编辑" ? row : {};
+  const rowData = title === "编辑" ? row : {password: ""};
   const params = {
     title,
     isView: title === "查看",
