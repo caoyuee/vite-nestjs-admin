@@ -51,6 +51,8 @@ const columns: ColumnProps[] = [
   },
   { prop: "path", label: "菜单路径", width: 300, search: { el: "input" } },
   { prop: "component", label: "组件路径", width: 300 },
+   { prop: "createTime", label: "创建时间" },
+  { prop: "updateTime", label: "更新时间" },
   { prop: "operation", label: "操作", width: 250, fixed: "right" }
 ];
 

@@ -184,3 +184,52 @@ export namespace Account {
     [key: string]: unknown;
   }
 }
+
+//角色管理模块
+export namespace Role{
+  
+/**
+ * 角色相关类型配置
+ *
+ * @export
+ * @interface RequestRoleList
+ * @typedef {RequestRoleList}
+ * @extends {Page}
+ */
+
+export interface BaseRole {
+  role: string,
+  name: string,
+  sort: number,
+  description?: string,
+  status: boolean,
+  useProTable: string[],
+  authButton: string[],
+}
+
+export interface QueryRole extends ReqPage {
+  role?: string,
+  name?: string,
+  status?: boolean,
+  [key: string]: unknown,
+}
+
+export interface CreateRole extends BaseRole {
+    description: string,
+}
+
+export interface UpdateRole extends Partial<BaseRole> {
+  id: number,
+}
+
+export interface RoleItem extends BaseRole {
+  id: number,
+  createTime: Date | string,
+  updateTime: Date | null | string,
+}
+
+export interface AuthData {
+  useProTable: string[],
+  authButton: string[],
+}
+}

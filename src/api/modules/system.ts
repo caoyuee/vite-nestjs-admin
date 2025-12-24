@@ -1,4 +1,4 @@
-import type { ResPage, Menu, Account } from "@/api/interface/index";
+import type { ResPage, Menu, Account,Role } from "@/api/interface/index";
 import { PORT1 } from "@/api/config/servicePort";
 import http from "@/api";
 
@@ -38,4 +38,21 @@ export const editAccount = (data: Partial<Account.UpdateUser>) => {
 // 删除账号
 export const delAccount = (id: number | string) => {
   return http.delete<void>(PORT1 + `/deleteUser/${id}`);
+};
+//角色列表
+export const getRoleList =(params: Role.QueryRole) => {
+  return http.get<ResPage<Role.RoleItem>>(PORT1 + `/getRoleList`, params);
+};
+//新增角色
+export const addRole = (data: Role.BaseRole) => {
+  return http.post<void>(PORT1 + `/addRole`, data);
+};
+
+// 编辑账号
+export const editRole = (data: Partial<Role.UpdateRole>) => {
+  return http.put<void>(PORT1 + `/editRole`, data);
+};
+// 删除账号
+export const delRole = (id: number | string) => {
+  return http.delete<void>(PORT1 + `/deleteRole/${id}`);
 };

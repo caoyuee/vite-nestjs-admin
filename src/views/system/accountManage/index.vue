@@ -43,8 +43,8 @@ const columns: ColumnProps[] = [
   },
   { prop: "email", label: "邮箱" },
   { prop: "phone", label: "手机号" },
-  { prop: "createdTime", label: "创建时间" },
-  { prop: "updatedTime", label: "更新时间" },
+  { prop: "createTime", label: "创建时间" },
+  { prop: "updateTime", label: "更新时间" },
   { prop: "operation", label: "操作", width: 250, fixed: "right" }
 ];
 
