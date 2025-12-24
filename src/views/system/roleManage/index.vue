@@ -56,7 +56,7 @@ const drawerRef = ref<InstanceType<typeof RoleDrawer> | null>(null);
    */
 const openDrawer = (title: string, row: Partial<Role.RoleItem> = {}) => {
 
-  const rowData = title === "编辑" ? row : {password: ""};
+  const rowData = title === "编辑" ? row : {};
   const params = {
     title,
     isView: title === "查看",
