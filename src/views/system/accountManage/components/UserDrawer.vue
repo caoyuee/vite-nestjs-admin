@@ -2,13 +2,25 @@
   <el-drawer v-model="drawerVisible" :destroy-on-close="true" size="450px" :title="`${drawerProps.title}用户`">
     <el-form ref="ruleFormRef" label-width="110px" label-suffix=" :" :rules="rules" :disabled="drawerProps.isView"
       :model="drawerProps.row" :hide-required-asterisk="drawerProps.isView">
+      <el-form-item label="用户头像" prop="avatar">
+        <UploadImg v-model:image-url="drawerProps.row!.avatar!" width="135px" height="135px" :file-size="3"
+          border-radius="50%">
+          <template #empty>
+            <el-icon>
+              <Avatar />
+            </el-icon>
+            <span>请上传头像</span>
+          </template>
+          <template #tip> 头像大小不能超过 3M </template>
+        </UploadImg>
+      </el-form-item>
       <el-form-item label="名称" prop="name">
         <el-input v-model="drawerProps.row!.name" placeholder="请填写名称" clearable></el-input>
       </el-form-item>
       <el-form-item label="账号" prop="username">
         <el-input v-model="drawerProps.row!.username" placeholder="请填写账号" clearable></el-input>
       </el-form-item>
-      <el-form-item label="密码" prop="password" v-if="drawerProps.title==='新增'">
+      <el-form-item label="密码" prop="password" v-if="drawerProps.title === '新增'">
         <el-input v-model="drawerProps.row!.password" placeholder="请填写密码" clearable></el-input>
       </el-form-item>
       <el-form-item label="邮箱" prop="email">
@@ -34,8 +46,10 @@
 <script setup lang="ts" name="UserDrawer">
 import { ref, reactive } from "vue";
 import { ElMessage, type FormInstance } from "element-plus";
+import UploadImg from "@/components/Upload/Img.vue";
 import type { Account } from "@/api/interface";
 const rules = reactive({
+  avatar: [{ required: true, message: "请上传用户头像" }],
   name: [{ required: true, message: "请填写名称" }],
   username: [{ required: true, message: "请填写账号" }],
   password: [{ required: true, message: "请填写密码" }],
@@ -56,9 +70,7 @@ const drawerVisible = ref(false);
 const drawerProps = ref<DrawerProps>({
   isView: false,
   title: "",
-  row: {
-
-  }
+  row: {}
 });
 
 // 接收父组件传过来的参数
@@ -68,23 +80,23 @@ const acceptParams = (params: DrawerProps) => {
 };
 
 // 提交数据（新增/编辑）
-  const ruleFormRef = ref<FormInstance>();
+const ruleFormRef = ref<FormInstance>();
 const handleSubmit = () => {
-// 校验表单
-    ruleFormRef.value!.validate(async (valid) => {
-        if (valid) {   
-    try {
-      await drawerProps.value.api!(drawerProps.value.row);
-      ElMessage.success({ message: `${drawerProps.value.title}账号成功！` });
-      drawerProps.value.getTableList!();
-      drawerVisible.value = false;
-    } catch (error) {
-      console.log(error);
-    }  
-        } else {  
-               
-        }  
-    });  
+  // 校验表单
+  ruleFormRef.value!.validate(async (valid) => {
+    if (valid) {
+      try {
+        await drawerProps.value.api!(drawerProps.value.row);
+        ElMessage.success({ message: `${drawerProps.value.title}账号成功！` });
+        drawerProps.value.getTableList!();
+        drawerVisible.value = false;
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+
+    }
+  });
 };
 
 defineExpose({

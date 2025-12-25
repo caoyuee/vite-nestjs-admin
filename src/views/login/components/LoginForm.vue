@@ -10,7 +10,8 @@
       </el-input>
     </el-form-item>
     <el-form-item prop="password">
-      <el-input v-model="loginForm.password" type="password" placeholder="密码：123456" show-password autocomplete="new-password">
+      <el-input v-model="loginForm.password" type="password" placeholder="密码：123456" show-password
+        autocomplete="new-password">
         <template #prefix>
           <el-icon class="el-input__icon">
             <lock />
@@ -31,10 +32,10 @@
 import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 import { HOME_URL } from "@/config";
-// import { getTimeState } from "@/utils";
+import { getTimeState } from "@/utils";
 import { type Login } from "@/api/interface";
 import { ElNotification } from "element-plus";
-import { loginApi } from "@/api/modules/login";
+import { loginApi, getUserInfoApi } from "@/api/modules/login";
 import { useUserStore } from "@/stores/modules/user";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { useKeepAliveStore } from "@/stores/modules/keepAlive";
@@ -77,22 +78,24 @@ const login = (formEl: FormInstance | undefined) => {
       // 3.清空 tabs、keepAlive 数据
       tabsStore.setTabs([]);
       keepAliveStore.setKeepAliveName([]);
-
+      const result = await getUserInfoApi();
+      userStore.setUserInfo(result.data);
+      // console.log(result, '用户信息');
       // 4.跳转到首页
       router.push(HOME_URL);
-      // ElNotification({
-      //   title: getTimeState(),
-      //   message: "欢迎登录 Geeker-Admin",
-      //   type: "success",
-      //   duration: 3000
-      // });
       ElNotification({
-        title: "React 付费版本 🔥🔥🔥",
-        dangerouslyUseHTMLString: true,
-        message: "预览地址：<a href='https://pro.spicyboy.cn'>https://pro.spicyboy.cn</a>",
+        title: getTimeState(),
+        message: "欢迎登录 YOU GUESS",
         type: "success",
-        duration: 8000
+        duration: 3000
       });
+      // ElNotification({
+      //   title: "React 付费版本 🔥🔥🔥",
+      //   dangerouslyUseHTMLString: true,
+      //   message: "预览地址：<a href='https://pro.spicyboy.cn'>https://pro.spicyboy.cn</a>",
+      //   type: "success",
+      //   duration: 8000
+      // });
     } finally {
       loading.value = false;
     }

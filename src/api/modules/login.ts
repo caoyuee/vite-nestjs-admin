@@ -1,7 +1,7 @@
-import type{  Login } from "@/api/interface/index";
+import type { Login } from "@/api/interface/index";
 import { PORT1 } from "@/api/config/servicePort";
-import authMenuList from "@/assets/json/authMenuList.json";
-import authButtonList from "@/assets/json/authButtonList.json";
+// import authMenuList from "@/assets/json/authMenuList.json";
+// import authButtonList from "@/assets/json/authButtonList.json";
 import http from "@/api";
 
 /**
@@ -9,7 +9,7 @@ import http from "@/api";
  */
 // 用户登录
 export const loginApi = (params: Login.ReqLoginForm) => {
-  return http.post<Login.ResLogin>(PORT1 + `/login`, params, {
+  return http.post<Login.ResLogin>(PORT1 + `/user/login`, params, {
     loading: false,
   }); // 正常 post json 请求  ==>  application/json
   // return http.post<Login.ResLogin>(PORT1 + `/login`, params, { loading: false }); // 控制当前请求不显示 loading
@@ -21,26 +21,35 @@ export const loginApi = (params: Login.ReqLoginForm) => {
 // 获取菜单列表
 export const getAuthMenuListApi = () => {
   return http.get<Menu.MenuOptions[]>(
-    PORT1 + `/menuList`,
+    PORT1 + `/user/menuList`,
     {},
     { loading: false }
   );
   // 如果想让菜单变为本地数据，注释上一行代码，并引入本地 authMenuList.json 数据
-  return authMenuList;
+  // return authMenuList;
 };
 
 // 获取按钮权限
 export const getAuthButtonListApi = () => {
   return http.get<Login.ResAuthButtons>(
-    PORT1 + `/getRoleInfo`,
+    PORT1 + `/user/getRoleInfo`,
     {},
     { loading: false }
   );
   // 如果想让按钮权限变为本地数据，注释上一行代码，并引入本地 authButtonList.json 数据
-  return authButtonList;
+  // return authButtonList;
 };
+
+export const getUserInfoApi = () => {
+  return http.get<Login.UserInfo>(
+    PORT1 + `/user/userInfo`,
+    {},
+    { loading: false }
+  );
+
+}
 
 // 用户退出登录
 export const logoutApi = () => {
-  return http.post(PORT1 + `/logout`);
+  return http.post(PORT1 + `/user/logout`);
 };

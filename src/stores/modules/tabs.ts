@@ -2,12 +2,12 @@ import router from "@/routers";
 import { defineStore } from "pinia";
 import { getUrlWithParams } from "@/utils";
 import { useKeepAliveStore } from "./keepAlive";
-import type{ TabsState, TabsMenuProps } from "@/stores/interface";
+import type { TabsState, TabsMenuProps } from "@/stores/interface";
 import piniaPersistConfig from "@/stores/helper/persist";
 
 const keepAliveStore = useKeepAliveStore();
 
-export const useTabsStore = defineStore("geeker-tabs",{
+export const useTabsStore = defineStore("geeker-tabs", {
   // id: "geeker-tabs",
   state: (): TabsState => ({
     tabsMenuList: []
@@ -45,7 +45,7 @@ export const useTabsStore = defineStore("geeker-tabs",{
       if (currentIndex !== -1) {
         const range = type === "left" ? [0, currentIndex] : [currentIndex + 1, this.tabsMenuList.length];
         this.tabsMenuList = this.tabsMenuList.filter((item, index) => {
-          return index < range[0] || index >= range[1] || !item.close;
+          return index < range[0]! || index >= range[1]! || !item.close;
         });
       }
       // set keepalive

@@ -1,18 +1,24 @@
 <template>
   <el-dropdown trigger="click">
     <div class="avatar">
-      <img src="@/assets/images/avatar.gif" alt="avatar" />
+      <img :src="avatar || defaultAvatar" alt="avatar" />
     </div>
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item @click="openDialog('infoRef')">
-          <el-icon><User /></el-icon>{{ $t("header.personalData") }}
+          <el-icon>
+            <User />
+          </el-icon>{{ $t("header.personalData") }}
         </el-dropdown-item>
         <el-dropdown-item @click="openDialog('passwordRef')">
-          <el-icon><Edit /></el-icon>{{ $t("header.changePassword") }}
+          <el-icon>
+            <Edit />
+          </el-icon>{{ $t("header.changePassword") }}
         </el-dropdown-item>
         <el-dropdown-item divided @click="logout">
-          <el-icon><SwitchButton /></el-icon>{{ $t("header.logout") }}
+          <el-icon>
+            <SwitchButton />
+          </el-icon>{{ $t("header.logout") }}
         </el-dropdown-item>
       </el-dropdown-menu>
     </template>
@@ -24,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { LOGIN_URL } from "@/config";
 import { useRouter } from "vue-router";
 import { logoutApi } from "@/api/modules/login";
@@ -32,9 +38,11 @@ import { useUserStore } from "@/stores/modules/user";
 import { ElMessageBox, ElMessage } from "element-plus";
 import InfoDialog from "./InfoDialog.vue";
 import PasswordDialog from "./PasswordDialog.vue";
+import defaultAvatar from '@/assets/images/avatar.gif'
 
 const router = useRouter();
 const userStore = useUserStore();
+const avatar = computed(() => userStore.userInfo.avatar);
 
 // 退出登录
 const logout = () => {
@@ -71,6 +79,7 @@ const openDialog = (ref: string) => {
   overflow: hidden;
   cursor: pointer;
   border-radius: 50%;
+
   img {
     width: 100%;
     height: 100%;

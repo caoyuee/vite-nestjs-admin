@@ -1,5 +1,5 @@
-import type{ Upload } from "@/api/interface/index";
-import { PORT1 } from "@/api/config/servicePort";
+import type { Upload } from "@/api/interface/index";
+import { PORT2 } from "@/api/config/servicePort";
 import http from "@/api";
 
 /**
@@ -7,10 +7,10 @@ import http from "@/api";
  */
 // 图片上传
 export const uploadImg = (params: FormData) => {
-  return http.post<Upload.ResFileUrl>(PORT1 + `/file/upload/img`, params, { cancel: false });
+  return http.post<Upload.ResFileUrl>(PORT2 + `/upload/avatar`, params, { cancel: false });
 };
 
 // 视频上传
 export const uploadVideo = (params: FormData) => {
-  return http.post<Upload.ResFileUrl>(PORT1 + `/file/upload/video`, params, { cancel: false });
+  return http.post<Upload.ResFileUrl>(PORT2 + `/file/upload/video`, params, { cancel: false });
 };
