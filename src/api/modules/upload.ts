@@ -7,10 +7,10 @@ import http from "@/api";
  */
 // 图片上传
 export const uploadImg = (params: FormData) => {
-  return http.post<Upload.ResFileUrl>(PORT2 + `/upload/avatar`, params, { cancel: false });
+  return http.post<Upload.ResFileUrl>(PORT2 + `/images/avatar`, params, { cancel: false });
 };
 
 // 视频上传
 export const uploadVideo = (params: FormData) => {
-  return http.post<Upload.ResFileUrl>(PORT2 + `/file/upload/video`, params, { cancel: false });
+  return http.post<Upload.ResFileUrl>(PORT2 + `/files/video`, params, { cancel: false });
 };
