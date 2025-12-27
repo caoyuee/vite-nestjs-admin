@@ -1,7 +1,6 @@
 <template>
   <div class="table-box">
-    <ProTable ref="proTable" title="菜单列表" row-key="path" :indent="20" :columns="columns" :requestApi="getMenuList"
-      :pagination="false">
+    <ProTable ref="proTable" title="菜单列表" row-key="path" :indent="20" :columns="columns" :requestApi="getAllMenuList">
       <!-- 表格 header 按钮 -->
       <template #tableHeader>
         <el-button type="primary" :icon="CirclePlus" @click="openDrawer('新增')">新增菜单 </el-button>
@@ -29,7 +28,7 @@ import { ref } from "vue";
 import { Delete, EditPen, CirclePlus } from "@element-plus/icons-vue";
 // import authMenuList from "@/assets/json/authMenuList.json";
 import ProTable from "@/components/ProTable/index.vue";
-import { getMenuList, addMenu, editMenu, delMenu } from '@/api/modules/system.ts'
+import { getAllMenuList, addMenu, editMenu, delMenu } from '@/api/modules/system.ts'
 import { useHandleData } from "@/hooks/useHandleData";
 import type { Menu } from "@/api/interface";
 import type { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";

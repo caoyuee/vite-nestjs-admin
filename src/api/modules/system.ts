@@ -6,9 +6,17 @@ import http from "@/api";
  * @name 系统管理模块
  */
 
-// 获取菜单列表
+// 获取用户菜单列表
 export const getMenuList = (params: Menu.QueryMenuList) => {
   return http.get<ResPage<Menu.MenuTreeItem>>(PORT1 + `/user/menuList`, params);
+};
+
+// 获取所有菜单
+export const getAllMenuList = (params: Menu.QueryMenuList) => {
+  return http.get<ResPage<Menu.MenuTreeItem>>(
+    PORT1 + `/user/allMenuList`,
+    params
+  );
 };
 // 新增菜单
 export const addMenu = (data: Menu.CreateMenu) => {
