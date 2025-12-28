@@ -1,5 +1,5 @@
 <template>
-  <el-drawer v-model="drawerVisible" :destroy-on-close="true" size="450px" :title="`${drawerProps.title}用户`">
+  <el-drawer v-model="drawerVisible" :destroy-on-close="true" size="450px" :title="`${drawerProps.title}角色`">
     <el-form ref="ruleFormRef" label-width="110px" label-suffix=" :" :rules="rules" :disabled="drawerProps.isView"
       :model="drawerProps.row" :hide-required-asterisk="drawerProps.isView">
       <el-form-item label="名称" prop="name">

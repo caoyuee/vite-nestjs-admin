@@ -55,7 +55,10 @@ export const getRoleList = (params: Role.QueryRole) => {
 export const addRole = (data: Role.BaseRole) => {
   return http.post<void>(PORT1 + `/user/addRole`, data);
 };
-
+//角色授权
+export const authRole = (data: Role.AuthData) => {
+  return http.post<void>(PORT1 + `/user/addRole`, data);
+};
 // 编辑账号
 export const editRole = (data: Partial<Role.UpdateRole>) => {
   return http.put<void>(PORT1 + `/user/editRole`, data);

@@ -196,7 +196,6 @@ export namespace Account {
 
 //角色管理模块
 export namespace Role {
-
   /**
    * 角色相关类型配置
    *
@@ -207,38 +206,41 @@ export namespace Role {
    */
 
   export interface BaseRole {
-    role: string,
-    name: string,
-    sort: number,
-    description?: string,
-    status: boolean,
-    useProTable: string[],
-    authButton: string[],
+    role: string;
+    name: string;
+    sort: number;
+    description?: string;
+    status: boolean;
+    useProTable: string[];
+    authButton: string[];
+    useMenus: string[];
   }
 
   export interface QueryRole extends ReqPage {
-    role?: string,
-    name?: string,
-    status?: boolean,
-    [key: string]: unknown,
+    role?: string;
+    name?: string;
+    status?: boolean;
+    [key: string]: unknown;
   }
 
   export interface CreateRole extends BaseRole {
-    description: string,
+    description: string;
   }
 
   export interface UpdateRole extends Partial<BaseRole> {
-    id: number,
+    id: number;
   }
 
   export interface RoleItem extends BaseRole {
-    id: number,
-    createTime: Date | string,
-    updateTime: Date | null | string,
+    id: number;
+    createTime: Date | string;
+    updateTime: Date | null | string;
   }
 
   export interface AuthData {
-    useProTable: string[],
-    authButton: string[],
+    id: number | string;
+    useProTable?: string[];
+    authButton?: string[];
+    useMenus?: string[];
   }
 }

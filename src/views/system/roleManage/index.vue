@@ -7,12 +7,13 @@
         <el-button type="primary" :icon="CirclePlus" @click="openDrawer('新增')">新增账号 </el-button>
       </template>
       <template #operation="scope">
-        <el-button type="primary" link :icon="Magnet"> 授权 </el-button>
+        <el-button type="primary" link :icon="Magnet" @click="openAuth(scope.row)"> 授权 </el-button>
         <el-button type="primary" link :icon="EditPen" @click="openDrawer('编辑', scope.row)"> 编辑 </el-button>
         <el-button type="primary" link :icon="Delete" @click="handleDelRole(scope.row)"> 删除 </el-button>
       </template>
     </ProTable>
     <RoleDrawer ref="drawerRef" />
+    <AuthDrawer ref="drawerAuth"/>
   </div>
 </template>
 
@@ -21,11 +22,12 @@ import { ref } from "vue";
 import { Delete, EditPen, CirclePlus, Magnet } from "@element-plus/icons-vue";
 // import authMenuList from "@/assets/json/authMenuList.json";
 import ProTable from "@/components/ProTable/index.vue";
-import { getRoleList, addRole, editRole, delRole   } from '@/api/modules/system.ts'
+import { getRoleList, addRole, editRole, delRole  ,authRole } from '@/api/modules/system.ts'
 import { useHandleData } from "@/hooks/useHandleData";
 import type { Role } from "@/api/interface";
 import type { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
 import RoleDrawer from "@/views/system/roleManage/components/RoleDrawer.vue";
+import AuthDrawer from "@/views/system/roleManage/components/AuthDrawer.vue";
 // ProTable 实例
 const proTable = ref<ProTableInstance>();
 
@@ -71,5 +73,20 @@ const handleDelRole = async (row: Partial<Role.RoleItem>) => {
    await useHandleData(delRole, row.id , `删除【${row.name}】账号`);
     proTable.value?.getTableList?.();
   
+};
+//打开授权
+const drawerAuth = ref<InstanceType<typeof AuthDrawer> | null>(null);
+  /**
+   * 
+   * @param title 
+   * @param row 
+   */
+const openAuth = (row: Partial<Role.RoleItem> = {}) => {
+  const params = {
+    row,
+    api: authRole,
+    getTableList: proTable.value?.getTableList
+  };
+  drawerAuth.value?.acceptParams(params);
 };
 </script>
