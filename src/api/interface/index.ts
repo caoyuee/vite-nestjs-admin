@@ -244,3 +244,17 @@ export namespace Role {
     useMenus?: string[];
   }
 }
+
+export namespace Auth {
+  export interface AuthDataList {
+    id: number | string;
+    sort: number;
+    name: string;
+    permission: string;
+    type: string;
+    description: string;
+    createTime: Date;
+    updateTime: Date | null;
+    deleteTime: Date | null;
+  }
+}

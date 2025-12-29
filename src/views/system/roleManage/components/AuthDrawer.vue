@@ -1,13 +1,11 @@
 <template>
-  <el-drawer v-model="drawerVisible" :destroy-on-close="true" size="450px" title="角色授权">
-     <TreeFilter
-      title="菜单列表(多选)"
-      multiple
-      label="name"
-      :request-api="getAllMenuList"
-      :default-value="treeFilterValue.departmentId"
-      @change="changeTreeFilter"
-    />
+  <el-drawer v-model="drawerVisible" :destroy-on-close="true" size="650px" title="角色授权">
+    <div class="trees">
+      <TreeFilter title="菜单列表(多选)" multiple label="nameZH" :request-api="getAllMenuList"
+        :default-value="treeFilterValue.ids" @change="changeTreeFilter" />
+      <TreeFilter title="权限列表(多选)" multiple label="name" :request-api="getAuthBtnsList" :params="{ type: 'btn' }"
+        :default-value="treeFilterValue1.ids" @change="changeTreeFilter1" />
+    </div>
     <template #footer>
       <el-button @click="drawerVisible = false">取消</el-button>
       <el-button type="primary" @click="handleSubmit">确定</el-button>
@@ -17,10 +15,10 @@
 
 <script setup lang="ts" name="AuthDrawer">
 import { ref, reactive } from "vue";
-import { ElMessage, type FormInstance } from "element-plus";
+import { ElMessage, } from "element-plus";
 import type { Role } from "@/api/interface";
 import TreeFilter from "@/components/TreeFilter/index.vue";
-import { getAllMenuList } from "@/api/modules/system";
+import { getAllMenuList, getAuthBtnsList } from "@/api/modules/system";
 interface DrawerProps {
   row: Partial<Role.CreateRole>;
   api?: (params: any) => Promise<any>;
@@ -32,15 +30,17 @@ const drawerProps = ref<DrawerProps>({
   row: {
   }
 });
-
+const treeFilterValue = reactive({ ids: [''] });
+const treeFilterValue1 = reactive({ ids: [''] });
 // 接收父组件传过来的参数
 const acceptParams = (params: DrawerProps) => {
   drawerProps.value = params;
   drawerVisible.value = true;
+  treeFilterValue.ids = params.row.useMenus!
+  treeFilterValue1.ids = params.row.authButton!
 };
 
 // 提交数据（新增/编辑）
-  const ruleFormRef = ref<FormInstance>();
 const handleSubmit = () => {
 };
 
@@ -48,9 +48,20 @@ defineExpose({
   acceptParams
 });
 
-const treeFilterValue = reactive({ departmentId: ["11"] });
+//菜单权限选择
 const changeTreeFilter = (val: string[]) => {
   ElMessage.success(`你选择了 id 为 ${JSON.stringify(val)} 的数据🤔`);
-  treeFilterValue.departmentId = val;
+  treeFilterValue.ids = val;
+};
+
+//按钮权限选择
+const changeTreeFilter1 = (val: string[]) => {
+  ElMessage.success(`你选择了 id 为 ${JSON.stringify(val)} 的数据🤔`);
+  treeFilterValue1.ids = val;
 };
 </script>
+<style>
+.trees {
+  display: flex;
+}
+</style>

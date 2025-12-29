@@ -1,4 +1,4 @@
-import type { ResPage, Menu, Account, Role } from "@/api/interface/index";
+import type { ResPage, Menu, Account, Role, Auth } from "@/api/interface/index";
 import { PORT1 } from "@/api/config/servicePort";
 import http from "@/api";
 
@@ -15,6 +15,13 @@ export const getMenuList = (params: Menu.QueryMenuList) => {
 export const getAllMenuList = (params: Menu.QueryMenuList) => {
   return http.get<ResPage<Menu.MenuTreeItem>>(
     PORT1 + `/user/allMenuList`,
+    params
+  );
+};
+// 获取所有权限按钮
+export const getAuthBtnsList = (params: { type?: string }) => {
+  return http.get<ResPage<Auth.AuthDataList>>(
+    PORT1 + `/user/getAuthBtns`,
     params
   );
 };
