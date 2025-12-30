@@ -8,7 +8,7 @@
       <el-form-item label="角色" prop="role">
         <el-input v-model="drawerProps.row!.role" placeholder="请填写角色" clearable></el-input>
       </el-form-item>
-      <el-form-item label="描述" prop="description" v-if="drawerProps.title==='新增'">
+      <el-form-item label="描述" prop="description" v-if="drawerProps.title === '新增'">
         <el-input v-model="drawerProps.row!.description" placeholder="请描述" clearable></el-input>
       </el-form-item>
       <el-form-item label="角色状态" prop="status">
@@ -64,23 +64,23 @@ const acceptParams = (params: DrawerProps) => {
 };
 
 // 提交数据（新增/编辑）
-  const ruleFormRef = ref<FormInstance>();
+const ruleFormRef = ref<FormInstance>();
 const handleSubmit = () => {
-// 校验表单
-    ruleFormRef.value!.validate(async (valid) => {
-        if (valid) {   
-    try {
-      await drawerProps.value.api!(drawerProps.value.row);
-      ElMessage.success({ message: `${drawerProps.value.title}角色成功！` });
-      drawerProps.value.getTableList!();
-      drawerVisible.value = false;
-    } catch (error) {
-      console.log(error);
-    }  
-        } else {  
-               
-        }  
-    });  
+  // 校验表单
+  ruleFormRef.value!.validate(async (valid) => {
+    if (valid) {
+      try {
+        await drawerProps.value.api!(drawerProps.value.row);
+        ElMessage.success({ message: `${drawerProps.value.title}角色成功！` });
+        drawerProps.value.getTableList!();
+        drawerVisible.value = false;
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+
+    }
+  });
 };
 
 defineExpose({

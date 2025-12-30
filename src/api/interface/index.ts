@@ -135,11 +135,11 @@ export namespace Menu {
   }
 
   export interface UpdateMenu extends Partial<BaseMenu> {
-    id: number; //菜单ID
+    id: string; //菜单ID
   }
 
   export interface MenuTreeItem extends BaseMenu {
-    id: number | string;
+    id: string;
     children?: MenuTreeItem[];
     createTime?: Date | string;
     updateTime?: Date | null | string;
@@ -162,7 +162,7 @@ export namespace Account {
     phone: string;
     avatar: string;
     status: boolean;
-    roles?: number[];
+    roles?: string[];
   }
 
   export interface QueryUser extends ReqPage {
@@ -178,11 +178,11 @@ export namespace Account {
   }
 
   export interface UpdateUser extends Partial<BaseUser> {
-    id: number | string;
+    id: string;
   }
 
   export interface UserItem extends BaseUser {
-    id: number | string;
+    id: string;
     createTime: Date | string;
     updateTime: Date | null | string;
   }
@@ -228,17 +228,17 @@ export namespace Role {
   }
 
   export interface UpdateRole extends Partial<BaseRole> {
-    id: number;
+    id: string;
   }
 
   export interface RoleItem extends BaseRole {
-    id: number;
+    id: string;
     createTime: Date | string;
     updateTime: Date | null | string;
   }
 
   export interface AuthData {
-    id: number | string;
+    id: string;
     useProTable?: string[];
     authButton?: string[];
     useMenus?: string[];
@@ -247,7 +247,7 @@ export namespace Role {
 
 export namespace Auth {
   export interface AuthDataList {
-    id: number | string;
+    id: string;
     sort: number;
     name: string;
     permission: string;

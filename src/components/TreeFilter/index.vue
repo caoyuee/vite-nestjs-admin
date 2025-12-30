@@ -18,11 +18,11 @@
       </el-dropdown>
     </div>
     <el-scrollbar :style="{ height: title ? `calc(100% - 95px)` : `calc(100% - 56px)` }">
-      <el-tree ref="treeRef" default-expand-all :node-key="id" :data="multiple ? treeData : treeAllData"
-        :show-checkbox="multiple" :check-strictly="false" :current-node-key="!multiple ? selected : ''"
-        :highlight-current="!multiple" :expand-on-click-node="false" :check-on-click-node="multiple"
-        :props="defaultProps" :filter-node-method="filterNode" :default-checked-keys="multiple ? selected : []"
-        @node-click="handleNodeClick" @check="handleCheckChange">
+      <el-tree ref="treeRef" :default-expand-all="defaultExpendAll" :node-key="id"
+        :data="multiple ? treeData : treeAllData" :show-checkbox="multiple" :check-strictly="false"
+        :current-node-key="!multiple ? selected : ''" :highlight-current="!multiple" :expand-on-click-node="false"
+        :check-on-click-node="multiple" :props="defaultProps" :filter-node-method="filterNode"
+        :default-checked-keys="multiple ? selected : []" @node-click="handleNodeClick" @check="handleCheckChange">
         <template #default="scope">
           <span class="el-tree-node__label">
             <slot :row="scope">
@@ -49,6 +49,7 @@ interface TreeFilterProps {
   multiple?: boolean; // 是否为多选 ==> 非必传，默认为 false
   defaultValue?: any; // 默认选中的值 ==> 非必传
   params?: { [key: string]: any }//api携带参数
+  defaultExpendAll?: boolean//是否默认展开
 }
 const props = withDefaults(defineProps<TreeFilterProps>(), {
   id: "id",

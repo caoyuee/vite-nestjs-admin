@@ -54,6 +54,7 @@ export const editAccount = (data: Partial<Account.UpdateUser>) => {
 export const delAccount = (id: number | string) => {
   return http.delete<void>(PORT1 + `/user/deleteUser/${id}`);
 };
+
 //角色列表
 export const getRoleList = (params: Role.QueryRole) => {
   return http.get<ResPage<Role.RoleItem>>(PORT1 + `/user/getRoleList`, params);
@@ -64,7 +65,7 @@ export const addRole = (data: Role.BaseRole) => {
 };
 //角色授权
 export const authRole = (data: Role.AuthData) => {
-  return http.post<void>(PORT1 + `/user/addRole`, data);
+  return http.post<void>(PORT1 + `/user/putRolePermission`, data);
 };
 // 编辑账号
 export const editRole = (data: Partial<Role.UpdateRole>) => {
@@ -74,3 +75,4 @@ export const editRole = (data: Partial<Role.UpdateRole>) => {
 export const delRole = (id: number | string) => {
   return http.delete<void>(PORT1 + `/user/deleteRole/${id}`);
 };
+
