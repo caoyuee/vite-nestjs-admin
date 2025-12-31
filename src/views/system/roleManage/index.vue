@@ -13,7 +13,7 @@
       </template>
     </ProTable>
     <RoleDrawer ref="drawerRef" />
-    <AuthDrawer ref="drawerAuth"/>
+    <AuthDrawer ref="drawerAuth" />
   </div>
 </template>
 
@@ -22,7 +22,7 @@ import { ref } from "vue";
 import { Delete, EditPen, CirclePlus, Magnet } from "@element-plus/icons-vue";
 // import authMenuList from "@/assets/json/authMenuList.json";
 import ProTable from "@/components/ProTable/index.vue";
-import { getRoleList, addRole, editRole, delRole  ,authRole } from '@/api/modules/system.ts'
+import { getRoleList, addRole, editRole, delRole, authRole } from '@/api/modules/system.ts'
 import { useHandleData } from "@/hooks/useHandleData";
 import type { Role } from "@/api/interface";
 import type { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
@@ -34,13 +34,13 @@ const proTable = ref<ProTableInstance>();
 // 表格配置项
 const columns: ColumnProps[] = [
   { prop: "id", label: "ID", },
-  { prop: "sort", label: "排序"  },
+  { prop: "sort", label: "排序" },
   { prop: "name", label: "名称", search: { el: "input" } },
   { prop: "role", label: "角色", search: { el: "input" } },
-    { prop: "description", label: "角色描述" },
+  { prop: "description", label: "角色描述" },
   {
     prop: "status", label: "状态", enum: [
-      { label: "正常", value: true},
+      { label: "正常", value: true },
       { label: "禁用", value: false }
     ], search: { el: "input" }
   },
@@ -51,11 +51,11 @@ const columns: ColumnProps[] = [
 
 // 打开 drawer(新增、查看、编辑)
 const drawerRef = ref<InstanceType<typeof RoleDrawer> | null>(null);
-  /**
-   * 
-   * @param title 
-   * @param row 
-   */
+/**
+ * 
+ * @param title 
+ * @param row 
+ */
 const openDrawer = (title: string, row: Partial<Role.RoleItem> = {}) => {
 
   const rowData = title === "编辑" ? row : {};
@@ -70,17 +70,17 @@ const openDrawer = (title: string, row: Partial<Role.RoleItem> = {}) => {
 };
 
 const handleDelRole = async (row: Partial<Role.RoleItem>) => {
-   await useHandleData(delRole, row.id , `删除【${row.name}】账号`);
-    proTable.value?.getTableList?.();
-  
+  await useHandleData(delRole, row.id, `删除【${row.name}】账号`);
+  proTable.value?.getTableList?.();
+
 };
 //打开授权
 const drawerAuth = ref<InstanceType<typeof AuthDrawer> | null>(null);
-  /**
-   * 
-   * @param title 
-   * @param row 
-   */
+/**
+ * 
+ * @param title 
+ * @param row 
+ */
 const openAuth = (row: Partial<Role.RoleItem> = {}) => {
   const params = {
     row,

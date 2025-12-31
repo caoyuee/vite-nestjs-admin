@@ -1,4 +1,4 @@
-import type { ResPage, Menu, Account, Role } from "@/api/interface/index";
+import type { ResPage, Menu, Account, Role, Auth } from "@/api/interface/index";
 import { PORT1 } from "@/api/config/servicePort";
 import http from "@/api";
 
@@ -15,6 +15,13 @@ export const getMenuList = (params: Menu.QueryMenuList) => {
 export const getAllMenuList = (params: Menu.QueryMenuList) => {
   return http.get<ResPage<Menu.MenuTreeItem>>(
     PORT1 + `/user/allMenuList`,
+    params
+  );
+};
+// 获取所有权限按钮
+export const getAuthBtnsList = (params: { type?: string }) => {
+  return http.get<ResPage<Auth.AuthDataList>>(
+    PORT1 + `/user/getAuthBtns`,
     params
   );
 };
@@ -47,6 +54,7 @@ export const editAccount = (data: Partial<Account.UpdateUser>) => {
 export const delAccount = (id: number | string) => {
   return http.delete<void>(PORT1 + `/user/deleteUser/${id}`);
 };
+
 //角色列表
 export const getRoleList = (params: Role.QueryRole) => {
   return http.get<ResPage<Role.RoleItem>>(PORT1 + `/user/getRoleList`, params);
@@ -57,7 +65,7 @@ export const addRole = (data: Role.BaseRole) => {
 };
 //角色授权
 export const authRole = (data: Role.AuthData) => {
-  return http.post<void>(PORT1 + `/user/addRole`, data);
+  return http.post<void>(PORT1 + `/user/putRolePermission`, data);
 };
 // 编辑账号
 export const editRole = (data: Partial<Role.UpdateRole>) => {

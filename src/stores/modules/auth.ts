@@ -7,7 +7,7 @@ import {
   getAllBreadcrumbList,
 } from "@/utils";
 
-export const useAuthStore = defineStore("geeker-auth",{
+export const useAuthStore = defineStore("geeker-auth", {
   // id: "geeker-auth",
   state: (): AuthState => ({
     // 按钮权限列表
@@ -33,6 +33,8 @@ export const useAuthStore = defineStore("geeker-auth",{
     // Get AuthButtonList
     async getAuthButtonList() {
       const { data } = await getAuthButtonListApi();
+      console.log(data, 'data===========');
+
       this.authButtonList = data;
     },
     // Get AuthMenuList
