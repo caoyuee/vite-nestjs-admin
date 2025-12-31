@@ -67,3 +67,7 @@ export const editRole = (data: Partial<Role.UpdateRole>) => {
 export const delRole = (id: number | string) => {
   return http.delete<void>(PORT1 + `/user/deleteRole/${id}`);
 };
+//修改密码
+export const changePassword = (data: Role.ChangePassword) => {
+  return http.put<void>(PORT1 + `/user/changePassword`, data);
+};
