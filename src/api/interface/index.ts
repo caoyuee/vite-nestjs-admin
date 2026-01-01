@@ -243,7 +243,7 @@ export namespace Role {
     authButton?: string[];
     useMenus?: string[];
   }
-  export interface ChangePassword {
+  export interface ResetPassword {
     oldPassword: string;
     newPassword: string;
   }
