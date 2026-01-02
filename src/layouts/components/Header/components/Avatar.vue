@@ -31,16 +31,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { LOGIN_URL } from "@/config";
-import { useRouter } from "vue-router";
-import { logoutApi } from "@/api/modules/login";
 import { useUserStore } from "@/stores/modules/user";
 import { ElMessageBox, ElMessage } from "element-plus";
 import InfoDialog from "./InfoDialog.vue";
 import PasswordDialog from "./PasswordDialog.vue";
 import defaultAvatar from '@/assets/images/avatar.gif'
-
-const router = useRouter();
+import {useLogout} from "@/hooks/useLogout"
 const userStore = useUserStore();
 const avatar = computed(() => userStore.userInfo.avatar);
 
@@ -51,12 +47,8 @@ const logout = () => {
     cancelButtonText: "取消",
     type: "warning"
   }).then(async () => {
-    // 1.执行退出登录接口
-    await logoutApi();
-    // 2.清除 Token
-    userStore.setToken("");
-    // 3.重定向到登陆页
-    router.replace(LOGIN_URL);
+    // 1.执行退出登录hook
+    await useLogout()
     ElMessage.success("退出登录成功！");
   });
 };

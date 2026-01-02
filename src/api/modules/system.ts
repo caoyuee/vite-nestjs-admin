@@ -77,5 +77,5 @@ export const delRole = (id: number | string) => {
 };
 //修改密码
 export const resetPassword = (data: Role.ResetPassword) => {
-  return http.put<void>(PORT1 + `/user/changePassword`, data);
+  return http.put<void>(PORT1 + `/user/ResetPwd`, data);
 };
