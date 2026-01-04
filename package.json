@@ -11,6 +11,8 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
     "@orillusion/core": "0.8.5-dev.9",
+    "@orillusion/geometry": "^0.2.9",
+    "@orillusion/stats": "^0.2.7",
     "@vueuse/core": "^14.1.0",
     "@wangeditor/editor": "^5.1.23",
     "@wangeditor/editor-for-vue": "^5.1.12",

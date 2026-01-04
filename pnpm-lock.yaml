@@ -17,6 +17,12 @@ importers:
       '@orillusion/core':
         specifier: 0.8.5-dev.9
         version: 0.8.5-dev.9
+      '@orillusion/geometry':
+        specifier: ^0.2.9
+        version: 0.2.9(@orillusion/core@0.8.5-dev.9)
+      '@orillusion/stats':
+        specifier: ^0.2.7
+        version: 0.2.7(@orillusion/core@0.8.5-dev.9)
       '@vueuse/core':
         specifier: ^14.1.0
         version: 14.1.0(vue@3.5.25(typescript@5.9.3))
@@ -343,6 +349,16 @@ packages:
 
   '@orillusion/core@0.8.5-dev.9':
     resolution: {integrity: sha512-m6G1tGb5LtDMq117SgptQ41ui2ZaoLp+DSY6YTqPk+Y4TCD8VMHtdhAZrHU1+0sXDnWs9dvux4QfOTaXUwG/AA==}
+
+  '@orillusion/geometry@0.2.9':
+    resolution: {integrity: sha512-Mdr+deAAYVIhkY67St1lNyVzQXkV2R/W07h1d5PaUwPMnsYHeSiCtI0E4tstENGpRf7rIBz3wd+iI0hC4FOBzg==}
+    peerDependencies:
+      '@orillusion/core': '>=0.8.0'
+
+  '@orillusion/stats@0.2.7':
+    resolution: {integrity: sha512-wTofMslXiH9RPxqbKsSW97NpMhh46Gz7240tPtGT1AJHdNMxy7/0kQItB3/4MeFwSkkW5MIeC6phm8YUoEprzA==}
+    peerDependencies:
+      '@orillusion/core': '>=0.8.0'
 
   '@oxc-project/runtime@0.97.0':
     resolution: {integrity: sha512-yH0zw7z+jEws4dZ4IUKoix5Lh3yhqIJWF9Dc8PWvhpo7U7O+lJrv7ZZL4BeRO0la8LBQFwcCewtLBnVV7hPe/w==}
@@ -2736,6 +2752,14 @@ snapshots:
       fastq: 1.19.1
 
   '@orillusion/core@0.8.5-dev.9': {}
+
+  '@orillusion/geometry@0.2.9(@orillusion/core@0.8.5-dev.9)':
+    dependencies:
+      '@orillusion/core': 0.8.5-dev.9
+
+  '@orillusion/stats@0.2.7(@orillusion/core@0.8.5-dev.9)':
+    dependencies:
+      '@orillusion/core': 0.8.5-dev.9
 
   '@oxc-project/runtime@0.97.0': {}
 
