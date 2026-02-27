@@ -1,6 +1,6 @@
 <template>
   <!-- WebGPU 3D渲染容器 -->
-  <div class="webgpu-container">
+  <div class="webgpu-container" ref="webgpuContainer">
     <!-- 3D渲染画布，使用ref绑定到Vue响应式变量 -->
     <div id="canvas" ref="canvas" style="width:100%; height: 100%"></div>
   </div>
@@ -9,9 +9,12 @@
 <script setup lang="ts" name="webgpu">
 import { ref, onMounted } from "vue";
 import * as THREE from "three";
+//引入性能监视器
+import Stats from "three/examples/jsm/libs/stats.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-const canvas = ref<HTMLCanvasElement>();
-
+const canvas = ref<HTMLElement>();
+const webgpuContainer = ref<HTMLElement>();
+const meshList = ref<THREE.Mesh[]>([]);
 onMounted(() => {
   initThree();
 });
@@ -21,23 +24,26 @@ const initThree = () => {
   //创建一个场景
   const scene = new THREE.Scene();
 
-  //给场景添加几何体，比如一个立方体
-  //定义一个立方体
-  const geometry = new THREE.BoxGeometry(50, 50, 50);
-
-  //创建一个材质-基础网格材质，并添加材质颜色和透明度
-  //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
-  //创建一个漫反射材质，有光源情况下能看到效果
-  const material = new THREE.MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
-
-
-  //创建一个网格体-将几何体和材质进行组合
-  const mesh = new THREE.Mesh(geometry, material);
-
-  //设置网格体位置
-  mesh.position.set(25, 25, 25);
-  // console.log(mesh, 'mesh======');
-
+  //创建2000个网格体
+  for (let i = 0; i < 10; i++) {
+    const mesh = createMesh();
+    //设置网格体位置
+    mesh.position.set(i * 20, 0, 0);
+    //将网格体添加到网格体列表中
+    meshList.value.push(mesh);
+    //将网格体添加到场景中
+    scene.add(mesh);
+  }
+  //创建2000个网格体
+  for (let i = 0; i < 10; i++) {
+    const mesh = createMesh();
+    //设置网格体位置
+    mesh.position.set(0, i * 20, 0);
+    //将网格体添加到网格体列表中
+    meshList.value.push(mesh);
+    //将网格体添加到场景中
+    scene.add(mesh);
+  }
   //创建一个点光源,参数为颜色默认白色,光照强度默认为1,光照距离默认0为无限远,沿光照距离衰退量默认为2(不随距离衰减时填0)
   const pointLight = new THREE.PointLight(0xffffff, 100, 0, 0);
   // pointLight.intensity = 2; 也可以单独设置光照强度、颜色、距离及衰退量
@@ -59,7 +65,7 @@ const initThree = () => {
 
   //设置平行光指向的物体，即光照方向指向该物体，可以不设置，默认指向(0,0,0)
   //注意：对于目标的位置，如果要改为除默认值之外的其他位置，该位置必须被添加到场景（scene）中去。
-  directionalLight.target = mesh;
+  directionalLight.target = meshList.value[0]!
   //添加平行光到场景中
   scene.add(directionalLight);
 
@@ -81,7 +87,11 @@ const initThree = () => {
   const height = canvas?.value?.clientHeight ?? 600;
   // const width = window.innerWidth;
   // const height = window.innerHeight;
-  //实例化透视投影相机
+  //实例化透视投影相机,参数如下：
+  //fov-摄像机视锥体垂直视野角度，水平视角会根据长宽比自动计算
+  //aspect-摄像机视锥体长宽比，一般为画布尺寸的宽高比，不可随意设置
+  //near-摄像机视锥体近端面(摄像机距离近端面的距离)
+  //far-摄像机视锥体远端面(摄像机距离远端面的距离)
   const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 
   //设置相机位置
@@ -89,15 +99,12 @@ const initThree = () => {
 
   //设置相机视线（观察目标点的坐标）
   //camera.lookAt(10，20，10);//将相机视线观察xyz具体坐标
-  camera.lookAt(mesh.position);//将相机视线观察到网格体的位置
+  camera.lookAt(meshList.value[0]!.position);//将相机视线观察到网格体的位置
 
-  //将网格体添加到场景中
-  scene.add(mesh);
   //实例化一个辅助坐标轴，红色代表 X 轴. 绿色代表 Y 轴. 蓝色代表 Z 轴。
   const axesHelper = new THREE.AxesHelper(200);
   //将辅助坐标轴添加到场景中
   scene.add(axesHelper);
-
 
   //创建渲染器
   const renderer = new THREE.WebGLRenderer();
@@ -123,6 +130,18 @@ const initThree = () => {
 
   //获取动画渲染时间间隔
   const timer = new THREE.Timer();
+
+  //实例化性能监视器
+  const stats = new Stats();
+  //将性能监视器添加到页面body中,并修改样式
+  webgpuContainer?.value?.appendChild(stats.dom);
+  stats.dom.style.position = "absolute";
+  stats.dom.style.top = "10px";
+  stats.dom.style.left = "10px";
+  stats.dom.style.zIndex = "100";
+  //默认显示fps面板0, 1: ms panel
+  stats.showPanel(1); // 0: fps, 1: ms//显示性能监视器的fps面板
+
   animate();
   //动画循环渲染
   function animate() {
@@ -136,10 +155,12 @@ const initThree = () => {
     // console.log(`Delta time: ${delta}s`);
     // const meshRotate = mesh.rotation; // 获取网格体旋转角度
     // console.log(meshRotate, 'meshRotate======');
-    mesh.rotateY(0.01); // � � � 绕Y轴旋转
+    meshList.value.map((mesh) => {
+      mesh.rotateY(0.01); // � � � 绕Y轴旋转
+    });
     // mesh.rotateX(0.01); // � � � 绕X轴旋转
     // mesh.rotateZ(0.01); // � � � 绕Z轴旋转
-
+    stats.update();//更新性能监视器
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
   }
@@ -156,7 +177,22 @@ const initThree = () => {
   };
   window.onresize = resize;
 };
+//创建网格模型
+const createMesh = () => {
+  //给场景添加几何体，比如一个立方体
+  //定义一个立方体
+  const geometry = new THREE.BoxGeometry(10, 10, 10);
 
+  //创建一个材质-基础网格材质，并添加材质颜色和透明度
+  //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
+  //创建一个漫反射材质，有光源情况下能看到效果
+  const material = new THREE.MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 1 });
+
+
+  //创建一个网格体-将几何体和材质进行组合
+  const mesh = new THREE.Mesh(geometry, material);
+  return mesh;
+};
 
 </script>
 
