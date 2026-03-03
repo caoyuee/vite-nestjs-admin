@@ -26,25 +26,15 @@ const initThree = () => {
   const scene = new THREE.Scene();
 
   //创建2000个网格体
-  for (let i = 0; i < 10; i++) {
-    const mesh = createMesh();
-    //设置网格体位置
-    mesh.position.set(i * 20, 0, 0);
-    //将网格体添加到网格体列表中
-    meshList.value.push(mesh);
-    //将网格体添加到场景中
-    scene.add(mesh);
-  }
-  //创建2000个网格体
-  for (let i = 0; i < 10; i++) {
-    const mesh = createMesh();
-    //设置网格体位置
-    mesh.position.set(0, i * 20, 0);
-    //将网格体添加到网格体列表中
-    meshList.value.push(mesh);
-    //将网格体添加到场景中
-    scene.add(mesh);
-  }
+  const mesh = createMesh();
+
+  //设置网格体位置
+  mesh.position.set(0, 0, 0);
+  //将网格体添加到网格体列表中
+  meshList.value.push(mesh);
+  //将网格体添加到场景中
+  scene.add(mesh);
+
   //创建一个点光源,参数为颜色默认白色,光照强度默认为1,光照距离默认0为无限远,沿光照距离衰退量默认为2(不随距离衰减时填0)
   const pointLight = new THREE.PointLight(0xffffff, 100, 0, 0);
   // pointLight.intensity = 2; 也可以单独设置光照强度、颜色、距离及衰退量
@@ -59,7 +49,7 @@ const initThree = () => {
   scene.add(ambientLight);
 
   //实例化一个平行光，参数为颜色默认白色、光照强度默认为1
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 4);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
 
   //设置平行光坐标位置，参数为x、y、z坐标值
   directionalLight.position.set(100, 200, 300);
@@ -146,6 +136,23 @@ const initThree = () => {
   //默认显示fps面板0, 1: ms panel
   stats.showPanel(1); // 0: fps, 1: ms//显示性能监视器的fps面板
 
+  //创建默认GUI配置
+  const initConfig = [
+    { type: 'number', name: '环境光源强度', object: ambientLight, property: 'intensity', min: 0, max: 10, step: 0.1, onChange: (value: number) => { console.log(value) } },
+    { type: 'number', name: '平行光强度', object: directionalLight, property: 'intensity', min: 0, max: 10, step: 0.1, onChange: (value: number) => { console.log(value) } },
+    { type: 'color', name: '渲染器背景颜色', object: renderer, property: 'setClearColor', onChange: (value: any) => { console.log(value, 'rendererClearColor') } },
+    { type: 'color', name: '网格体背景颜色', object: mesh.material.color, property: 'set', onChange: (value: any) => { console.log(value, 'meshColor') } },
+  ]
+
+  //创建GUI
+  const gui = createGUI(initConfig);
+
+  //将GUI添加到页面中
+  canvas?.value?.appendChild(gui.domElement);
+  gui.domElement.style.position = "absolute";
+  gui.domElement.style.top = "10px";
+  gui.domElement.style.right = "10px";
+  gui.domElement.style.zIndex = "100";
   //启动动画循环渲染
   animate(timer, stats, renderer, scene, camera);
 
@@ -159,7 +166,7 @@ const createMesh = () => {
   // const geometry = new THREE.BoxGeometry(10, 10, 10);
 
   //定义一个球体
-  const geometry = new THREE.SphereGeometry(10);
+  const geometry = new THREE.SphereGeometry(50);
 
   //创建一个材质-基础网格材质，并添加材质颜色和透明度
   //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
@@ -171,6 +178,7 @@ const createMesh = () => {
 
   //创建一个网格体-将几何体和材质进行组合
   const mesh = new THREE.Mesh(geometry, material);
+  mesh.material.color.set(0x000000); // 设置网格体颜色
   return mesh;
 };
 
@@ -220,9 +228,23 @@ const createControls = (camera: THREE.Camera, renderer: THREE.WebGLRenderer) => 
 };
 
 // 封装创建GUI的方法
-const createGUI = () => {
+const createGUI = (options: any[]) => {
   //实例化GUI对象
   const gui = new GUI();
+  options.forEach((option) => {
+    if (option.type === 'number') {
+      gui.add(option.object, option.property, option.min, option.max, option.step).name(option.name || option.property).onChange(option.onChange);
+    } else if (option.type === 'color') {
+      gui.addColor(option.object, option.property).name(option.name || option.property).onChange(option.onChange);
+    } else if (option.type === 'boolean') {
+      gui.add(option.object, option.property).name(option.name || option.property).onChange(option.onChange);
+    } else if (option.type === 'array') {
+      gui.add(option.object, option.property, option.config).name(option.name || option.property).onChange(option.onChange);
+    } else if (option.type === 'object') {
+      gui.add(option.object, option.property, option.config).name(option.name || option.property).onChange(option.onChange);
+    }
+  });
+
   return gui;
 };
 
