@@ -12,6 +12,7 @@ import * as THREE from "three";
 //引入性能监视器
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 const canvas = ref<HTMLElement>();
 const webgpuContainer = ref<HTMLElement>();
 const meshList = ref<THREE.Mesh[]>([]);
@@ -58,7 +59,7 @@ const initThree = () => {
   scene.add(ambientLight);
 
   //实例化一个平行光，参数为颜色默认白色、光照强度默认为1
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 10);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 4);
 
   //设置平行光坐标位置，参数为x、y、z坐标值
   directionalLight.position.set(100, 200, 300);
@@ -106,8 +107,17 @@ const initThree = () => {
   //将辅助坐标轴添加到场景中
   scene.add(axesHelper);
 
-  //创建渲染器
-  const renderer = new THREE.WebGLRenderer();
+  //创建渲染器，参数为对象，包含antialias是否开启抗锯齿
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true, // 开启抗锯齿
+  });
+  //当前屏幕的设备像素比
+  console.log(window.devicePixelRatio, "devicePixelRatio");
+  //设置渲染器的设备像素比，以避免渲染模糊
+  renderer.setPixelRatio(window.devicePixelRatio);
+
+  //设置渲染器的背景颜色，参数为RGB颜色值、透明度
+  renderer.setClearColor(0x555555, 1);
 
   //设置渲染器渲染的尺寸，单位为像素px，这里设置为画布的宽高，确保画布全屏显示
   // renderer.setSize(width, height, false);//参数为宽、高、是否更新样式,防止样式更改
@@ -119,14 +129,8 @@ const initThree = () => {
   //将渲染结果添加到页面中
   canvas?.value?.appendChild(renderer.domElement);
 
-  //添加相机控件-轨道控制器-实例化相机控件，参数为相机(要改变的相机)和渲染器的dom元素(监控范围，即相机控件的监控范围)
-  const controls = new OrbitControls(camera, renderer.domElement);
-  //如果OrbitControls改变了相机参数，则重新调用渲染器渲染，才能看到改变结果
-  controls.addEventListener("change", () => {
-    // console.log("camera changed", camera.position);
-    // renderer.render(scene, camera);//添加了动画不需要再更新了
-  });
-
+  //创建相机控件
+  createControls(camera, renderer);
 
   //获取动画渲染时间间隔
   const timer = new THREE.Timer();
@@ -142,57 +146,86 @@ const initThree = () => {
   //默认显示fps面板0, 1: ms panel
   stats.showPanel(1); // 0: fps, 1: ms//显示性能监视器的fps面板
 
-  animate();
-  //动画循环渲染
-  function animate() {
-    // 更新定时器状态
-    timer.update();
+  //启动动画循环渲染
+  animate(timer, stats, renderer, scene, camera);
 
-    // 获取上一帧到当前帧的时间差（秒）
-    const delta = timer.getDelta();
-
-    // 使用 delta 进行动画更新
-    // console.log(`Delta time: ${delta}s`);
-    // const meshRotate = mesh.rotation; // 获取网格体旋转角度
-    // console.log(meshRotate, 'meshRotate======');
-    meshList.value.map((mesh) => {
-      mesh.rotateY(0.01); // � � � 绕Y轴旋转
-    });
-    // mesh.rotateX(0.01); // � � � 绕X轴旋转
-    // mesh.rotateZ(0.01); // � � � 绕Z轴旋转
-    stats.update();//更新性能监视器
-    renderer.render(scene, camera);
-    requestAnimationFrame(animate);
-  }
-  function resize() {
-    // 获取当前画布的宽度和高度
-    const currentWidth = canvas?.value?.clientWidth ?? 800;
-    const currentHeight = canvas?.value?.clientHeight ?? 600;
-    // 重新设置渲染器的尺寸
-    renderer.setSize(currentWidth, currentHeight, false);
-    // 更新相机的纵横比
-    camera.aspect = currentWidth / currentHeight;
-    // 更新相机的投影矩阵
-    camera.updateProjectionMatrix();
-  };
-  window.onresize = resize;
+  // 监听窗口变化，更新渲染器尺寸
+  window.onresize = () => resize(renderer, camera);
 };
 //创建网格模型
 const createMesh = () => {
   //给场景添加几何体，比如一个立方体
   //定义一个立方体
-  const geometry = new THREE.BoxGeometry(10, 10, 10);
+  // const geometry = new THREE.BoxGeometry(10, 10, 10);
+
+  //定义一个球体
+  const geometry = new THREE.SphereGeometry(10);
 
   //创建一个材质-基础网格材质，并添加材质颜色和透明度
   //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
   //创建一个漫反射材质，有光源情况下能看到效果
-  const material = new THREE.MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 1 });
+  //const material = new THREE.MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 1 });
 
+  //创建一个高光网格材质,参数为颜色、光泽度(默认30)、镜面色(默认深灰色)
+  const material = new THREE.MeshPhongMaterial({ color: 0x00ff00, shininess: 80, specular: 0x555555 });
 
   //创建一个网格体-将几何体和材质进行组合
   const mesh = new THREE.Mesh(geometry, material);
   return mesh;
 };
+
+//封装动画循环渲染方法
+const animate = (timer: THREE.Timer, stats: Stats, renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.PerspectiveCamera) => {
+  // 更新定时器状态
+  timer.update();
+
+  // 获取上一帧到当前帧的时间差（秒）
+  const delta = timer.getDelta();
+
+  // 使用 delta 进行动画更新
+  // console.log(`Delta time: ${delta}s`);
+  // const meshRotate = mesh.rotation; // 获取网格体旋转角度
+  // console.log(meshRotate, 'meshRotate======');
+  meshList.value.map((mesh) => {
+    mesh.rotateY(0.01); // � � � 绕Y轴旋转
+  });
+  // mesh.rotateX(0.01); // � � � 绕X轴旋转
+  // mesh.rotateZ(0.01); // � � � 绕Z轴旋转
+  stats.update();//更新性能监视器
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate.bind(null, timer, stats, renderer, scene, camera));
+};
+
+// 监听窗口变化，更新渲染器尺寸
+const resize = (renderer: THREE.WebGLRenderer, camera: THREE.PerspectiveCamera) => {
+  // 获取当前画布的宽度和高度
+  const currentWidth = canvas?.value?.clientWidth ?? 800;
+  const currentHeight = canvas?.value?.clientHeight ?? 600;
+  // 重新设置渲染器的尺寸
+  renderer.setSize(currentWidth, currentHeight, false);
+  // 更新相机的纵横比
+  camera.aspect = currentWidth / currentHeight;
+  // 更新相机的投影矩阵
+  camera.updateProjectionMatrix();
+};
+//封装相机控件的方法
+const createControls = (camera: THREE.Camera, renderer: THREE.WebGLRenderer) => {
+  //添加相机控件-轨道控制器-实例化相机控件，参数为相机(要改变的相机)和渲染器的dom元素(监控范围，即相机控件的监控范围)
+  const controls = new OrbitControls(camera, renderer.domElement);
+  //如果OrbitControls改变了相机参数，则重新调用渲染器渲染，才能看到改变结果
+  controls.addEventListener("change", () => {
+    // console.log("camera changed", camera.position);
+    // renderer.render(scene, camera);//添加了动画不需要再更新了
+  });
+};
+
+// 封装创建GUI的方法
+const createGUI = () => {
+  //实例化GUI对象
+  const gui = new GUI();
+  return gui;
+};
+
 
 </script>
 
