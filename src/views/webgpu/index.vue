@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts" name="webgpu">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, type Ref } from "vue";
 import * as THREE from "three";
 //引入性能监视器
 import Stats from "three/examples/jsm/libs/stats.module.js";
@@ -114,7 +114,7 @@ const initThree = () => {
   renderer.setSize(width, height, false);
 
   //执行渲染
-  // renderer.render(scene, camera);//添加了动画不需要再更新了
+  const isPlay = ref(true);
 
   //将渲染结果添加到页面中
   canvas?.value?.appendChild(renderer.domElement);
@@ -136,12 +136,32 @@ const initThree = () => {
   //默认显示fps面板0, 1: ms panel
   stats.showPanel(1); // 0: fps, 1: ms//显示性能监视器的fps面板
 
+
   //创建默认GUI配置
   const initConfig = [
-    { type: 'number', name: '环境光源强度', object: ambientLight, property: 'intensity', min: 0, max: 10, step: 0.1, onChange: (value: number) => { console.log(value) } },
-    { type: 'number', name: '平行光强度', object: directionalLight, property: 'intensity', min: 0, max: 10, step: 0.1, onChange: (value: number) => { console.log(value) } },
-    { type: 'color', name: '渲染器背景颜色', object: renderer, property: 'setClearColor', onChange: (value: any) => { console.log(value, 'rendererClearColor') } },
-    { type: 'color', name: '网格体背景颜色', object: mesh.material.color, property: 'set', onChange: (value: any) => { console.log(value, 'meshColor') } },
+    {
+      type: 'folder',
+      name: '光源',
+      items: [{ type: 'number', name: '环境光源强度', object: ambientLight, property: 'intensity', min: 0, max: 10, step: 0.1, onChange: (value: number) => { console.log(value) } },
+      { type: 'number', name: '平行光强度', object: directionalLight, property: 'intensity', min: 0, max: 10, step: 0.1, onChange: (value: number) => { console.log(value) } },]
+    },
+    {
+      type: 'folder',
+      name: '颜色',
+      items: [{ type: 'color', name: '网格体背景颜色', object: mesh.material, property: 'color', onChange: (value: any) => { console.log(value, 'meshColor') } },
+      ]
+    }, {
+      type: 'folder',
+      name: '位置',
+      items: [
+        { type: 'array', name: '网格体X轴', object: mesh.position, property: 'x', config: [0, 20, 40, 60, 80, 100] },
+        { type: 'array', name: '网格体Y轴', object: mesh.position, property: 'y', config: [0, 20, 40, 60, 80, 100] },
+        { type: 'array', name: '网格体Z轴', object: mesh.position, property: 'z', config: [0, 20, 40, 60, 80, 100] },
+        { type: 'object', name: '网格体X轴缩放', object: mesh.scale, property: 'x', config: { 大: 1, 中: 0.5, 小: 0.25 } },
+        { type: 'object', name: '网格体Y轴缩放', object: mesh.scale, property: 'y', config: { 大: 1, 中: 0.5, 小: 0.25 } },
+        { type: 'object', name: '网格体Z轴缩放', object: mesh.scale, property: 'z', config: { 大: 1, 中: 0.5, 小: 0.25 } },
+        { type: 'boolean', name: '网格体旋转', object: isPlay, property: 'value' },]
+    }
   ]
 
   //创建GUI
@@ -154,7 +174,8 @@ const initThree = () => {
   gui.domElement.style.right = "10px";
   gui.domElement.style.zIndex = "100";
   //启动动画循环渲染
-  animate(timer, stats, renderer, scene, camera);
+
+  animate(timer, stats, renderer, scene, camera, isPlay);
 
   // 监听窗口变化，更新渲染器尺寸
   window.onresize = () => resize(renderer, camera);
@@ -183,7 +204,7 @@ const createMesh = () => {
 };
 
 //封装动画循环渲染方法
-const animate = (timer: THREE.Timer, stats: Stats, renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.PerspectiveCamera) => {
+const animate = (timer: THREE.Timer, stats: Stats, renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.PerspectiveCamera, isPlay: Ref<boolean>) => {
   // 更新定时器状态
   timer.update();
 
@@ -194,14 +215,17 @@ const animate = (timer: THREE.Timer, stats: Stats, renderer: THREE.WebGLRenderer
   // console.log(`Delta time: ${delta}s`);
   // const meshRotate = mesh.rotation; // 获取网格体旋转角度
   // console.log(meshRotate, 'meshRotate======');
-  meshList.value.map((mesh) => {
-    mesh.rotateY(0.01); // � � � 绕Y轴旋转
-  });
+  if (isPlay.value) {
+    meshList.value.map((mesh) => {
+      mesh.rotateY(0.01); // � � � 绕Y轴旋转
+    });
+  }
   // mesh.rotateX(0.01); // � � � 绕X轴旋转
   // mesh.rotateZ(0.01); // � � � 绕Z轴旋转
   stats.update();//更新性能监视器
   renderer.render(scene, camera);
-  requestAnimationFrame(animate.bind(null, timer, stats, renderer, scene, camera));
+  requestAnimationFrame(animate.bind(null, timer, stats, renderer, scene, camera, isPlay));
+
 };
 
 // 监听窗口变化，更新渲染器尺寸
@@ -232,16 +256,23 @@ const createGUI = (options: any[]) => {
   //实例化GUI对象
   const gui = new GUI();
   options.forEach((option) => {
-    if (option.type === 'number') {
-      gui.add(option.object, option.property, option.min, option.max, option.step).name(option.name || option.property).onChange(option.onChange);
-    } else if (option.type === 'color') {
-      gui.addColor(option.object, option.property).name(option.name || option.property).onChange(option.onChange);
-    } else if (option.type === 'boolean') {
-      gui.add(option.object, option.property).name(option.name || option.property).onChange(option.onChange);
-    } else if (option.type === 'array') {
-      gui.add(option.object, option.property, option.config).name(option.name || option.property).onChange(option.onChange);
-    } else if (option.type === 'object') {
-      gui.add(option.object, option.property, option.config).name(option.name || option.property).onChange(option.onChange);
+    if (option.type === 'folder') {
+      const folder = gui.addFolder(option.name);
+      folder.close();
+      option.items.forEach((item: any) => {
+        if (item.type === 'number') {
+          folder.add(item.object, item.property, item.min, item.max, item.step).name(item.name || item.property).onChange(item.onChange);
+        } else if (item.type === 'color') {
+          folder.addColor(item.object, item.property).name(item.name || item.property).onChange(item.onChange);
+        } else if (item.type === 'boolean') {
+          folder.add(item.object, item.property).name(item.name || item.property).onChange(item.onChange);
+        } else if (item.type === 'array') {
+          folder.add(item.object, item.property, item.config).name(item.name || item.property).onChange(item.onChange);
+        } else if (item.type === 'object') {
+          folder.add(item.object, item.property, item.config).name(item.name || item.property).onChange(item.onChange);
+        }
+      });
+      return;
     }
   });
 
