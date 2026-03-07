@@ -182,20 +182,35 @@ const initThree = () => {
 };
 //创建网格模型
 const createMesh = () => {
-  //给场景添加几何体，比如一个立方体
+//给场景添加几何体，比如一个立方体
   //定义一个立方体
   // const geometry = new THREE.BoxGeometry(10, 10, 10);
+  //定义一个圆柱体
+  // const geometry = new THREE.CylinderGeometry(10,10,10,10);//顶部圆半径、底部圆半径、高度、段数
 
   //定义一个球体
-  const geometry = new THREE.SphereGeometry(50);
+  // const geometry = new THREE.SphereGeometry(10);//半径
 
+  //定义一个圆锥
+  // const geometry = new THREE.ConeGeometry(10,20);//底部圆半径、高度、段数
+
+
+  //定义一个矩形平面
+  // const geometry = new THREE.PlaneGeometry(100,50);//长宽
+
+  //定义一个圆平面
+  const geometry =  new THREE.CircleGeometry(10);//半径
+  //创建一个材质-基础网格材质，并添加材质颜色和透明度
+  //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
+  //创建一个漫反射材质，有光源情况下能看到效果,双面显示(THREE.DoubleSide)
+  const material = new THREE.MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 1, side: THREE.DoubleSide });
   //创建一个材质-基础网格材质，并添加材质颜色和透明度
   //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
   //创建一个漫反射材质，有光源情况下能看到效果
   //const material = new THREE.MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 1 });
 
   //创建一个高光网格材质,参数为颜色、光泽度(默认30)、镜面色(默认深灰色)
-  const material = new THREE.MeshPhongMaterial({ color: 0x00ff00, shininess: 80, specular: 0x555555 });
+  //const material = new THREE.MeshPhongMaterial({ color: 0x00ff00, shininess: 80, specular: 0x555555 });
 
   //创建一个网格体-将几何体和材质进行组合
   const mesh = new THREE.Mesh(geometry, material);
