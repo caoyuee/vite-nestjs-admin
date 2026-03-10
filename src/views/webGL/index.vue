@@ -15,7 +15,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 const canvas = ref<HTMLElement>();
 const webgpuContainer = ref<HTMLElement>();
-const meshList = ref<THREE.Mesh[]>([]);
+const meshList = ref<THREE.Object3D[]>([]);
 onMounted(() => {
   initThree();
 });
@@ -26,7 +26,15 @@ const initThree = () => {
   const scene = new THREE.Scene();
 
   //创建2000个网格体
-  const mesh = createMesh();
+  // const mesh = createMesh();
+  //使用顶点坐标创建的网格体
+  const mesh = createMeshWithVertices();
+
+  //创建点模型
+  // const mesh = createPoints();
+
+  //创建线模型
+  // const mesh = createLine();
 
   //设置网格体位置
   mesh.position.set(0, 0, 0);
@@ -182,7 +190,7 @@ const initThree = () => {
 };
 //创建网格模型
 const createMesh = () => {
-//给场景添加几何体，比如一个立方体
+  //给场景添加几何体，比如一个立方体
   //定义一个立方体
   // const geometry = new THREE.BoxGeometry(10, 10, 10);
   //定义一个圆柱体
@@ -199,7 +207,7 @@ const createMesh = () => {
   // const geometry = new THREE.PlaneGeometry(100,50);//长宽
 
   //定义一个圆平面
-  const geometry =  new THREE.CircleGeometry(10);//半径
+  const geometry = new THREE.CircleGeometry(10);//半径
   //创建一个材质-基础网格材质，并添加材质颜色和透明度
   //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
   //创建一个漫反射材质，有光源情况下能看到效果,双面显示(THREE.DoubleSide)
@@ -293,7 +301,116 @@ const createGUI = (options: any[]) => {
 
   return gui;
 };
+//创建缓冲几何体，使用顶点坐标数据创建三角形
+const createBufferGeometry = () => {
+  //1.创建空几何体
+  const geometry = new THREE.BufferGeometry();
+  //2.添加顶点数据，使用js的Float32Array类型化数组创建一组xyz坐标数据，作为几何体的顶点数据
+  const vertices = new Float32Array([ //数组里面编写顶点坐标数据
+    0, 0, 0,//第一个三角形    
+    100, 0, 0,
+    100, 100, 0,
 
+    100, 100, 0,//第二个三角形
+    0, 100, 0,
+    0, 0, 0
+  ]);
+  //通过threejs的属性缓冲对象BufferAttribute表示几何体顶点数据
+  //定义属性缓冲对象，参数为类型化数组，和几个数据为一组表示一个顶点，3则代表3个数据为一组，表示一个顶点
+  const attribute = new THREE.BufferAttribute(vertices, 3);
+  //设置几何体attributes属性的position属性的位置属性，绑定缓冲对象到几何体
+  //设置几何体顶点位置属性
+  geometry.attributes.position = attribute;
+  return geometry;
+};
+
+//创建缓冲几何体，使用顶点坐标数据+顶点索引创建三角形
+const createBufferGeometryWithIndex = () => {
+  //1.创建空几何体
+  const geometry = new THREE.BufferGeometry();
+  //2.添加矩形顶点数据，使用js的Float32Array类型化数组创建一组xyz坐标数据，作为几何体的顶点数据
+  const vertices = new Float32Array([ //数组里面编写顶点坐标数据
+    0, 0, 0,      //索引  0
+    100, 0, 0,    //索引  1
+    100, 100, 0,  //索引  2
+    0, 100, 0,    //索引  3
+  ]);
+  //通过threejs的属性缓冲对象BufferAttribute表示几何体顶点数据
+  //定义属性缓冲对象，参数为类型化数组，和几个数据为一组表示一个顶点，3则代表3个数据为一组，表示一个顶点
+  const attribute = new THREE.BufferAttribute(vertices, 3);
+  //设置几何体attributes属性的position属性的位置属性，绑定缓冲对象到几何体
+  //设置几何体顶点位置属性
+  geometry.attributes.position = attribute;
+
+  //创建顶点法向量
+  const normals = new Float32Array([
+    0, 0, 1,      //顶点1的法向量  索引  0
+    100, 0, 1,    //顶点2的法向量  索引  1
+    100, 100, 1,  //顶点3的法向量  索引  2
+    0, 100, 1,    //顶点4的法向量  索引  3
+  ]);
+
+  //定义几何体顶点法线数据
+  geometry.attributes.normal = new THREE.BufferAttribute(normals, 3);
+
+  const normalAttribute = new THREE.BufferAttribute(normals, 3);
+  geometry.attributes.normal = normalAttribute;
+  //BufferAttribute定义顶点索引.index数据
+  //通过js的Uint16Array类型化数组创建一组索引数据，作为几何体的顶点索引数据
+  const indexes = new Uint16Array([
+    0, 1, 2,
+    0, 2, 3
+  ]);
+  //设置几何体顶点索引属性，绑定索引到几何体,参数为索引数组，1则代表1个数据为一组，表示一个顶点
+  geometry.index = new THREE.BufferAttribute(indexes, 1);
+
+  return geometry;
+};
+
+
+//创建点模型
+const createPoints = () => {
+  //实例化一个缓冲几何体对象
+  const geometry = createBufferGeometry();
+  //实例化一个点模型材质，参数为颜色和点的大小
+  const material = new THREE.PointsMaterial({ color: 0x00ff00, size: 20 });
+
+  //实例化一个点模型，参数为缓冲几何体和点模型材质
+  const points = new THREE.Points(geometry, material);
+  return points;
+};
+
+//创建线模型
+const createLine = () => {
+  //实例化一个缓冲几何体对象
+  const geometry = createBufferGeometry();
+  //实例化一个线模型材质，参数为颜色和线的宽度
+  const material = new THREE.LineBasicMaterial({ color: 0x00ff00, linewidth: 20 });
+
+  //实例化一个线模型，参数为缓冲几何体和线模型材质，LineBasicMaterial线基础材质
+  const line = new THREE.Line(geometry, material);
+
+  //LineLoop 线模型，线模型成环
+  const lineLoop = new THREE.LineLoop(geometry, material);
+
+
+  //LineSegments 线模型，线模型成段
+  const lineSegments = new THREE.LineSegments(geometry, material);
+
+  return lineSegments;
+};
+
+//使用顶点坐标来创建网格模型
+const createMeshWithVertices = () => {
+  //实例化一个缓冲几何体对象
+  const geometry = createBufferGeometryWithIndex();
+  //实例化一个网格模型材质，参数为颜色
+  const material = new THREE.MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 1, side: THREE.DoubleSide });
+
+  //实例化一个网格模型，参数为缓冲几何体和网格模型材质
+  const mesh = new THREE.Mesh(geometry, material);
+  return mesh;
+};
 
 </script>
 
