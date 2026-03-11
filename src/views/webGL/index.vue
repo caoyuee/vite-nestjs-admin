@@ -1,6 +1,6 @@
 <template>
   <!-- WebGPU 3D渲染容器 -->
-  <div class="webgpu-container" ref="webgpuContainer">
+  <div class="webgpu-container" ref="webGLContainer">
     <!-- 3D渲染画布，使用ref绑定到Vue响应式变量 -->
     <div id="canvas" ref="canvas" style="width:100%; height: 100%"></div>
   </div>
@@ -14,7 +14,7 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 const canvas = ref<HTMLElement>();
-const webgpuContainer = ref<HTMLElement>();
+const webGLContainer = ref<HTMLElement>();
 const meshList = ref<THREE.Object3D[]>([]);
 onMounted(() => {
   initThree();
@@ -136,7 +136,7 @@ const initThree = () => {
   //实例化性能监视器
   const stats = new Stats();
   //将性能监视器添加到页面body中,并修改样式
-  webgpuContainer?.value?.appendChild(stats.dom);
+  webGLContainer?.value?.appendChild(stats.dom);
   stats.dom.style.position = "absolute";
   stats.dom.style.top = "10px";
   stats.dom.style.left = "10px";
@@ -411,7 +411,7 @@ const createMeshWithVertices = () => {
   const mesh = new THREE.Mesh(geometry, material);
   return mesh;
 };
-
+//
 </script>
 
 <style lang="scss" scoped>
