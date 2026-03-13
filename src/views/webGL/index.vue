@@ -411,7 +411,6 @@ const createMeshWithVertices = () => {
   const mesh = new THREE.Mesh(geometry, material);
   return mesh;
 };
-//
 </script>
 
 <style lang="scss" scoped>

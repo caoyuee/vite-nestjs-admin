@@ -262,3 +262,54 @@ export namespace Auth {
     deleteTime: Date | null;
   }
 }
+
+// 系统日志模块
+export namespace System {
+  /**
+   * 日志查询参数
+   */
+  export interface LogParams {
+    time?: string;        // 日志时间基准（ISO格式日期字符串）
+    pageNumber?: number;  // 页码（默认1）
+    pageSize?: number;    // 每页数量（默认10）
+    level?: string;       // 日志级别（error, http, info）
+    keyword?: string;    // 关键字搜索
+    startTime?: string;   // 开始时间（yyyy-MM-dd格式）
+    endTime?: string;     // 结束时间（yyyy-MM-dd格式）
+  }
+
+  /**
+   * 清空日志参数
+   */
+  export interface ClearLogsParams {
+    startTime?: string;  // 开始时间（yyyy-MM-dd格式），不传则清除所有
+    endTime?: string;    // 结束时间（yyyy-MM-dd格式），不传则清除所有
+    level?: string;      // 日志级别，不传则清除所有级别
+    keyword?: string;    // 关键字，不传则不限制
+  }
+
+  /**
+   * 日志条目
+   */
+  export interface LogItem {
+    timestamp: string;    // 时间戳
+    level: string;        // 日志级别
+    message: string;      // 消息内容
+    method?: string;      // 请求方法
+    url?: string;         // 请求URL
+    status?: number;      // 状态码
+    duration?: number;    // 请求耗时
+    ip?: string;          // IP地址
+    user?: string;       // 用户
+    error?: string;       // 错误信息
+  }
+
+  /**
+   * 日志响应
+   */
+  export interface LogResponse {
+    list: LogItem[];      // 日志列表
+    total: number;       // 总数
+    pageNumber: number;  // 当前页码
+  }
+}

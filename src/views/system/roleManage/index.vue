@@ -4,7 +4,7 @@
       :pagination="true">
       <!-- 表格 header 按钮 -->
       <template #tableHeader>
-        <el-button type="primary" :icon="CirclePlus" @click="openDrawer('新增')">新增账号 </el-button>
+        <el-button type="primary" :icon="CirclePlus" @click="openDrawer('新增')">新增角色 </el-button>
       </template>
       <template #operation="scope">
         <el-button type="primary" link :icon="Magnet" @click="openAuth(scope.row)"> 授权 </el-button>

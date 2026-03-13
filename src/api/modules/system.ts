@@ -1,4 +1,4 @@
-import type { ResPage, Menu, Account, Role, Auth } from "@/api/interface/index";
+import type { ResPage, Menu, Account, Role, Auth, System } from "@/api/interface/index";
 import { PORT1 } from "@/api/config/servicePort";
 import http from "@/api";
 
@@ -78,4 +78,19 @@ export const delRole = (id: number | string) => {
 //修改密码
 export const resetPassword = (data: Role.ResetPassword) => {
   return http.put<void>(PORT1 + `/user/ResetPwd`, data);
+};
+
+// 获取系统日志（类型从 @/api/interface/index 的 System 命名空间导入）
+export const getSystemLogs = (params: System.LogParams) => {
+  return http.get<System.LogResponse>(PORT1 + `/user/logs`, params);
+};
+
+// 清空日志
+// @param params 清理参数，支持 startTime, endTime, level, keyword
+// 不传参默认清除所有日志
+export const clearSystemLogs = (params?: System.ClearLogsParams) => {
+  return http.delete<{ deletedCount: number; deletedFiles: string[]; retainedFiles: string[] }>(
+    PORT1 + `/user/logs`,
+    params
+  );
 };
