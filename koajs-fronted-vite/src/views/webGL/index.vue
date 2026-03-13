@@ -13,6 +13,7 @@ import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
+import { log } from "three/src/nodes/math/MathNode.js";
 const canvas = ref<HTMLElement>();
 const webGLContainer = ref<HTMLElement>();
 const meshList = ref<THREE.Object3D[]>([]);
@@ -26,9 +27,9 @@ const initThree = () => {
   const scene = new THREE.Scene();
 
   //创建2000个网格体
-  // const mesh = createMesh();
+  const mesh = createMesh();
   //使用顶点坐标创建的网格体
-  const mesh = createMeshWithVertices();
+  // const mesh = createMeshWithVertices();
 
   //创建点模型
   // const mesh = createPoints();
@@ -112,7 +113,7 @@ const initThree = () => {
   //当前屏幕的设备像素比
   console.log(window.devicePixelRatio, "devicePixelRatio");
   //设置渲染器的设备像素比，以避免渲染模糊
-  renderer.setPixelRatio(window.devicePixelRatio);
+  // renderer.setPixelRatio(window.devicePixelRatio);
 
   //设置渲染器的背景颜色，参数为RGB颜色值、透明度
   renderer.setClearColor(0x555555, 1);
@@ -121,7 +122,7 @@ const initThree = () => {
   // renderer.setSize(width, height, false);//参数为宽、高、是否更新样式,防止样式更改
   renderer.setSize(width, height, false);
 
-  //执行渲染
+  //执行渲染动画
   const isPlay = ref(true);
 
   //将渲染结果添加到页面中
@@ -197,21 +198,21 @@ const createMesh = () => {
   // const geometry = new THREE.CylinderGeometry(10,10,10,10);//顶部圆半径、底部圆半径、高度、段数
 
   //定义一个球体
-  // const geometry = new THREE.SphereGeometry(10);//半径
+  const geometry = new THREE.SphereGeometry(100, 48, 48);//半径
 
   //定义一个圆锥
   // const geometry = new THREE.ConeGeometry(10,20);//底部圆半径、高度、段数
 
 
-  //定义一个矩形平面
-  // const geometry = new THREE.PlaneGeometry(100,50);//长宽
+  //定义一个矩形平面,前两个参数为宽高，后两个参数为宽高细分段数，细分段数越多，平面越平滑，默认为1
+  // const geometry = new THREE.PlaneGeometry(100, 50, 2, 1);//长宽
 
   //定义一个圆平面
-  const geometry = new THREE.CircleGeometry(10);//半径
+  // const geometry = new THREE.CircleGeometry(10);//半径
   //创建一个材质-基础网格材质，并添加材质颜色和透明度
   //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
-  //创建一个漫反射材质，有光源情况下能看到效果,双面显示(THREE.DoubleSide)
-  const material = new THREE.MeshLambertMaterial({ color: 0x00ff00, transparent: true, opacity: 1, side: THREE.DoubleSide });
+  //创建一个漫反射材质，有光源情况下能看到效果,双面显示(THREE.DoubleSide),线框显示(wireframe: true)
+  const material = new THREE.MeshLambertMaterial({ color: 0x00ffff, transparent: true, opacity: 1, side: THREE.DoubleSide, wireframe: true });
   //创建一个材质-基础网格材质，并添加材质颜色和透明度
   //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
   //创建一个漫反射材质，有光源情况下能看到效果
@@ -226,6 +227,9 @@ const createMesh = () => {
   return mesh;
 };
 
+const scaleNum = ref(1);
+// true 表示正在放大，false 表示正在缩小
+const scaleIncreasing = ref(true);
 //封装动画循环渲染方法
 const animate = (timer: THREE.Timer, stats: Stats, renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.PerspectiveCamera, isPlay: Ref<boolean>) => {
   // 更新定时器状态
@@ -241,7 +245,26 @@ const animate = (timer: THREE.Timer, stats: Stats, renderer: THREE.WebGLRenderer
   if (isPlay.value) {
     meshList.value.map((mesh) => {
       mesh.rotateY(0.01); // � � � 绕Y轴旋转
+      // 在 1 到 5 范围内来回变化
+      if (scaleIncreasing.value) {
+        scaleNum.value += 0.01;
+        if (scaleNum.value >= 2) {
+          scaleNum.value = 2;
+          scaleIncreasing.value = false;
+        }
+      } else {
+        scaleNum.value -= 0.01;
+        if (scaleNum.value <= 1) {
+          scaleNum.value = 1;
+          scaleIncreasing.value = true;
+        }
+      }
+      console.log(scaleNum.value, 'scale.value======');
+
+      mesh.scale.set(scaleNum.value, scaleNum.value, scaleNum.value); // 设置网格体缩放
     });
+
+
   }
   // mesh.rotateX(0.01); // � � � 绕X轴旋转
   // mesh.rotateZ(0.01); // � � � 绕Z轴旋转

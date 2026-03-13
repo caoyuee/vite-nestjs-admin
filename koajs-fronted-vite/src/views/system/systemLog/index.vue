@@ -289,7 +289,11 @@ const columns: ColumnProps[] = [
   {
     prop: "user",
     label: "用户",
-    width: 120
+    width: 120,
+    render: (scope) => {
+      const u = scope.row.user;
+      return u ? (typeof u === "string" ? u : u.username || "-") : "-";
+    }
   }
 ];
 </script>
