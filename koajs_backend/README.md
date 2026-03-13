@@ -1,3 +1,4 @@
+````markdown
 # koajs-backend
 
 一个用 TypeScript 编写的基于 Koa 的后端示例工程，包含常见中间件（日志、JWT、Swagger、Redis、TypeORM），适合作为学习或快速原型。
@@ -93,9 +94,9 @@ JWT_SECRET=your_jwt_secret_here
 ## Swagger 文档
 
 - Swagger JSON：GET http://localhost:3000/swaggerDoc
-- Swagger UI（交互页面）：http://localhost:3000/docs
+- Swagger UI（交互页面）：http://localhost:3000/swagger/docs
 
-（`src/config/swagger.conf.ts` 使用 `swagger-jsdoc` 生成文档，`src/middleware/swagger-ui.ts` 将 UI 挂载在 `/docs`）
+（`src/config/swagger.conf.ts` 使用 `koa2-swagger-ui` 生成文档，`src/middleware/swagger-ui.ts` 将 UI 挂载在 `/swagger/docs`）
 
 ## 路由前缀
 
@@ -111,18 +112,34 @@ JWT_SECRET=your_jwt_secret_here
 - "ES Module" 相关错误：确保 `package.json` 中存在 `"type": "module"`（本项目已配置），或使用 `pnpm run build` 后运行编译产物。
 - 端口占用：可通过设置 `PORT` 环境变量改变默认端口 3000。
 
-## 下一步建议（可选）
 
-- 添加 `.env.example` 文件并加入到仓库以方便新团队成员快速配置。
-- 为生产构建添加 Dockerfile / docker-compose 配置。
-- 在生产环境关闭 TypeORM 的 `synchronize` 并使用 migration 管理数据库变更。
+## Docker 与 本地一键启动
 
----
+仓库已添加简单的 `Dockerfile`（后端与前端）以及根目录 `docker-compose.yml`，包含 `db`（MySQL）和 `redis` 服务，用于本地一键启动与演示。
 
-如果需要我：
+快速使用说明：
 
-- 生成 `.env.example` 模板并提交；
-- 添加 Docker 启动示例或 PM2 配置；
-- 补充英文 README 或 API 使用示例（含 curl）。
+1. 在 `koajs_backend` 目录下复制环境变量模板：
 
-请告诉我你希望我接着做哪一步。
+```bash
+cp koajs_backend/.env.example koajs_backend/.env
+# 编辑 koajs_backend/.env 根据本地需求调整
+```
+
+2. 使用 `docker-compose` 启动所有服务（需要 Docker 与 docker-compose）：
+
+```bash
+docker-compose up --build
+```
+
+3. 服务启动后：
+
+- 后端: http://localhost:3000
+- 前端: http://localhost:8080
+
+注意事项：
+
+- 生产环境请不要使用 `.env` 中的默认密码。将 `synchronize` 关闭并改用 migrations 来管理数据库变更。
+- 该 `docker-compose.yml` 仅用于本地快速启动与开发演示，生产环境请按需转换为 Kubernetes / 生产级 Compose 配置并添加备份、持久化与安全策略。
+
+

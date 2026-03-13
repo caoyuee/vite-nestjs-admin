@@ -11,7 +11,12 @@
     "start": "node ./dist/index.mjs",
     "dev": "tsx watch src/index.ts",
     "dev:debug": "tsx --inspect-brk src/index.ts",
-    "type-check": "tsc --noEmit src/index.ts"
+    "type-check": "tsc --noEmit src/index.ts",
+    "lint": "eslint 'src/**/*.{ts,js}' --ext .ts",
+    "lint:fix": "eslint 'src/**/*.{ts,js}' --ext .ts --fix",
+    "format": "prettier --write .",
+    "lint-staged": "lint-staged",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
@@ -37,6 +42,13 @@
     "winston-daily-rotate-file": "^5.0.0",
     "yamljs": "^0.3.0"
   },
+  "lint-staged": {
+    "src/**/*.{ts,js,json,md}": [
+      "pnpm run lint:fix",
+      "pnpm run format",
+      "git add"
+    ]
+  },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.10",
     "@types/koa": "^3.0.1",
@@ -44,6 +56,16 @@
     "@types/yamljs": "^0.2.34",
     "pkgroll": "^2.21.4",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "eslint": "^10.0.3",
+    "@typescript-eslint/parser": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.8.1",
+    "lint-staged": "^16.3.3",
+    "husky": "^9.1.7",
+    "@commitlint/config-conventional": "^20.4.4",
+    "@commitlint/cli": "^20.4.4",
+    "semantic-release": "^25.0.3"
   }
 }
