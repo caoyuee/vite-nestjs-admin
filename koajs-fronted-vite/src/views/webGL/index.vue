@@ -26,6 +26,44 @@ const initThree = () => {
 
   //创建2000个网格体
   const mesh = createMesh();
+
+  //创建一个组对象，并将网格体添加到组中
+  const group = createGroup([]);
+  const group1 = createGroup([]);
+   const group2= createGroup([]);
+
+  for (let index = 0; index < 5; index++) {
+    const mesh = createMesh();
+    mesh.position.x=100*index;
+    mesh.geometry.scale(1, 3, 1);
+    mesh.name = `mesh1${index}`;
+    group1.add(mesh);
+    group1.name = "group1";
+  }
+
+  for (let index = 0; index < 5; index++) {
+    const mesh = createMesh();
+    mesh.position.x=100*index;
+    mesh.position.y=100;
+     mesh.name = `mesh2${index}`;
+    group2.add(mesh);
+    group2.name = "group2";
+  }
+  group.add(group1,group2);
+  group.name = "group";
+
+  group.traverse((object) => {
+    if (object instanceof THREE.Mesh) {
+      console.log(object.name, 'object.name======');
+      setMeshColor(object, 0xffffff); // 随机设置颜色
+    }
+  });
+  const mesh22 = group.getObjectByName("mesh22") as THREE.Mesh | undefined;
+  setMeshColor(mesh22, 0xffff00); // 将mesh2的颜色设置为黄色
+  // const mesh2 = createMesh();
+  // //复制mesh的位置到mesh2
+  // mesh2.position.copy(mesh.position)
+
   //使用顶点坐标创建的网格体
   // const mesh = createMeshWithVertices();
 
@@ -40,6 +78,12 @@ const initThree = () => {
 
   //实例化三维向量
   const vector3 = new THREE.Vector3(100, 100, 100);
+  //克隆一份
+  // const vector3Clone = vector3.clone();
+  //复制一份
+  // const vector3Copy = new THREE.Vector3(20, 20, 20);
+  //  vector3Copy.copy(vector3); // 将vector3的值复制到vector3Copy中
+
   //向量归一化
   vector3.normalize();
   mesh.translateOnAxis(vector3, 100); // 沿着向量方向平移100单位
@@ -54,7 +98,9 @@ const initThree = () => {
   //将网格体添加到网格体列表中
   meshList.value.push(mesh);
   //将网格体添加到场景中
-  scene.add(mesh);
+  // scene.add(mesh);
+  //将组对象添加到场景中
+  scene.add(group);
 
   //创建一个点光源,参数为颜色默认白色,光照强度默认为1,光照距离默认0为无限远,沿光照距离衰退量默认为2(不随距离衰减时填0)
   const pointLight = new THREE.PointLight(0xffffff, 100, 0, 0);
@@ -318,9 +364,9 @@ const createMesh = () => {
 
   material.color = color; // 设置材质颜色
 
-  material.color.r=1; // 设置材质颜色的红色分量为0.5
-  material.color.g=1; // 设置材质颜色的绿色分量为1
-  material.color.b=1; // 设置材质颜色的蓝色分量为0
+  material.color.r = 1; // 设置材质颜色的红色分量为0.5
+  material.color.g = 1; // 设置材质颜色的绿色分量为1
+  material.color.b = 1; // 设置材质颜色的蓝色分量为0
 
   //创建一个材质-基础网格材质，并添加材质颜色和透明度
   //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
@@ -330,10 +376,47 @@ const createMesh = () => {
   //创建一个高光网格材质,参数为颜色、光泽度(默认30)、镜面色(默认深灰色)
   //const material = new THREE.MeshPhongMaterial({ color: 0x00ff00, shininess: 80, specular: 0x555555 });
 
-  //创建一个网格体-将几何体和材质进行组合
+  //创建一个网格体模型-将几何体和材质进行组合
   const mesh = new THREE.Mesh(geometry, material);
-  // mesh.material.color.set(0x000000); // 设置网格体颜色
+  // const mesh2 = new THREE.Mesh(geometry, material);
+  // mesh2.position.set(100, 0, 0);
+  // mesh.material.color.set(0x000000); // 重新设置网格体颜色等价于material.color.set(0x000000)
+  // mesh2.material.color.set(0x000000); // 所有使用同一个材质的网格体都会改变颜色
+
+  //克隆一个网格体
+  // const mesh2 = mesh.clone(); //此处克隆的网格体的材质和几何体仍是共享的，需单独再克隆材质和几何体才不是共享的
+  //克隆几何体
+  // mesh2.geometry = mesh.geometry.clone();
+  //克隆材质
+  // mesh2.material = mesh.material.clone();
+
+  // mesh2.position.set(100, 0, 0);
+
   return mesh;
+};
+//创建组
+const createGroup = (meshList: THREE.Mesh[]) => {
+  //创建一个组对象
+  const group = new THREE.Group();
+  //将网格体添加到组中
+  meshList.length > 0 && group.add(...meshList);
+  return group;
+};
+
+// 安全设置网格材质颜色，兼容 Material | Material[]
+const setMeshColor = (mesh?: THREE.Mesh | null, color?: number) => {
+  if (!mesh || color === undefined) return;
+  const mat = mesh.material as THREE.Material | THREE.Material[] | undefined;
+  if (!mat) return;
+  if (Array.isArray(mat)) {
+    mat.forEach((m) => {
+      const mm = m as THREE.MeshLambertMaterial;
+      (mm.color as unknown as { set?: (v: number) => void })?.set?.(color);
+    });
+  } else {
+    const mm = mat as THREE.MeshLambertMaterial;
+    (mm.color as unknown as { set?: (v: number) => void })?.set?.(color);
+  }
 };
 
 const scaleNum = ref(1);
