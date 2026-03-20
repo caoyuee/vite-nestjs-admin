@@ -1,0 +1,5 @@
+- [x] code-rules.md 文件中包含 TypeScript 类型检查要求
+- [x] code-rules.md 文件中包含 ESLint 和 Prettier 冲突处理策略
+- [x] code-rules.md 文件中明确 Prettier 作为优先格式化工具
+- [x] code-rules.md 文件中包含代码修改后的检查流程
+- [x] 规则内容格式正确，易于理解
