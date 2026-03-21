@@ -99,6 +99,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (err || !user) {
       throw err || new UnauthorizedException('未授权，请先登录');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return user;
   }
 }

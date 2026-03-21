@@ -19,7 +19,6 @@ import {
   ArgumentsHost,
   HttpException,
   HttpStatus,
-  Inject,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiResponse } from '../interfaces/response.interface';
@@ -43,7 +42,7 @@ import { WinstonLoggerService } from '../services/logger.service';
  */
 @Catch() // @Catch() 不传参数表示捕获所有类型的异常
 export class HttpExceptionFilter implements ExceptionFilter {
-  constructor(@Inject(WinstonLoggerService) private readonly logger: WinstonLoggerService) {}
+  constructor(private readonly logger: WinstonLoggerService) {}
 
   /**
    * 异常处理方法
@@ -86,11 +85,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message = exception.message;
     }
 
-    this.logger.error('Error occurred', exception instanceof Error ? exception.stack : String(exception), {
-      statusCode,
-      message,
-      timestamp: new Date().toISOString(),
-    });
+    this.logger.error(
+      'Error occurred',
+      exception instanceof Error ? exception.stack : String(exception),
+      {
+        statusCode,
+        message,
+        timestamp: new Date().toISOString(),
+      },
+    );
 
     // 构造统一的错误响应格式
     // 这个格式与 ResponseInterceptor 的成功响应格式一致
