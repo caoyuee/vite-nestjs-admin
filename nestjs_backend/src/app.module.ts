@@ -34,6 +34,7 @@ import { UploadModule } from './modules/upload/upload.module';
 // 导入全局过滤器、拦截器、守卫
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { WinstonLoggerService } from './common/services/logger.service';
 import { getDatabaseConfig } from './config/database.config';
 
 /**
@@ -84,6 +85,7 @@ import { getDatabaseConfig } from './config/database.config';
     UploadModule, // 上传模块：文件上传
   ],
   providers: [
+    WinstonLoggerService,
     // 全局异常过滤器
     // APP_FILTER 是一个特殊的 token，用于注册全局过滤器
     // 过滤器用于捕获异常并返回统一格式的错误响应

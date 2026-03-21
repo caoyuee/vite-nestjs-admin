@@ -117,7 +117,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    *
    * // 然后在 Controller 中可以通过 @CurrentUser() 获取
    */
-  async validate(payload: JwtPayload) {
+  validate(payload: JwtPayload) {
     // 返回用户信息对象
     // 这个对象会被 Passport 挂载到 request.user
     // 然后可以通过 @CurrentUser() 装饰器获取
