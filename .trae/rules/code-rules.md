@@ -75,38 +75,108 @@
 
 ### 注释规范
 
+**重要：所有代码块必须添加中文注释，提高代码可读性。**
+
 #### 函数注释
 
-使用 JSDoc 格式：
+使用 JSDoc 格式，必须包含中文功能描述：
 
 ```typescript
 /**
- * 函数功能描述
+ * 获取用户列表数据
  *
- * @param {类型} 参数名 - 参数描述
- * @returns {类型} 返回值描述
- * @throws {错误类型} 异常描述
+ * @param {UserListQueryDto} query - 查询参数对象
+ * @returns {Promise<{ code: number; message: string; data: UserList }>} 用户列表响应
+ * @throws {BadRequestException} 当查询参数无效时抛出
  * @example
- * // 使用示例
- * functionName(param);
+ * // 调用示例
+ * const result = await userService.getUserList({ pageNum: 1, pageSize: 10 });
  */
+async getUserList(query: UserListQueryDto) {
+  // 实现逻辑...
+}
 ```
 
 #### 类方法注释
 
 ```typescript
 /**
- * 方法功能描述
+ * 创建新用户
  *
  * @public
  * @static
  * @async
- * @param {类型} 参数名 - 参数描述
- * @returns {Promise<类型>} 返回值描述
+ * @param {CreateUserDto} createUserDto - 用户创建参数
+ * @returns {Promise<{ code: number; message: string; data: null }>} 创建结果
  */
-public static async methodName(param: Type): Promise<Result> {
-  // ...
+public static async createUser(createUserDto: CreateUserDto) {
+  // 实现逻辑...
 }
+```
+
+#### 代码块注释
+
+所有代码块（if/else、for 循环、switch 等）必须添加中文注释：
+
+```typescript
+// 判断用户是否存在
+if (existingUser) {
+  throw new BadRequestException('用户已存在，请直接登录');
+}
+
+// 遍历用户列表，过滤掉已删除的用户
+for (const user of users) {
+  if (!user.deleteTime) {
+    validUsers.push(user);
+  }
+}
+
+// 根据状态执行不同操作
+switch (status) {
+  case 'active':
+    // 处理激活状态
+    handleActive();
+    break;
+  case 'inactive':
+    // 处理非激活状态
+    handleInactive();
+    break;
+  default:
+    // 处理未知状态
+    handleUnknown();
+}
+```
+
+#### 变量和常量注释
+
+重要变量和常量应添加中文注释：
+
+```typescript
+// 用户默认角色列表
+const defaultRoles: string[] = [];
+
+// Token 过期时间（7天，单位：秒）
+const TOKEN_EXPIRE_TIME = 7 * 24 * 60 * 60;
+
+// 数据库连接配置
+const dbConfig: DataSourceOptions = {
+  type: 'mysql',
+  host: 'localhost',
+  // ...
+};
+```
+
+#### 行内注释
+
+复杂逻辑应添加行内中文注释：
+
+```typescript
+const result = await this.userRepository.findAndCount({
+  where,           // 查询条件
+  skip: (pageNum - 1) * pageSize,  // 跳过记录数
+  take: pageSize,  // 每页记录数
+  order: { createTime: 'DESC' },   // 按创建时间倒序
+});
 ```
 
 ---
