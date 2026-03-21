@@ -49,7 +49,7 @@
       <!-- 请求耗时 -->
       <template #duration="scope">
         <span v-if="scope.row.duration" :class="{ 'duration-warning': scope.row.duration > 1000 }">
-          {{ scope.row.duration }}ms
+          {{ scope.row.duration }}
         </span>
         <span v-else>-</span>
       </template>
@@ -287,12 +287,12 @@ const columns: ColumnProps[] = [
     width: 150
   },
   {
-    prop: "user",
+    prop: "username",
     label: "用户",
     width: 120,
     render: (scope) => {
-      const u = scope.row.user;
-      return u ? (typeof u === "string" ? u : u.username || "-") : "-";
+      const u = scope.row.username;
+      return u ? (typeof u === "string" ? u : u || "-") : "-";
     }
   }
 ];

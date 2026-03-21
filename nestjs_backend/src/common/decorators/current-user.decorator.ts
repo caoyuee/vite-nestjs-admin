@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 /**
  * @file current-user.decorator.ts
  * @description 当前用户装饰器 - 用于从请求中提取当前登录用户信息
@@ -66,10 +67,12 @@ export const CurrentUser = createParamDecorator(
     // 从执行上下文中获取 HTTP 请求对象
     // ExecutionContext 类似于 Vue Router 的 route 对象
     // switchToHttp() 转换为 HTTP 上下文
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const request = ctx.switchToHttp().getRequest();
 
     // 从请求中获取用户信息
     // request.user 是由 JWT Strategy 验证后设置的
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     const user = request.user as JwtPayload;
 
     // 如果指定了属性名，返回该属性的值

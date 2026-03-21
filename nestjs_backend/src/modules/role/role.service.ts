@@ -63,13 +63,13 @@ export class RoleService {
     const role = new Role();
 
     // 设置角色字段
-    role.sort = createRoleDto.sort ?? 0;              // 排序序号
-    role.role = createRoleDto.role;                   // 角色标识符（如 admin、editor）
-    role.name = createRoleDto.name;                   // 角色名称（如 管理员、编辑员）
-    role.description = createRoleDto.description;     // 角色描述
-    role.status = createRoleDto.status ?? true;       // 状态
+    role.sort = createRoleDto.sort ?? 0; // 排序序号
+    role.role = createRoleDto.role; // 角色标识符（如 admin、editor）
+    role.name = createRoleDto.name; // 角色名称（如 管理员、编辑员）
+    role.description = createRoleDto.description; // 角色描述
+    role.status = createRoleDto.status ?? true; // 状态
     role.useProTable = createRoleDto.useProTable || []; // 表格权限
-    role.authButton = createRoleDto.authButton || [];   // 按钮权限
+    role.authButton = createRoleDto.authButton || []; // 按钮权限
     role.useMenus = (createRoleDto.useMenus || []).map((id) => String(id)); // 菜单权限
 
     // 保存到数据库
@@ -105,8 +105,8 @@ export class RoleService {
     // findAndCount 返回 [列表, 总数]
     const [list, total] = await this.roleRepository.findAndCount({
       where,
-      skip: (pageNum - 1) * pageSize,  // 跳过前面的记录
-      take: pageSize,                   // 取 pageSize 条记录
+      skip: (pageNum - 1) * pageSize, // 跳过前面的记录
+      take: pageSize, // 取 pageSize 条记录
       order: { sort: 'ASC', createTime: 'DESC' }, // 排序：先按 sort 升序，再按创建时间降序
     });
 
@@ -205,8 +205,8 @@ export class RoleService {
       code: 200,
       message: 'success',
       data: {
-        useMenus,                        // 菜单 ID 列表
-        authButton: authButtonPermissions,   // 按钮权限标识符列表
+        useMenus, // 菜单 ID 列表
+        authButton: authButtonPermissions, // 按钮权限标识符列表
         useProTable: useProTablePermissions, // 表格权限标识符列表
       },
     };

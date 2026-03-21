@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /**
  * 日志服务
  *
@@ -27,39 +29,40 @@ import { ClearLogDto } from './dto/clear-log.dto';
  * 定义单条日志的数据结构
  */
 export interface LogEntry {
-  timestamp: string;   // 时间戳
-  level: string;       // 日志级别：info、error、warn、http 等
-  message: string;     // 日志消息
-  method?: string;     // HTTP 请求方法（仅 HTTP 日志）
-  url?: string;        // HTTP 请求路径（仅 HTTP 日志）
-  status?: number;     // HTTP 响应状态码（仅 HTTP 日志）
-  duration?: string;   // 请求处理时间（仅 HTTP 日志）
-  ip?: string;         // 客户端 IP
-  user?: {
-    username: string;
-    id: string;
-  };
-  error?: string;      // 错误信息（仅错误日志）
+  timestamp: string; // 时间戳
+  level: string; // 日志级别：info、error、warn、http 等
+  message: string; // 日志消息
+  trace?: string; // 错误堆栈（仅错误日志）
+  method?: string; // HTTP 请求方法（仅 HTTP 日志）
+  url?: string; // HTTP 请求路径（仅 HTTP 日志）
+  status?: number; // HTTP 响应状态码（仅 HTTP 日志）
+  duration?: string; // 请求处理时间（仅 HTTP 日志）
+  ip?: string; // 客户端 IP
+  username: string; // 用户名
+  statusCode: number; // HTTP 响应状态码（仅 HTTP 日志）
+  userId: string; // 用户ID
+  error?: string; // 错误信息（仅错误日志）
+  query?: unknown; // 查询参数（仅 HTTP 日志）
 }
 
 /**
  * 日志查询结果接口
  */
 export interface LogQueryResult {
-  list: LogEntry[];      // 日志列表
-  total: number;         // 总数
-  pageNumber: number;    // 当前页码
-  pageSize: number;      // 每页数量
-  totalPages: number;    // 总页数
+  list: LogEntry[]; // 日志列表
+  total: number; // 总数
+  pageNumber: number; // 当前页码
+  pageSize: number; // 每页数量
+  totalPages: number; // 总页数
 }
 
 /**
  * 清理日志结果接口
  */
 export interface ClearLogsResult {
-  deletedFiles: string[];   // 已删除的文件列表
-  deletedCount: number;     // 已删除的文件数量
-  retainedFiles: string[];  // 保留的文件列表
+  deletedFiles: string[]; // 已删除的文件列表
+  deletedCount: number; // 已删除的文件数量
+  retainedFiles: string[]; // 保留的文件列表
 }
 
 /**
@@ -78,165 +81,137 @@ export class LogService {
    * @returns 日志列表和分页信息
    *
    * 【业务流程】
-   * 1. 确定要搜索的日期范围
-   * 2. 读取日期范围内的所有日志文件
-   * 3. 解析日志内容为 LogEntry 对象
-   * 4. 按条件筛选日志
-   * 5. 排序并分页返回
+   * 1. 读取 logs/combined.log 和 logs/error.log 文件
+   * 2. 解析每行 JSON 格式的日志内容
+   * 3. 按时间范围筛选
+   * 4. 按日志级别筛选
+   * 5. 按关键字筛选
+   * 6. 排序并分页返回
    */
-  async getLogs(options: LogQueryDto): Promise<LogQueryResult> {
+  getLogs(options: LogQueryDto): LogQueryResult {
     const {
       pageNumber = 1,
       pageSize = 10,
-      level,       // 日志级别筛选
-      keyword,     // 关键字筛选
-      startTime,   // 开始时间
-      endTime,     // 结束时间
+      level, // 日志级别筛选
+      keyword, // 关键字筛选
+      startTime, // 开始时间
+      endTime, // 结束时间
     } = options;
 
     // 存储所有读取到的日志
     const allLogs: LogEntry[] = [];
 
     /**
-     * 解析日期字符串为 Date 对象
-     * @param dateStr - 格式：yyyy-MM-dd
+     * 解析日志时间戳字符串为 Date 对象
+     * @param timestamp - 格式：yyyy-MM-dd HH:mm:ss
      */
-    const parseDate = (dateStr: string): Date => {
-      const [year, month, day] = dateStr.split('-').map(Number);
-      // 注意：JavaScript 的月份从 0 开始，所以要减 1
-      return new Date(year, month - 1, day);
+    const parseTimestamp = (timestamp: string): Date => {
+      // 格式：2026-03-21 17:12:56
+      const match = timestamp.match(
+        /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/,
+      );
+      if (match) {
+        const [, year, month, day, hour, minute, second] = match.map(Number);
+        return new Date(year, month - 1, day, hour, minute, second);
+      }
+      // 尝试直接解析
+      return new Date(timestamp);
     };
 
-    // 确定要搜索的日期范围
-    let daysToSearch: number;
-    let startDate: Date;
-    let endDate: Date;
+    /**
+     * 读取单个日志文件
+     * @param filename - 文件路径
+     */
+    const readLogFile = (filename: string) => {
+      try {
+        // 检查文件是否存在
+        if (fs.existsSync(filename)) {
+          // 读取文件内容
+          const content = fs.readFileSync(filename, 'utf-8');
+          // 按行分割，过滤空行
+          const lines = content.split('\n').filter((line) => line.trim());
 
-    // 根据传入的时间参数确定搜索范围
-    if (startTime && endTime) {
-      // 有开始和结束时间
-      startDate = parseDate(startTime);
-      endDate = parseDate(endTime);
-      endDate.setHours(23, 59, 59, 999);
-      daysToSearch =
-        Math.ceil(
-          (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000),
-        ) + 1;
-    } else if (startTime) {
-      // 只有开始时间，搜索到当前
-      startDate = parseDate(startTime);
-      endDate = new Date();
-      daysToSearch =
-        Math.ceil(
-          (endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000),
-        ) + 1;
-    } else if (endTime) {
-      // 只有结束时间，搜索前 7 天
-      endDate = parseDate(endTime);
-      endDate.setHours(23, 59, 59, 999);
-      startDate = new Date(endDate.getTime() - 6 * 24 * 60 * 60 * 1000);
-      daysToSearch = 7;
-    } else {
-      // 默认搜索最近 7 天
-      startDate = new Date(Date.now() - 6 * 24 * 60 * 60 * 1000);
-      endDate = new Date();
-      daysToSearch = 7;
-    }
+          // 解析每一行日志
+          lines.forEach((line) => {
+            try {
+              // 解析 JSON 格式的日志
 
-    // 遍历日期范围内的每一天
-    for (let i = 0; i < daysToSearch; i++) {
-      const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-
-      // 跳过不在范围内的日期
-      if (date < startDate || date > endDate) continue;
-
-      // 构建日志文件路径
-      const dateLogDir = path.join(this.logRootDir, dateStr);
-      const appLogFile = path.join(dateLogDir, `app.log.${dateStr}`);
-      const httpLogFile = path.join(dateLogDir, `http.log.${dateStr}`);
-      const errorLogFile = path.join(dateLogDir, `error.log.${dateStr}`);
-
-      /**
-       * 读取单个日志文件
-       * @param filename - 文件路径
-       * @param defaultLevel - 默认日志级别
-       */
-      const readLogFile = (filename: string, defaultLevel?: string) => {
-        try {
-          // 检查文件是否存在
-          if (fs.existsSync(filename)) {
-            // 读取文件内容
-            const content = fs.readFileSync(filename, 'utf-8');
-            // 按行分割，过滤空行
-            const lines = content.split('\n').filter((line) => line.trim());
-
-            // 解析每一行日志
-            lines.forEach((line) => {
-              try {
-                // 尝试解析为 JSON
-                const log = JSON.parse(line);
-                allLogs.push({
-                  timestamp: log.timestamp || log.time || dateStr,
-                  level: log.level || defaultLevel || 'info',
-                  message: log.message || '',
-                  method: log.method,
-                  url: log.url,
-                  status: log.status,
-                  duration: log.duration,
-                  ip: log.ip,
-                  user: log.user,
-                  error: log.error,
-                });
-              } catch {
-                // JSON 解析失败，尝试正则匹配
-                const match = line.match(
-                  /^(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})\s+\[(\w+)\]:\s*(.*)$/,
-                );
-                if (match) {
-                  allLogs.push({
-                    timestamp: match[1],
-                    level: match[2].toLowerCase(),
-                    message: match[3],
-                  });
-                }
-              }
-            });
-          }
-        } catch (err) {
-          console.error(`读取日志文件失败: ${filename}`, err);
+              const log = JSON.parse(line);
+              allLogs.push({
+                timestamp: log.timestamp || '',
+                level: log.level || 'info',
+                message: log.message || '',
+                trace: log.trace,
+                method: log.method,
+                url: log.url,
+                ip: log.ip,
+                userId: log.userId || '-',
+                username: log.username || '-',
+                statusCode: log.status || '-',
+                duration: log.duration || '-',
+                query: log.query || '-',
+              });
+            } catch {
+              // JSON 解析失败，忽略该行
+            }
+          });
         }
-      };
+      } catch (err) {
+        console.error(`读取日志文件失败: ${filename}`, err);
+      }
+    };
 
-      // 读取三种类型的日志文件
-      readLogFile(appLogFile);
-      readLogFile(httpLogFile, 'http');
-      readLogFile(errorLogFile, 'error');
-    }
+    // 读取日志文件
+    const combinedLogFile = path.join(this.logRootDir, 'combined.log');
+    const errorLogFile = path.join(this.logRootDir, 'error.log');
+    readLogFile(combinedLogFile);
+    readLogFile(errorLogFile);
 
     // 筛选日志
     let filteredLogs = allLogs;
+
+    // 按时间范围筛选
+    if (startTime || endTime) {
+      filteredLogs = filteredLogs.filter((log) => {
+        if (!log.timestamp) return false;
+        const logDate = parseTimestamp(log.timestamp);
+
+        // 检查开始时间
+        if (startTime) {
+          const startDate = parseTimestamp(startTime + ' 00:00:00');
+          if (logDate < startDate) return false;
+        }
+
+        // 检查结束时间
+        if (endTime) {
+          const endDate = parseTimestamp(endTime + ' 23:59:59');
+          if (logDate > endDate) return false;
+        }
+
+        return true;
+      });
+    }
 
     // 按日志级别筛选
     if (level) {
       filteredLogs = filteredLogs.filter((log) => log.level === level);
     }
 
-    // 按关键字筛选
+    // 按关键字筛选（搜索 message 和 trace 字段）
     if (keyword) {
       const lowerKeyword = keyword.toLowerCase();
       filteredLogs = filteredLogs.filter((log) => {
-        const logStr = JSON.stringify(log).toLowerCase();
-        return logStr.includes(lowerKeyword);
+        const messageMatch = log.message?.toLowerCase().includes(lowerKeyword);
+        const traceMatch = log.trace?.toLowerCase().includes(lowerKeyword);
+        return messageMatch || traceMatch;
       });
     }
 
     // 按时间倒序排序（最新的在前）
     filteredLogs.sort((a, b) => {
-      return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+      const timeA = a.timestamp ? parseTimestamp(a.timestamp).getTime() : 0;
+      const timeB = b.timestamp ? parseTimestamp(b.timestamp).getTime() : 0;
+      return timeB - timeA;
     });
 
     // 分页处理
@@ -260,165 +235,159 @@ export class LogService {
    * @returns 清理结果
    *
    * 【业务流程】
-   * 1. 确定要清理的日期范围
-   * 2. 遍历日期目录
-   * 3. 根据条件筛选要删除的文件
-   * 4. 删除文件和空目录
+   * 1. 读取 logs/combined.log 和 logs/error.log 文件
+   * 2. 解析每行 JSON 格式的日志内容
+   * 3. 根据条件筛选要删除的日志（反向筛选保留的日志）
+   * 4. 将保留的日志写回文件
+   * 5. 如果文件为空则删除文件
    */
-  async clearLogs(options?: ClearLogDto): Promise<ClearLogsResult> {
+  clearLogs(options?: ClearLogDto): ClearLogsResult {
     const { startTime, endTime, level, keyword } = options || {};
 
+    let deletedCount = 0;
     const deletedFiles: string[] = [];
     const retainedFiles: string[] = [];
 
-    // 解析日期字符串
-    const parseDate = (dateStr: string): Date => {
-      const [year, month, day] = dateStr.split('-').map(Number);
-      return new Date(year, month - 1, day);
+    /**
+     * 解析日志时间戳字符串为 Date 对象
+     * @param timestamp - 格式：yyyy-MM-dd HH:mm:ss
+     */
+    const parseTimestamp = (timestamp: string): Date => {
+      const match = timestamp.match(
+        /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/,
+      );
+      if (match) {
+        const [, year, month, day, hour, minute, second] = match.map(Number);
+        return new Date(year, month - 1, day, hour, minute, second);
+      }
+      return new Date(timestamp);
     };
 
-    // 要处理的日期目录列表
-    const targetDateDirs: string[] = [];
+    /**
+     * 判断日志是否匹配删除条件
+     * @param log - 日志条目
+     * @returns 是否应该被删除
+     */
+    const shouldDelete = (log: LogEntry): boolean => {
+      // 按时间范围筛选
+      if (startTime || endTime) {
+        if (!log.timestamp) return false;
+        const logDate = parseTimestamp(log.timestamp);
 
-    // 根据时间范围确定要处理的目录
-    if (startTime || endTime) {
-      let startDate: Date;
-      let endDate: Date;
+        // 检查开始时间
+        if (startTime) {
+          const startDate = parseTimestamp(startTime + ' 00:00:00');
+          if (logDate < startDate) return false;
+        }
 
-      if (startTime && endTime) {
-        startDate = parseDate(startTime);
-        endDate = parseDate(endTime);
-        endDate.setHours(23, 59, 59, 999);
-      } else if (startTime) {
-        startDate = parseDate(startTime);
-        endDate = new Date();
-      } else {
-        startDate = new Date(0); // 从最早开始
-        endDate = parseDate(endTime!);
-        endDate.setHours(23, 59, 59, 999);
+        // 检查结束时间
+        if (endTime) {
+          const endDate = parseTimestamp(endTime + ' 23:59:59');
+          if (logDate > endDate) return false;
+        }
+      }
+
+      // 按日志级别筛选
+      if (level && log.level !== level) {
+        return false;
+      }
+
+      // 按关键字筛选（搜索 message 和 trace 字段）
+      if (keyword) {
+        const lowerKeyword = keyword.toLowerCase();
+        const messageMatch = log.message?.toLowerCase().includes(lowerKeyword);
+        const traceMatch = log.trace?.toLowerCase().includes(lowerKeyword);
+        if (!messageMatch && !traceMatch) {
+          return false;
+        }
+      }
+
+      return true;
+    };
+
+    /**
+     * 处理单个日志文件
+     * @param filename - 文件名
+     */
+    const processLogFile = (filename: string) => {
+      const filePath = path.join(this.logRootDir, filename);
+
+      // 检查文件是否存在
+      if (!fs.existsSync(filePath)) {
+        return;
       }
 
       try {
-        // 读取日志根目录下的所有目录
-        const dateDirs = fs.readdirSync(this.logRootDir);
-        for (const dateDir of dateDirs) {
-          const dateLogDir = path.join(this.logRootDir, dateDir);
-          const stat = fs.statSync(dateLogDir);
+        // 读取文件内容
+        const content = fs.readFileSync(filePath, 'utf-8');
+        // 按行分割，过滤空行
+        const lines = content.split('\n').filter((line) => line.trim());
 
-          // 只处理目录
-          if (!stat.isDirectory()) continue;
-
-          // 检查目录名是否符合日期格式
-          const match = dateDir.match(/^(\d{4}-\d{2}-\d{2})$/);
-          if (!match) continue;
-
-          const [, dateStr] = match;
-          const fileDate = parseDate(dateStr);
-
-          // 检查是否在时间范围内
-          if (fileDate >= startDate && fileDate <= endDate) {
-            targetDateDirs.push(dateDir);
-          }
-        }
-      } catch (err) {
-        console.error('[日志清理] 读取日志目录失败:', err);
-      }
-    } else {
-      // 没有时间范围，处理所有目录
-      try {
-        const dateDirs = fs.readdirSync(this.logRootDir);
-        for (const dateDir of dateDirs) {
-          const dateLogDir = path.join(this.logRootDir, dateDir);
-          const stat = fs.statSync(dateLogDir);
-          if (stat.isDirectory()) {
-            targetDateDirs.push(dateDir);
-          }
-        }
-      } catch (err) {
-        console.error('[日志清理] 读取日志目录失败:', err);
-      }
-    }
-
-    // 遍历并删除文件
-    for (const dateDir of targetDateDirs) {
-      const dateLogDir = path.join(this.logRootDir, dateDir);
-
-      try {
-        const logFiles = fs.readdirSync(dateLogDir);
-        const filesToDelete: string[] = [];
-
-        for (const file of logFiles) {
-          // 只处理 .log 文件
-          if (!file.includes('.log')) continue;
-
-          // 从文件名提取日志级别
-          const fileBaseName = file.replace(/\.\d{4}-\d{2}-\d{2}$/, '');
-          const fileLevel = fileBaseName.replace('.log', '');
-
-          // 按级别筛选
-          if (level && fileLevel !== level) continue;
-
-          // 按关键字筛选
-          if (keyword) {
-            const filePath = path.join(dateLogDir, file);
-            try {
-              const content = fs.readFileSync(filePath, 'utf-8');
-              const lines = content.split('\n').filter((line) => line.trim());
-
-              // 检查文件是否包含关键字
-              const hasKeyword = lines.some((line) => {
-                try {
-                  const log = JSON.parse(line);
-                  const logStr = JSON.stringify(log).toLowerCase();
-                  return logStr.includes(keyword.toLowerCase());
-                } catch {
-                  return line.toLowerCase().includes(keyword.toLowerCase());
-                }
-              });
-
-              if (hasKeyword) {
-                filesToDelete.push(file);
-              }
-            } catch (err) {
-              console.error(`[日志清理] 读取日志文件失败: ${file}`, err);
-            }
-          } else {
-            // 没有关键字筛选，直接删除
-            filesToDelete.push(file);
-          }
+        // 如果文件为空，跳过
+        if (lines.length === 0) {
+          return;
         }
 
-        // 删除文件
-        for (const file of filesToDelete) {
-          const filePath = path.join(dateLogDir, file);
+        // 解析并筛选日志
+        const retainedLines: string[] = [];
+        let fileDeletedCount = 0;
+
+        for (const line of lines) {
           try {
-            fs.unlinkSync(filePath);
-            deletedFiles.push(`${dateDir}/${file}`);
-            console.log(`[日志清理] 已删除: ${dateDir}/${file}`);
-          } catch (err) {
-            console.error(`[日志清理] 删除文件失败: ${dateDir}/${file}`, err);
+            const log: LogEntry = JSON.parse(line);
+
+            // 判断是否应该删除
+            if (shouldDelete(log)) {
+              fileDeletedCount++;
+            } else {
+              // 保留该日志
+              retainedLines.push(line);
+            }
+          } catch {
+            // JSON 解析失败的行，保留原样
+            retainedLines.push(line);
           }
         }
 
-        // 检查目录是否为空，如果为空则删除目录
-        const remainingFiles = fs.readdirSync(dateLogDir);
-        const logFilesLeft = remainingFiles.filter((f) => f.includes('.log'));
-        if (logFilesLeft.length === 0) {
-          fs.rmSync(dateLogDir, { recursive: true, force: true });
-          console.log(`[日志清理] 已删除空目录: ${dateDir}`);
+        // 更新删除计数
+        deletedCount += fileDeletedCount;
+
+        // 如果有日志被删除
+        if (fileDeletedCount > 0) {
+          if (retainedLines.length === 0) {
+            // 所有日志都被删除，删除文件
+            fs.unlinkSync(filePath);
+            deletedFiles.push(filename);
+            console.log(`[日志清理] 已删除文件: ${filename}`);
+          } else {
+            // 将保留的日志写回文件
+            const newContent = retainedLines.join('\n') + '\n';
+            fs.writeFileSync(filePath, newContent, 'utf-8');
+            deletedFiles.push(filename);
+            console.log(
+              `[日志清理] 已清理文件: ${filename}，删除 ${fileDeletedCount} 条日志`,
+            );
+          }
+        } else {
+          // 没有日志被删除，文件保留
+          retainedFiles.push(filename);
         }
-
-        retainedFiles.push(`${dateDir}/*`);
       } catch (err) {
-        console.error(`[日志清理] 处理目录失败: ${dateDir}`, err);
+        console.error(`[日志清理] 处理日志文件失败: ${filename}`, err);
       }
-    }
+    };
 
-    console.log(`[日志清理] 完成 - 已删除 ${deletedFiles.length} 个文件`);
+    // 处理日志文件
+    processLogFile('combined.log');
+    processLogFile('error.log');
+
+    console.log(
+      `[日志清理] 完成 - 共删除 ${deletedCount} 条日志，涉及 ${deletedFiles.length} 个文件`,
+    );
 
     return {
+      deletedCount,
       deletedFiles,
-      deletedCount: deletedFiles.length,
       retainedFiles,
     };
   }

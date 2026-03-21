@@ -15,42 +15,45 @@
 
 import Redis from 'ioredis';
 
-/**
- * 创建 Redis 客户端
- *
- * @description
- * 创建并返回一个 Redis 连接实例
- * ioredis 是 Node.js 中最流行的 Redis 客户端
- *
- * @returns {Redis} Redis 客户端实例
- *
- * @example
- * // 使用方式
- * const redis = createRedisClient();
- * await redis.set('key', 'value', 'EX', 3600); // 设置 1 小时过期
- * const value = await redis.get('key');
- */
 export const createRedisClient = (): Redis => {
-  return new Redis({
-    // Redis 服务器地址
+  const redis = new Redis({
     host: process.env.REDIS_HOST || 'localhost',
-
-    // Redis 服务器端口
     port: parseInt(process.env.REDIS_PORT || '6379', 10),
-
-    // Redis 密码（如果有）
     password: process.env.REDIS_PASSWORD || '',
-
-    // 数据库编号
-    // Redis 默认有 16 个数据库（0-15），可以用来隔离不同用途的数据
     db: 0,
-
-    // 连接超时时间（毫秒）
     connectTimeout: 10000,
-
-    // 每次请求最大重试次数
     maxRetriesPerRequest: 3,
+    retryStrategy: (times: number) => {
+      if (times > 3) {
+        console.error('❌ Redis 连接重试次数超过限制');
+        return null;
+      }
+      const delay = Math.min(times * 100, 2000);
+      console.warn(`⚠️  Redis 连接失败，${delay}ms 后重试 (第 ${times} 次)`);
+      return delay;
+    },
   });
+
+  redis.on('connect', () => {
+    console.log('✅ Redis 连接成功');
+    console.log(
+      `   - 主机: ${process.env.REDIS_HOST || 'localhost'}:${process.env.REDIS_PORT || '6379'}`,
+    );
+  });
+
+  redis.on('error', (error) => {
+    console.error('❌ Redis 连接错误:', error.message);
+  });
+
+  redis.on('close', () => {
+    console.warn('⚠️  Redis 连接已关闭');
+  });
+
+  redis.on('reconnecting', () => {
+    console.log('🔄 Redis 正在重新连接...');
+  });
+
+  return redis;
 };
 
 /**

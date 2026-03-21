@@ -78,6 +78,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       } else if (typeof exceptionResponse === 'object') {
         // 如果响应是对象，尝试提取 message 字段
         const responseObj = exceptionResponse as Record<string, any>;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         message = responseObj.message || exception.message;
       }
     } else if (exception instanceof Error) {

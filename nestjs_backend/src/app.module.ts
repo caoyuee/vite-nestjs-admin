@@ -34,6 +34,7 @@ import { UploadModule } from './modules/upload/upload.module';
 // 导入全局过滤器、拦截器、守卫
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
+import { HttpLoggingInterceptor } from './common/interceptors/http-logging.interceptor';
 import { WinstonLoggerService } from './common/services/logger.service';
 import { getDatabaseConfig } from './config/database.config';
 
@@ -93,6 +94,12 @@ import { getDatabaseConfig } from './config/database.config';
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
+    // 全局 HTTP 日志拦截器
+    // 记录所有 HTTP 请求和响应信息
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpLoggingInterceptor,
+    },
     // 全局响应拦截器
     // APP_INTERCEPTOR 用于注册全局拦截器
     // 拦截器用于在响应返回前统一处理数据格式
@@ -100,11 +107,6 @@ import { getDatabaseConfig } from './config/database.config';
       provide: APP_INTERCEPTOR,
       useClass: ResponseInterceptor,
     },
-    // 全局 JWT 守卫（暂时注释，使用 @UseGuards 装饰器单独控制）
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: JwtAuthGuard,
-    // },
   ],
 })
 export class AppModule {}

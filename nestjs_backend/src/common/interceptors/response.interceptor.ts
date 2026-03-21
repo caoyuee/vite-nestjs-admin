@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 /**
  * @file response.interceptor.ts
  * @description 响应拦截器 - 统一处理响应数据格式
@@ -84,6 +85,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<
         return {
           code: 200, // HTTP 状态码，200 表示成功
           message: 'success', // 响应消息
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           data: data ?? null, // 实际数据，如果是 undefined 则返回 null
         };
       }),

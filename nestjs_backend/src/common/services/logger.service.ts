@@ -60,12 +60,15 @@ export class WinstonLoggerService implements LoggerService {
     });
 
     const consoleFormat = printf(({ level, message, timestamp, ...meta }) => {
-      const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
+      const metaStr = Object.keys(meta).length
+        ? JSON.stringify(meta, null, 2)
+        : '';
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       return `${timestamp} [${level}]: ${message} ${metaStr}`;
     });
 
     return winston.createLogger({
-      level: process.env.LOG_LEVEL || 'info',
+      level: process.env.LOG_LEVEL || 'http',
       format: combine(timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), json()),
       transports: [
         new winston.transports.Console({
@@ -79,12 +82,18 @@ export class WinstonLoggerService implements LoggerService {
         new winston.transports.File({
           filename: path.join(this.logDir, 'error.log'),
           level: 'error',
-          format: combine(timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), customFormat),
+          format: combine(
+            timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+            customFormat,
+          ),
         }),
 
         new winston.transports.File({
           filename: path.join(this.logDir, 'combined.log'),
-          format: combine(timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), customFormat),
+          format: combine(
+            timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+            customFormat,
+          ),
         }),
       ],
     });
@@ -94,7 +103,11 @@ export class WinstonLoggerService implements LoggerService {
     this.logger.info(message, { context });
   }
 
-  error(message: string, trace?: string, context?: string | Record<string, any>) {
+  error(
+    message: string,
+    trace?: string,
+    context?: string | Record<string, any>,
+  ) {
     if (typeof context === 'object') {
       this.logger.error(message, { trace, ...context });
     } else {

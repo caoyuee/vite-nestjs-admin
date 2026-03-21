@@ -47,8 +47,8 @@ export class LogController {
    */
   @Get('logs')
   @ApiOperation({ summary: '获取系统日志' })
-  async getLogs(@Query() query: LogQueryDto) {
-    const result = await this.logService.getLogs(query);
+  getLogs(@Query() query: LogQueryDto) {
+    const result = this.logService.getLogs(query);
     return {
       code: 200,
       message: '获取成功',
@@ -72,11 +72,8 @@ export class LogController {
    */
   @Delete('logs')
   @ApiOperation({ summary: '清空日志' })
-  async clearLogs(
-    @Query() query: ClearLogDto,
-    @CurrentUser() _user: JwtPayload,
-  ) {
-    const result = await this.logService.clearLogs(query);
+  clearLogs(@Query() query: ClearLogDto, @CurrentUser() _user: JwtPayload) {
+    const result = this.logService.clearLogs(query);
     return {
       code: 200,
       message: `成功清理 ${result.deletedCount} 个日志文件`,

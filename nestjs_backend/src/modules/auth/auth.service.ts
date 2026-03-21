@@ -99,10 +99,7 @@ export class AuthService {
     // 步骤 2：验证密码
     // bcrypt.compareSync 对比明文密码和加密后的密码
     // 返回 true 表示密码正确，false 表示密码错误
-    const passwordMatch = bcrypt.compareSync(
-      loginDto.password,
-      user.password,
-    );
+    const passwordMatch = bcrypt.compareSync(loginDto.password, user.password);
     if (!passwordMatch) {
       throw new UnauthorizedException('密码错误');
     }
@@ -123,12 +120,7 @@ export class AuthService {
     // 这样可以实现主动让 token 失效（登出）
     // key: token_{用户ID}, value: token, 过期时间: 7 天
     const sevenDaysInSeconds = 7 * 24 * 60 * 60;
-    await this.redis.set(
-      `token_${user.id}`,
-      token,
-      'EX',
-      sevenDaysInSeconds,
-    );
+    await this.redis.set(`token_${user.id}`, token, 'EX', sevenDaysInSeconds);
 
     // 步骤 5：返回 token
     return {

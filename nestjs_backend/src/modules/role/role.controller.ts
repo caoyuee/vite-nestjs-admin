@@ -17,11 +17,11 @@
 
 import {
   Controller,
-  Get,      // 处理 GET 请求
-  Post,     // 处理 POST 请求
-  Delete,   // 处理 DELETE 请求
-  Body,     // 获取请求体
-  Query,    // 获取查询参数
+  Get, // 处理 GET 请求
+  Post, // 处理 POST 请求
+  Delete, // 处理 DELETE 请求
+  Body, // 获取请求体
+  Query, // 获取查询参数
   UseGuards, // 使用守卫
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';

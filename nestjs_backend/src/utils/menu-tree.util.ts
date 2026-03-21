@@ -21,25 +21,25 @@ import { Menu } from '../entities/menu.entity';
  * 与 Menu 实体类似，但增加了 children 字段
  */
 export interface MenuTreeItem {
-  id: number | string;       // 菜单ID
-  index: number;             // 排序序号
-  type: number;              // 菜单类型
-  parentId: number;          // 父级菜单ID
-  path: string;              // 路由路径
-  name: string;              // 路由名称
-  nameZH: string;            // 中文名称
-  component: string;         // 组件路径
-  redirect: string | null;   // 重定向地址
-  status: boolean;           // 状态
+  id: number | string; // 菜单ID
+  index: number; // 排序序号
+  type: number; // 菜单类型
+  parentId: number; // 父级菜单ID
+  path: string; // 路由路径
+  name: string; // 路由名称
+  nameZH: string; // 中文名称
+  component: string; // 组件路径
+  redirect: string | null; // 重定向地址
+  status: boolean; // 状态
   meta: {
-    icon?: string;           // 图标
-    title: string;           // 标题
-    isLink?: string;         // 外部链接
-    isHide?: boolean;        // 是否隐藏
-    isFull?: boolean;        // 是否全屏
-    isAffix?: boolean;       // 是否固定
-    isKeepAlive?: boolean;   // 是否缓存
-    activeMenu?: string;     // 高亮菜单
+    icon?: string; // 图标
+    title: string; // 标题
+    isLink?: string; // 外部链接
+    isHide?: boolean; // 是否隐藏
+    isFull?: boolean; // 是否全屏
+    isAffix?: boolean; // 是否固定
+    isKeepAlive?: boolean; // 是否缓存
+    activeMenu?: string; // 高亮菜单
   };
   children?: MenuTreeItem[]; // 子菜单列表
   createTime?: Date | string;
@@ -88,7 +88,7 @@ export function convertToSortedTree(menuData: Menu[]): MenuTreeItem[] {
       menuMap.set(item.id, {
         ...item,
         id: item.id,
-        children: [],  // 初始化 children 为空数组
+        children: [], // 初始化 children 为空数组
       });
     });
 
@@ -129,7 +129,7 @@ export function convertToSortedTree(menuData: Menu[]): MenuTreeItem[] {
  */
 function sortRecursive(nodes: MenuTreeItem[]): MenuTreeItem[] {
   return nodes
-    .sort((a, b) => a.index - b.index)  // 按 index 升序排序
+    .sort((a, b) => a.index - b.index) // 按 index 升序排序
     .map((node) => ({
       ...node,
       // 递归排序子菜单
@@ -146,21 +146,21 @@ function sortRecursive(nodes: MenuTreeItem[]): MenuTreeItem[] {
  * 用于权限合并时的角色数据结构
  */
 export interface RoleItem {
-  id: string;                      // 角色ID
-  useProTable: string[];           // 表格权限ID列表
-  authButton: string[];            // 按钮权限ID列表
-  useMenus: (string | number)[];   // 菜单权限ID列表
+  id: string; // 角色ID
+  useProTable: string[]; // 表格权限ID列表
+  authButton: string[]; // 按钮权限ID列表
+  useMenus: (string | number)[]; // 菜单权限ID列表
 }
 
 /**
  * 合并后的权限数据接口
  */
 export interface AuthData {
-  useProTable?: string[];          // 表格权限标识符列表
-  useProTableIds?: string[];       // 表格权限ID列表
-  authButton?: string[];           // 按钮权限标识符列表
-  authButtonIds?: string[];        // 按钮权限ID列表
-  useMenus: (string | number)[];   // 菜单权限ID列表
+  useProTable?: string[]; // 表格权限标识符列表
+  useProTableIds?: string[]; // 表格权限ID列表
+  authButton?: string[]; // 按钮权限标识符列表
+  authButtonIds?: string[]; // 按钮权限ID列表
+  useMenus: (string | number)[]; // 菜单权限ID列表
 }
 
 /**
@@ -189,7 +189,7 @@ export interface AuthData {
 export function extractAndMergeAuthDataAdvanced(
   roles: RoleItem[],
   options: {
-    sort?: boolean;        // 是否排序
+    sort?: boolean; // 是否排序
     filterEmpty?: boolean; // 是否过滤空值
   } = {},
 ): AuthData {

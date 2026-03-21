@@ -17,9 +17,9 @@
 
 import {
   Controller,
-  Post,               // 处理 POST 请求
-  UseInterceptors,    // 使用拦截器
-  UploadedFile,       // 获取上传的文件
+  Post, // 处理 POST 请求
+  UseInterceptors, // 使用拦截器
+  UploadedFile, // 获取上传的文件
 } from '@nestjs/common';
 // FileInterceptor 是 Multer 的文件拦截器
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -74,7 +74,7 @@ export class UploadController {
       properties: {
         file: {
           type: 'string',
-          format: 'binary',  // 二进制文件
+          format: 'binary', // 二进制文件
         },
       },
     },
@@ -98,7 +98,7 @@ export class UploadController {
     return {
       code: 200,
       message: '上传成功',
-      data: { fileUrl: filepath },  // 前端可以使用这个 URL 访问文件
+      data: { fileUrl: filepath }, // 前端可以使用这个 URL 访问文件
     };
   }
 }
