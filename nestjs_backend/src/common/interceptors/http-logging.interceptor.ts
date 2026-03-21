@@ -7,6 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { WinstonLoggerService } from '../services/logger.service';
+import { JwtPayload } from '../interfaces/response.interface';
 
 @Injectable()
 export class HttpLoggingInterceptor implements NestInterceptor {
@@ -21,7 +22,7 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     const startTime = Date.now();
 
     // 获取用户信息
-    const user = request.user as { sub?: string; username?: string } | undefined;
+    const user = request.user as JwtPayload | undefined;
     const userId = user?.sub || '-';
     const username = user?.username || '-';
 

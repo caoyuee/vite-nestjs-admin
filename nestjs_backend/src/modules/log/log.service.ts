@@ -38,9 +38,9 @@ export interface LogEntry {
   status?: number; // HTTP 响应状态码（仅 HTTP 日志）
   duration?: string; // 请求处理时间（仅 HTTP 日志）
   ip?: string; // 客户端 IP
-  username: string; // 用户名
-  statusCode: number; // HTTP 响应状态码（仅 HTTP 日志）
-  userId: string; // 用户ID
+  username?: string; // 用户名
+  statusCode?: number; // HTTP 响应状态码（仅 HTTP 日志）
+  userId?: string; // 用户ID
   error?: string; // 错误信息（仅错误日志）
   query?: unknown; // 查询参数（仅 HTTP 日志）
 }
@@ -147,9 +147,9 @@ export class LogService {
                 ip: log.ip,
                 userId: log.userId || '-',
                 username: log.username || '-',
-                statusCode: log.status || '-',
-                duration: log.duration || '-',
-                query: log.query || '-',
+                statusCode: log.statusCode || log.status,
+                duration: log.duration,
+                query: log.query,
               });
             } catch {
               // JSON 解析失败，忽略该行
