@@ -3,8 +3,8 @@ set -euo pipefail
 
 # 基于 Linux 的启动脚本：后台启动 redis（如果可用）、后端与前端，并将日志写入 scripts/logs
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-BACKEND_DIR="$ROOT_DIR/koajs_backend"
-FRONTEND_DIR="$ROOT_DIR/koajs-fronted-vite"
+BACKEND_DIR="$ROOT_DIR/backend_nestjs"
+FRONTEND_DIR="$ROOT_DIR/fronted_vite"
 LOG_DIR="$ROOT_DIR/scripts/logs"
 mkdir -p "$LOG_DIR"
 

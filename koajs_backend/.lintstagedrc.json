@@ -1,4 +1,0 @@
-{
-  "src/**/*.{ts,js}": ["pnpm run lint:fix", "pnpm run format", "git add"],
-  "package.json": ["pnpm run format", "git add"]
-}

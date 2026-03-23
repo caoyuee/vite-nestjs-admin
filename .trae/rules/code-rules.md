@@ -1,20 +1,19 @@
 # 项目代码规范
 
-本文档定义了 `koajs-fronted-backend` 项目的统一代码编写规范，涵盖前端（Vue 3 + Vite）、KoaJS 后端和 NestJS 后端三个子项目。
+本文档定义了 `front_backend_vite_nestjs` 项目的统一代码编写规范，涵盖前端（Vue 3 + Vite）和 NestJS 后端 2 个子项目。
 
----
+***
 
 ## 目录
 
 1. [通用规范](#通用规范)
-2. [前端项目规范 (koajs-fronted-vite)](#前端项目规范-koajs-fronted-vite)
-3. [KoaJS 后端规范 (koajs_backend)](#koajs-后端规范-koajs_backend)
-4. [NestJS 后端规范 (nestjs_backend)](#nestjs-后端规范-nestjs_backend)
-5. [Git 提交规范](#git-提交规范)
-6. [文件命名规范](#文件命名规范)
-7. [目录结构规范](#目录结构规范)
+2. [前端项目规范 (fronted_vite)](#前端项目规范-fronted_vite)
+3. [NestJS 后端规范 (nestjs_backend)](#nestjs-后端规范-nestjs_backend)
+4. [Git 提交规范](#git-提交规范)
+5. [文件命名规范](#文件命名规范)
+6. [目录结构规范](#目录结构规范)
 
----
+***
 
 ## 通用规范
 
@@ -85,9 +84,10 @@
 /**
  * 获取用户列表数据
  *
+ * @description 分页查询用户列表，支持按用户名、姓名、邮箱、电话、状态筛选
  * @param {UserListQueryDto} query - 查询参数对象
- * @returns {Promise<{ code: number; message: string; data: UserList }>} 用户列表响应
- * @throws {BadRequestException} 当查询参数无效时抛出
+ * @returns {Promise<{ code: number; message: string; data: { list: User[], total: number } }>} 用户列表响应
+ * @throws {NotFoundException} 当查询参数无效时抛出
  * @example
  * // 调用示例
  * const result = await userService.getUserList({ pageNum: 1, pageSize: 10 });
@@ -103,13 +103,12 @@ async getUserList(query: UserListQueryDto) {
 /**
  * 创建新用户
  *
- * @public
- * @static
- * @async
+ * @description 创建新用户的流程：1. 检查用户名是否已存在 2. 创建用户实体 3. 加密密码 4. 保存到数据库
  * @param {CreateUserDto} createUserDto - 用户创建参数
  * @returns {Promise<{ code: number; message: string; data: null }>} 创建结果
+ * @throws {BadRequestException} 用户已存在或创建失败
  */
-public static async createUser(createUserDto: CreateUserDto) {
+async createUser(createUserDto: CreateUserDto) {
   // 实现逻辑...
 }
 ```
@@ -172,16 +171,16 @@ const dbConfig: DataSourceOptions = {
 
 ```typescript
 const result = await this.userRepository.findAndCount({
-  where,           // 查询条件
-  skip: (pageNum - 1) * pageSize,  // 跳过记录数
-  take: pageSize,  // 每页记录数
-  order: { createTime: 'DESC' },   // 按创建时间倒序
+  where,                              // 查询条件
+  skip: (pageNum - 1) * pageSize,     // 跳过记录数
+  take: pageSize,                     // 每页记录数
+  order: { createTime: 'DESC' },      // 按创建时间倒序
 });
 ```
 
----
+***
 
-## 前端项目规范 (koajs-fronted-vite)
+## 前端项目规范 (fronted_vite)
 
 ### 技术栈
 
@@ -401,174 +400,20 @@ $font-size-base: 14px;
 $border-radius-base: 4px;
 ```
 
----
-
-## KoaJS 后端规范 (koajs_backend)
-
-### 技术栈
-
-- **框架**: Koa 3.x
-- **路由**: @koa/router
-- **ORM**: TypeORM 0.3.x
-- **数据库**: MySQL
-- **缓存**: Redis (ioredis)
-- **认证**: JWT (koa-jwt)
-- **日志**: Winston
-
-### 目录结构
-
-```
-koajs_backend/
-├── src/
-│   ├── config/          # 配置文件
-│   │   ├── DB.conf.ts
-│   │   ├── JWT.conf.ts
-│   │   └── REDIS.conf.ts
-│   ├── controllers/     # 控制器
-│   ├── entity/          # TypeORM 实体
-│   ├── service/         # 业务逻辑
-│   ├── middleware/      # 中间件
-│   ├── types/           # 类型定义
-│   └── index.ts         # 入口文件
-├── logs/                # 日志目录
-└── dist/                # 编译输出
-```
-
-### 控制器规范
-
-```typescript
-// src/controllers/example.ts
-import type { RouterContext } from '@koa/router';
-import type { ExampleQuery } from '../types/Example.d.ts';
-import ExampleService from '../service/ExampleService.ts';
-
-export default class ExampleController {
-  /**
-   * 获取列表
-   *
-   * @public
-   * @static
-   * @async
-   * @param {RouterContext} ctx
-   * @returns {Promise<void>}
-   */
-  public static async getList(ctx: RouterContext): Promise<void> {
-    const query = ctx.request.query as unknown as ExampleQuery;
-    const result = await ExampleService.getList(query);
-    ctx.body = result;
-  }
-
-  /**
-   * 创建项目
-   *
-   * @public
-   * @static
-   * @async
-   * @param {RouterContext} ctx
-   * @returns {Promise<void>}
-   */
-  public static async create(ctx: RouterContext): Promise<void> {
-    const data = ctx.request.body;
-    const result = await ExampleService.create(data);
-    ctx.body = result;
-  }
-}
-```
-
-### Entity 实体规范
-
-```typescript
-// src/entity/Example.ts
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  BaseEntity,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from 'typeorm';
-
-@Entity('example_table')
-export class Example extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column({ type: 'varchar', length: 100, comment: '名称' })
-  name: string;
-
-  @Column({ type: 'int', default: 0, comment: '排序' })
-  sort: number;
-
-  @Column({ type: 'int', default: 1, comment: '状态：1启用 0禁用' })
-  status: number;
-
-  @Column({ type: 'json', nullable: true, comment: '扩展信息' })
-  detail: Record<string, unknown> | null;
-
-  @CreateDateColumn({ name: 'create_time', nullable: true })
-  createTime: Date;
-
-  @UpdateDateColumn({ name: 'update_time', nullable: true })
-  updateTime: Date | null;
-
-  @DeleteDateColumn({
-    name: 'delete_time',
-    type: 'timestamp',
-    nullable: true,
-    comment: '软删除时间戳，NULL表示未删除',
-  })
-  deleteTime: Date | null;
-}
-```
-
-### 路由规范
-
-```typescript
-// src/routes/example.ts
-import Router from '@koa/router';
-import ExampleController from '../controllers/example.ts';
-import { authMiddleware } from '../middleware/auth.ts';
-
-const router = new Router({ prefix: '/api/example' });
-
-// 需要认证的路由
-router.get('/list', authMiddleware, ExampleController.getList);
-router.post('/create', authMiddleware, ExampleController.create);
-
-// 公开路由
-router.get('/public', ExampleController.getPublicData);
-
-export default router;
-```
-
-### 配置文件规范
-
-```typescript
-// src/config/DB.conf.ts
-import type { DataSourceOptions } from 'typeorm';
-
-export const dbConfig: DataSourceOptions = {
-  type: 'mysql',
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '3306'),
-  username: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'test',
-  synchronize: false,
-  logging: process.env.NODE_ENV === 'development',
-  entities: ['src/entity/**/*.ts'],
-};
-```
-
----
+***
 
 ## NestJS 后端规范 (nestjs_backend)
 
 ### 技术栈
 
 - **框架**: NestJS 11.x
-- **语言**: TypeScript
+- **ORM**: TypeORM 0.3.x
+- **数据库**: MySQL
+- **缓存**: Redis (ioredis)
+- **认证**: @nestjs/jwt + @nestjs/passport + passport-jwt
+- **日志**: Winston + winston-daily-rotate-file
+- **验证**: class-validator + class-transformer
+- **API 文档**: @nestjs/swagger
 - **测试**: Jest
 
 ### 目录结构
@@ -576,34 +421,78 @@ export const dbConfig: DataSourceOptions = {
 ```
 nestjs_backend/
 ├── src/
-│   ├── modules/         # 功能模块
-│   │   ├── auth/
-│   │   │   ├── auth.controller.ts
-│   │   │   ├── auth.service.ts
-│   │   │   ├── auth.module.ts
-│   │   │   └── dto/
-│   │   └── user/
-│   ├── common/          # 公共模块
-│   │   ├── decorators/
-│   │   ├── filters/
-│   │   ├── guards/
-│   │   ├── interceptors/
-│   │   └── pipes/
-│   ├── config/          # 配置
-│   └── main.ts          # 入口
-├── test/                # 测试文件
-└── dist/                # 编译输出
+│   ├── common/              # 公共模块
+│   │   ├── decorators/      # 自定义装饰器
+│   │   │   ├── current-user.decorator.ts
+│   │   │   └── public.decorator.ts
+│   │   ├── filters/         # 异常过滤器
+│   │   │   └── http-exception.filter.ts
+│   │   ├── guards/          # 守卫
+│   │   │   └── jwt-auth.guard.ts
+│   │   ├── interceptors/    # 拦截器
+│   │   │   ├── http-logging.interceptor.ts
+│   │   │   └── response.interceptor.ts
+│   │   ├── interfaces/      # 公共接口
+│   │   │   └── response.interface.ts
+│   │   └── services/        # 公共服务
+│   │       └── logger.service.ts
+│   ├── config/              # 配置文件
+│   │   ├── database.config.ts
+│   │   ├── jwt.config.ts
+│   │   ├── redis.config.ts
+│   │   └── upload.config.ts
+│   ├── entities/            # TypeORM 实体
+│   │   ├── user.entity.ts
+│   │   ├── menu.entity.ts
+│   │   ├── role.entity.ts
+│   │   ├── auth.entity.ts
+│   │   ├── dictionary.entity.ts
+│   │   └── personnel.entity.ts
+│   ├── modules/             # 功能模块
+│   │   ├── auth/            # 认证模块
+│   │   ├── user/            # 用户模块
+│   │   ├── menu/            # 菜单模块
+│   │   ├── role/            # 角色模块
+│   │   ├── auth-permission/ # 权限模块
+│   │   ├── log/             # 日志模块
+│   │   ├── upload/          # 上传模块
+│   │   └── dictionary/      # 字典模块
+│   ├── utils/               # 工具函数
+│   │   ├── menu-tree.util.ts
+│   │   └── index.ts
+│   ├── app.module.ts        # 根模块
+│   └── main.ts              # 入口文件
+├── test/                    # 测试文件
+└── dist/                    # 编译输出
 ```
 
 ### 模块规范
 
+每个功能模块应包含以下文件：
+
+```
+module-name/
+├── dto/                     # 数据传输对象
+│   ├── create-xxx.dto.ts
+│   ├── update-xxx.dto.ts
+│   └── xxx-list-query.dto.ts
+├── xxx.controller.ts        # 控制器
+├── xxx.service.ts           # 服务
+└── xxx.module.ts            # 模块定义
+```
+
+#### 模块定义
+
 ```typescript
 // src/modules/example/example.module.ts
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { ExampleController } from './example.controller';
 import { ExampleService } from './example.service';
+import { Example } from '../../entities/example.entity';
 
 @Module({
+  imports: [TypeOrmModule.forFeature([Example])],
   controllers: [ExampleController],
   providers: [ExampleService],
   exports: [ExampleService],
@@ -614,28 +503,76 @@ export class ExampleModule {}
 ### 控制器规范
 
 ```typescript
-// src/modules/example/example.controller.ts
-import { Controller, Get, Post, Body, Query, Param } from '@nestjs/common';
-import { ExampleService } from './example.service';
-import { CreateExampleDto } from './dto/create-example.dto';
+// src/modules/user/user.controller.ts
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { UserService } from './user.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UserListQueryDto } from './dto/user-list-query.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { Public } from '../../common/decorators/public.decorator';
+import type { JwtPayload } from '../../common/interfaces/response.interface';
 
-@Controller('example')
-export class ExampleController {
-  constructor(private readonly exampleService: ExampleService) {}
+/**
+ * 用户控制器
+ *
+ * @class UserController
+ * @description 处理用户管理相关的所有 HTTP 请求，路由前缀：/api/system/user
+ */
+@ApiTags('用户')
+@Controller('api/system/user')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+export class UserController {
+  constructor(private readonly userService: UserService) {}
 
-  @Get()
-  findAll(@Query() query: QueryDto) {
-    return this.exampleService.findAll(query);
+  /**
+   * 获取当前登录用户信息
+   *
+   * @description GET /api/system/user/userInfo，返回当前登录用户的详细信息
+   * @param user - 当前登录用户（由 @CurrentUser 装饰器注入）
+   */
+  @Get('userInfo')
+  @ApiOperation({ summary: '获取当前用户信息' })
+  async getUserInfo(@CurrentUser() user: JwtPayload) {
+    return this.userService.getUserInfo(user.sub);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.exampleService.findOne(+id);
+  /**
+   * 创建新用户
+   *
+   * @description POST /api/system/user/addUser，创建新用户（注册）
+   * @Public() 标记为公开接口，不需要认证
+   * @param createUserDto - 用户创建参数
+   */
+  @Public()
+  @Post('addUser')
+  @ApiOperation({ summary: '创建新用户' })
+  async createUser(@Body() createUserDto: CreateUserDto) {
+    return this.userService.createUser(createUserDto);
   }
 
-  @Post()
-  create(@Body() createExampleDto: CreateExampleDto) {
-    return this.exampleService.create(createExampleDto);
+  /**
+   * 获取用户列表
+   *
+   * @description GET /api/system/user/userList，分页查询用户列表
+   * @param query - 查询参数（分页、筛选条件）
+   */
+  @Get('userList')
+  @ApiOperation({ summary: '获取用户列表' })
+  async getUserList(@Query() query: UserListQueryDto) {
+    return this.userService.getUserList(query);
   }
 }
 ```
@@ -643,40 +580,135 @@ export class ExampleController {
 ### Service 规范
 
 ```typescript
-// src/modules/example/example.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+// src/modules/user/user.service.ts
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Example } from './entities/example.entity';
-import { CreateExampleDto } from './dto/create-example.dto';
+import * as bcrypt from 'bcryptjs';
+import { User } from '../../entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UserListQueryDto } from './dto/user-list-query.dto';
 
+/**
+ * 用户服务
+ *
+ * @class UserService
+ * @description 处理用户管理相关的所有业务逻辑
+ */
 @Injectable()
-export class ExampleService {
+export class UserService {
   constructor(
-    @InjectRepository(Example)
-    private readonly exampleRepository: Repository<Example>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
-  async findAll(query: QueryDto) {
-    const { page = 1, pageSize = 10 } = query;
-    const [list, total] = await this.exampleRepository.findAndCount({
-      skip: (page - 1) * pageSize,
-      take: pageSize,
+  /**
+   * 获取用户信息
+   *
+   * @description 根据用户 ID 查询用户详细信息，返回的用户信息不包含密码字段
+   * @param userId - 用户 ID
+   * @returns 用户信息响应
+   * @throws {NotFoundException} 用户不存在
+   */
+  async getUserInfo(userId: string) {
+    const user = await this.userRepository.findOne({
+      where: { id: Number(userId) },
     });
-    return { list, total, page, pageSize };
-  }
 
-  async findOne(id: number) {
-    const item = await this.exampleRepository.findOne({ where: { id } });
-    if (!item) {
-      throw new NotFoundException(`Example #${id} not found`);
+    if (!user) {
+      throw new NotFoundException('用户不存在');
     }
-    return item;
+
+    const { password: _password, ...userInfo } = user;
+
+    return {
+      code: 200,
+      message: 'success',
+      data: userInfo,
+    };
   }
 
-  async create(createExampleDto: CreateExampleDto) {
-    const item = this.exampleRepository.create(createExampleDto);
-    return this.exampleRepository.save(item);
+  /**
+   * 创建新用户
+   *
+   * @description 创建新用户的流程：1. 检查用户名是否已存在 2. 创建用户实体 3. 加密密码 4. 保存到数据库
+   * @param createUserDto - 用户创建参数
+   * @returns 创建结果响应
+   * @throws {BadRequestException} 用户已存在或创建失败
+   */
+  async createUser(createUserDto: CreateUserDto) {
+    // 步骤 1：检查用户名是否已存在
+    const existingUser = await this.userRepository.findOne({
+      where: { username: createUserDto.username },
+    });
+
+    if (existingUser) {
+      throw new BadRequestException('用户已存在，请直接登录');
+    }
+
+    // 步骤 2：创建用户实体
+    const user = new User();
+    user.name = createUserDto.name;
+    user.username = createUserDto.username;
+    user.status = createUserDto.status ?? true;
+
+    // 步骤 3：加密密码
+    const saltRounds = process.env.BCRYPT_SALT ? parseInt(process.env.BCRYPT_SALT) : 10;
+    user.password = bcrypt.hashSync(createUserDto.password, saltRounds);
+
+    // 步骤 4：保存到数据库
+    const result = await this.userRepository.save(user);
+    if (!result) {
+      throw new BadRequestException('创建用户失败');
+    }
+
+    return {
+      code: 201,
+      message: '创建成功,请登陆',
+      data: null,
+    };
+  }
+
+  /**
+   * 获取用户列表
+   *
+   * @description 分页查询用户列表，支持按用户名、姓名、邮箱、电话、状态筛选
+   * @param query - 查询参数
+   * @returns 用户列表响应
+   */
+  async getUserList(query: UserListQueryDto) {
+    const { pageNum = 1, pageSize = 10, ...filters } = query;
+
+    // 构建查询条件
+    const where: any = {};
+    if (filters.username) where.username = filters.username;
+    if (filters.name) where.name = filters.name;
+    if (filters.status !== undefined) where.status = filters.status;
+
+    // 执行分页查询
+    const [users, total] = await this.userRepository.findAndCount({
+      where,
+      skip: (pageNum - 1) * pageSize,
+      take: pageSize,
+      order: { createTime: 'DESC' },
+    });
+
+    // 移除密码字段
+    const userList = users.map((user) => {
+      const { password: _password, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    });
+
+    return {
+      code: 200,
+      message: 'success',
+      data: { list: userList, total },
+    };
   }
 }
 ```
@@ -684,36 +716,304 @@ export class ExampleService {
 ### DTO 规范
 
 ```typescript
-// src/modules/example/dto/create-example.dto.ts
-import { IsString, IsOptional, IsNumber, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+// src/modules/user/dto/create-user.dto.ts
+import {
+  IsString,
+  IsNotEmpty,
+  IsOptional,
+  IsBoolean,
+  IsArray,
+} from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class CreateExampleDto {
+/**
+ * 创建用户的 DTO 类
+ *
+ * @description 当前端发送 POST 请求创建用户时，请求体的数据会被映射到这个类
+ * NestJS 会自动验证数据是否符合装饰器的规则
+ */
+export class CreateUserDto {
+  @ApiProperty({ description: '用户名' })
   @IsString()
+  @IsNotEmpty({ message: '用户名不能为空' })
+  username: string;
+
+  @ApiProperty({ description: '密码' })
+  @IsString()
+  @IsNotEmpty({ message: '密码不能为空' })
+  password: string;
+
+  @ApiProperty({ description: '姓名' })
+  @IsString()
+  @IsNotEmpty({ message: '姓名不能为空' })
   name: string;
 
+  @ApiPropertyOptional({ description: '邮箱' })
   @IsOptional()
   @IsString()
-  description?: string;
+  email?: string;
 
+  @ApiPropertyOptional({ description: '电话' })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  sort?: number;
+  @IsString()
+  phone?: string;
+
+  @ApiPropertyOptional({ description: '头像' })
+  @IsOptional()
+  @IsString()
+  avatar?: string;
+
+  @ApiPropertyOptional({ description: '状态', default: true })
+  @IsOptional()
+  @IsBoolean()
+  status?: boolean;
+
+  @ApiPropertyOptional({ description: '角色ID列表', type: [String] })
+  @IsOptional()
+  @IsArray()
+  roles?: string[];
 }
+```
 
-export class QueryDto {
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(1)
-  page?: number = 1;
+### Entity 实体规范
 
-  @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
-  @Min(1)
-  pageSize?: number = 10;
+```typescript
+// src/entities/user.entity.ts
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
+
+/**
+ * 用户实体类
+ *
+ * @class User
+ * @extends BaseEntity
+ * @description 对应数据库中的 user 表，继承 BaseEntity 可以获得内置方法
+ */
+@Entity('user')
+export class User extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({ type: 'varchar' })
+  username: string;
+
+  @Column({ type: 'varchar' })
+  password: string;
+
+  @Column({ type: 'varchar' })
+  name: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  email: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  phone: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  avatar: string | null;
+
+  @Column({ type: 'boolean', default: true })
+  status: boolean;
+
+  @Column('simple-array', { nullable: true })
+  roles: string[];
+
+  @CreateDateColumn({ name: 'create_time', nullable: true })
+  createTime: Date;
+
+  @UpdateDateColumn({ name: 'update_time', nullable: true })
+  updateTime: Date;
+
+  @DeleteDateColumn({
+    name: 'delete_time',
+    type: 'timestamp',
+    nullable: true,
+    comment: '记录删除时间戳,NULL表示未删除',
+  })
+  deleteTime: Date | null;
+}
+```
+
+### 全局过滤器规范
+
+```typescript
+// src/common/filters/http-exception.filter.ts
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import { Response } from 'express';
+import { ApiResponse } from '../interfaces/response.interface';
+
+/**
+ * 全局异常过滤器
+ *
+ * @class HttpExceptionFilter
+ * @description 捕获所有类型的异常，统一返回标准格式的错误响应
+ */
+@Catch()
+export class HttpExceptionFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+
+    let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+    let message = '服务器内部错误';
+
+    if (exception instanceof HttpException) {
+      statusCode = exception.getStatus();
+      const exceptionResponse = exception.getResponse();
+
+      if (typeof exceptionResponse === 'string') {
+        message = exceptionResponse;
+      } else if (typeof exceptionResponse === 'object') {
+        const responseObj = exceptionResponse as Record<string, any>;
+        message = responseObj.message || exception.message;
+      }
+    } else if (exception instanceof Error) {
+      message = exception.message;
+    }
+
+    const errorResponse: ApiResponse<null> = {
+      code: statusCode,
+      message,
+      data: null,
+    };
+
+    response.status(statusCode).json(errorResponse);
+  }
+}
+```
+
+### 全局拦截器规范
+
+```typescript
+// src/common/interceptors/response.interceptor.ts
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ApiResponse } from '../interfaces/response.interface';
+
+/**
+ * 响应拦截器
+ *
+ * @class ResponseInterceptor
+ * @description 将所有响应数据包装成统一格式
+ */
+@Injectable()
+export class ResponseInterceptor<T> implements NestInterceptor<T, ApiResponse<T>> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<ApiResponse<T>> {
+    return next.handle().pipe(
+      map((data) => {
+        if (data && typeof data === 'object' && 'code' in data) {
+          return data;
+        }
+
+        return {
+          code: 200,
+          message: 'success',
+          data: data ?? null,
+        };
+      }),
+    );
+  }
+}
+```
+
+### 自定义装饰器规范
+
+#### @CurrentUser 装饰器
+
+```typescript
+// src/common/decorators/current-user.decorator.ts
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+
+/**
+ * 获取当前登录用户的装饰器
+ *
+ * @description 从请求对象中提取当前登录用户信息
+ * @example
+ * async getUserInfo(@CurrentUser() user: JwtPayload) {
+ *   return this.userService.getUserInfo(user.sub);
+ * }
+ */
+export const CurrentUser = createParamDecorator(
+  (data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return request.user;
+  },
+);
+```
+
+#### @Public 装饰器
+
+```typescript
+// src/common/decorators/public.decorator.ts
+import { SetMetadata } from '@nestjs/common';
+
+/**
+ * 标记接口为公开访问的装饰器
+ *
+ * @description 使用此装饰器的接口不需要 JWT 认证
+ * @example
+ * @Public()
+ * @Post('login')
+ * async login(@Body() loginDto: LoginDto) {
+ *   return this.authService.login(loginDto);
+ * }
+ */
+export const Public = () => SetMetadata('isPublic', true);
+```
+
+### JWT 认证守卫规范
+
+```typescript
+// src/common/guards/jwt-auth.guard.ts
+import { Injectable, ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { AuthGuard } from '@nestjs/passport';
+import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+
+/**
+ * JWT 认证守卫
+ *
+ * @class JwtAuthGuard
+ * @description 验证请求中的 JWT Token，保护需要认证的接口
+ */
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  constructor(private reflector: Reflector) {
+    super();
+  }
+
+  canActivate(context: ExecutionContext) {
+    // 检查是否标记为公开接口
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) {
+      return true;
+    }
+
+    return super.canActivate(context);
+  }
 }
 ```
 
@@ -723,6 +1023,7 @@ export class QueryDto {
 // src/main.ts
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -733,20 +1034,37 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
     }),
   );
 
   // 启用 CORS
   app.enableCors();
 
-  const port = process.env.PORT ?? 3000;
+  // 配置 Swagger API 文档
+  const config = new DocumentBuilder()
+    .setTitle('NestJS Backend API')
+    .setDescription('NestJS 的后端 API 文档')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('swagger/docs', app, document);
+
+  const port = process.env.PORT || 3000;
   await app.listen(port);
-  console.log(`Application is running on: http://localhost:${port}`);
+
+  console.log(`🚀 NestJS 应用启动成功！`);
+  console.log(`📡 服务地址: http://localhost:${port}`);
+  console.log(`📚 API 文档: http://localhost:${port}/swagger/docs`);
 }
-bootstrap();
+void bootstrap();
 ```
 
----
+***
 
 ## Git 提交规范
 
@@ -764,36 +1082,32 @@ bootstrap();
 
 ### Type 类型
 
-| 类型 | 描述 |
-|------|------|
-| `feat` | 新功能 |
-| `fix` | Bug 修复 |
-| `docs` | 文档更新 |
-| `style` | 代码格式调整（不影响功能） |
-| `refactor` | 代码重构 |
-| `perf` | 性能优化 |
-| `test` | 测试相关 |
-| `chore` | 构建/工具相关 |
-| `ci` | CI/CD 配置变更 |
-| `revert` | 回滚提交 |
+| 类型         | 描述            |
+| ---------- | ------------- |
+| `feat`     | 新功能           |
+| `fix`      | Bug 修复        |
+| `docs`     | 文档更新          |
+| `style`    | 代码格式调整（不影响功能） |
+| `refactor` | 代码重构          |
+| `perf`     | 性能优化          |
+| `test`     | 测试相关          |
+| `chore`    | 构建/工具相关       |
+| `ci`       | CI/CD 配置变更    |
+| `revert`   | 回滚提交          |
 
 ### Scope 范围
 
-| 范围 | 描述 |
-|------|------|
-| `frontend` | 前端项目 |
-| `koajs` | KoaJS 后端 |
-| `nestjs` | NestJS 后端 |
-| `shared` | 共享代码 |
+| 范围         | 描述        |
+| ---------- | --------- |
+| `frontend` | 前端项目 (fronted_vite) |
+| `nestjs`   | NestJS 后端 (nestjs_backend) |
+| `shared`   | 共享代码      |
 
 ### 示例
 
 ```bash
 # 新功能
 feat(frontend): 添加用户头像上传功能
-
-# Bug 修复
-fix(koajs): 修复 JWT token 过期时间计算错误
 
 # 文档更新
 docs(nestjs): 更新 API 接口文档
@@ -812,51 +1126,51 @@ release/<version>               # 发布分支
 ```
 
 示例：
+
 - `feature/frontend-user-profile`
-- `bugfix/koajs-auth-token`
 - `hotfix/nestjs-security-patch`
 - `release/v1.2.0`
 
----
+***
 
 ## 文件命名规范
 
 ### 通用规则
 
-| 类型 | 命名方式 | 示例 |
-|------|----------|------|
-| 目录 | kebab-case | `user-manage/` |
-| TypeScript 文件 | camelCase | `userService.ts` |
-| Vue 组件 | PascalCase | `LoginForm.vue` |
-| 类型定义文件 | camelCase | `index.d.ts` |
-| 配置文件 | kebab-case | `vite.config.ts` |
-| 样式文件 | kebab-case | `index.scss` |
-| 测试文件 | 原文件名 + `.spec` | `auth.service.spec.ts` |
+| 类型            | 命名方式           | 示例                     |
+| ------------- | -------------- | ---------------------- |
+| 目录            | kebab-case     | `user-manage/`         |
+| TypeScript 文件 | camelCase      | `userService.ts`       |
+| Vue 组件        | PascalCase     | `LoginForm.vue`        |
+| 类型定义文件        | camelCase      | `index.d.ts`           |
+| 配置文件          | kebab-case     | `vite.config.ts`       |
+| 样式文件          | kebab-case     | `index.scss`           |
+| 测试文件          | 原文件名 + `.spec` | `auth.service.spec.ts` |
 
 ### 特殊文件
 
-| 文件名 | 用途 |
-|--------|------|
-| `index.ts` | 模块入口/导出文件 |
-| `*.d.ts` | TypeScript 类型声明 |
-| `*.interface.ts` | 接口类型定义 |
-| `*.dto.ts` | NestJS 数据传输对象 |
-| `*.entity.ts` | TypeORM 实体定义 |
+| 文件名              | 用途              |
+| ---------------- | --------------- |
+| `index.ts`       | 模块入口/导出文件       |
+| `*.d.ts`         | TypeScript 类型声明 |
+| `*.interface.ts` | 接口类型定义          |
+| `*.dto.ts`       | NestJS 数据传输对象   |
+| `*.entity.ts`    | TypeORM 实体定义    |
 
----
+***
 
 ## 目录结构规范
 
 ### 前端项目目录
 
 ```
-koajs-fronted-vite/src/
+fronted_vite/src/
 ├── api/                 # API 接口
 │   ├── config/         # API 配置
 │   ├── helper/         # 辅助函数
 │   ├── interface/      # 接口类型定义
 │   └── modules/        # API 模块
-├── assets/             # 静态资源
+├── assets/            # 静态资源
 ├── components/         # 公共组件
 ├── config/             # 项目配置
 ├── directives/         # 自定义指令
@@ -872,22 +1186,34 @@ koajs-fronted-vite/src/
 └── views/              # 页面视图
 ```
 
-### 后端项目目录
+### NestJS 后端目录
 
 ```
-backend/src/
+nestjs_backend/src/
+├── common/             # 公共模块
+│   ├── decorators/    # 自定义装饰器
+│   ├── filters/       # 异常过滤器
+│   ├── guards/        # 守卫
+│   ├── interceptors/  # 拦截器
+│   ├── interfaces/    # 公共接口
+│   └── services/      # 公共服务
 ├── config/             # 配置文件
-├── controllers/        # 控制器 (KoaJS) / 模块控制器 (NestJS)
-├── entity/             # 实体定义 (KoaJS)
-├── modules/            # 功能模块 (NestJS)
-├── service/            # 业务逻辑 (KoaJS)
-├── middleware/         # 中间件 (KoaJS)
-├── common/             # 公共模块 (NestJS)
-├── types/              # 类型定义 (KoaJS)
-└── dto/                # 数据传输对象 (NestJS)
+├── entities/           # TypeORM 实体
+├── modules/            # 功能模块
+│   ├── auth/          # 认证模块
+│   ├── user/          # 用户模块
+│   ├── menu/          # 菜单模块
+│   ├── role/          # 角色模块
+│   ├── auth-permission/ # 权限模块
+│   ├── log/           # 日志模块
+│   ├── upload/        # 上传模块
+│   └── dictionary/    # 字典模块
+├── utils/              # 工具函数
+├── app.module.ts       # 根模块
+└── main.ts             # 入口文件
 ```
 
----
+***
 
 ## 开发流程规范
 
@@ -925,23 +1251,18 @@ backend/src/
 #### 各项目检查命令
 
 ```bash
-# 前端项目 (koajs-fronted-vite)
-cd koajs-fronted-vite
-pnpm run format        # Prettier 格式化
-pnpm run type-check    # TypeScript 类型检查
-pnpm run lint          # ESLint 检查
-
-# KoaJS 后端 (koajs_backend)
-cd koajs_backend
+# 前端项目 (fronted_vite)
+cd fronted_vite
 pnpm run format        # Prettier 格式化
 pnpm run type-check    # TypeScript 类型检查
 pnpm run lint          # ESLint 检查
 
 # NestJS 后端 (nestjs_backend)
 cd nestjs_backend
-pnpm run format        # Prettier 格式化（如未配置，使用 npx prettier --write "src/**/*.ts"）
+pnpm run format        # Prettier 格式化
 pnpm run build         # TypeScript 类型检查（编译时检查）
 pnpm run lint          # ESLint 检查
+pnpm run test          # 运行测试
 ```
 
 #### TypeScript 类型检查要求
@@ -985,13 +1306,8 @@ export default tseslint.config(
 
 ```bash
 # 前端项目
-cd koajs-fronted-vite
+cd fronted_vite
 pnpm run build
-
-# KoaJS 后端
-cd koajs_backend
-pnpm run lint
-pnpm run type-check
 
 # NestJS 后端
 cd nestjs_backend
@@ -1006,7 +1322,7 @@ pnpm run test
 - 验证功能是否正常
 - 检查测试覆盖率
 
----
+***
 
 ## 工具配置参考
 
@@ -1035,59 +1351,4 @@ pnpm run test
 - Prettier - Code formatter
 - Vue - Official (Vue Language Features, TypeScript Vue Plugin)
 - SCSS IntelliSense
-
----
-
-## 附录：从 KoaJS 迁移到 NestJS 的注意事项
-
-### 架构差异
-
-| KoaJS | NestJS |
-|-------|--------|
-| 控制器类 + 路由注册 | Controller 装饰器 + 模块注册 |
-| Service 类 | @Injectable() 装饰的服务 |
-| 中间件函数 | Guards / Interceptors / Pipes |
-| ctx.body = result | return result |
-
-### 常用迁移对照
-
-```typescript
-// KoaJS 控制器
-export default class UserController {
-  public static async getList(ctx: RouterContext): Promise<void> {
-    const result = await UserService.getList();
-    ctx.body = result;
-  }
-}
-
-// NestJS 控制器
-@Controller('user')
-export class UserController {
-  constructor(private readonly userService: UserService) {}
-
-  @Get('list')
-  async getList() {
-    return this.userService.getList();
-  }
-}
-```
-
-### TypeORM 实体兼容
-
-KoaJS 和 NestJS 都使用 TypeORM，实体定义可以直接复用：
-
-```typescript
-// 两个后端项目可共享相同的实体定义
-@Entity('user')
-export class User extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  username: string;
-}
-```
-
----
-
-*最后更新: 2026-03-20*
+***

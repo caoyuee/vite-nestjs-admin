@@ -3,8 +3,8 @@ set -euo pipefail
 
 # macOS 启动脚本，默认行为与 Linux 类似（不试图打开新终端）
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-BACKEND_DIR="$ROOT_DIR/koajs_backend"
-FRONTEND_DIR="$ROOT_DIR/koajs-fronted-vite"
+BACKEND_DIR="$ROOT_DIR/backend_nestjs"
+FRONTEND_DIR="$ROOT_DIR/fronted_vite"
 LOG_DIR="$ROOT_DIR/scripts/logs"
 mkdir -p "$LOG_DIR"
 

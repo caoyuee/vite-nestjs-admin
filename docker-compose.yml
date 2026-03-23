@@ -21,11 +21,11 @@ services:
 
   backend:
     build:
-      context: ./koajs_backend
+      context: ./backend_nestjs
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
-      - ./koajs_backend/.env
+      - ./backend_nestjs/.env
     depends_on:
       - db
       - redis
@@ -34,7 +34,7 @@ services:
 
   frontend:
     build:
-      context: ./koajs-fronted-vite
+      context: ./fronted_vite
       dockerfile: Dockerfile
     restart: unless-stopped
     ports:

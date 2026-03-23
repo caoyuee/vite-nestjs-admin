@@ -1,6 +1,0 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-# Run lint-staged inside backend
-cd "$(git rev-parse --show-toplevel)/koajs_backend" || exit 0
-pnpm run lint-staged

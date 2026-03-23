@@ -12,12 +12,12 @@ if (!fs.existsSync(logsDir)) {
   const p = path.join(logsDir, f);
   try {
     fs.writeFileSync(p, "", { flag: "a" });
-  } catch (e) {}
+  } catch (e) { }
 });
 
 // 默认路径（可通过修改此文件或用 ENV/参数扩展）
 const redisExe = "C:\\service\\Redis-8.2.3-msys2\\redis-server.exe";
-const backendPath = path.resolve(__dirname, "..", "koajs_backend");
+const backendPath = path.resolve(__dirname, "..", "backend_nestjs");
 
 console.log("Starting Redis service...");
 exec(`start "Redis Server" "${redisExe}"`, (err) => {
@@ -43,7 +43,7 @@ exec(cmd, (err) => {
 console.log("Done!");
 
 //再启动前端项目
-const frontendPath = path.resolve(__dirname, "..", "koajs-fronted-vite");
+const frontendPath = path.resolve(__dirname, "..", "fronted_vite");
 console.log("Starting Koa.js frontend service...");
 const frontendCmd = `start "Koa.js Frontend" cmd /k "cd /d ${frontendPath} && pnpm run dev"`;
 exec(frontendCmd, (err) => {
