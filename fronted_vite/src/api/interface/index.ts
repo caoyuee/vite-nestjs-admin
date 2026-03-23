@@ -249,6 +249,36 @@ export namespace Role {
   }
 }
 
+//字典管理模块
+export namespace Dictionary {
+  export interface BaseDictionary {
+    name: string;
+    dictType: string;
+    label: string;
+    value: string;
+    tag: string;
+    sort?: number;
+  }
+
+  export interface QueryDictionary extends ReqPage {
+    name?: string;
+    dictType?: string;
+    [key: string]: unknown;
+  }
+
+  export interface CreateDictionary extends BaseDictionary { }
+
+  export interface UpdateDictionary extends Partial<BaseDictionary> {
+    id: number;
+  }
+
+  export interface DictionaryItem extends BaseDictionary {
+    id: number;
+    createTime: Date | string;
+    updateTime: Date | null | string;
+  }
+}
+
 export namespace Auth {
   export interface AuthDataList {
     id: string;

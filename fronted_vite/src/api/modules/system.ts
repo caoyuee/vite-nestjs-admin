@@ -1,4 +1,4 @@
-import type { ResPage, Menu, Account, Role, Auth, System } from "@/api/interface/index";
+import type { ResPage, Menu, Account, Role, Auth, System, Dictionary } from "@/api/interface/index";
 import { PORT1 } from "@/api/config/servicePort";
 import http from "@/api";
 
@@ -93,4 +93,25 @@ export const clearSystemLogs = (params?: System.ClearLogsParams) => {
     PORT1 + `/user/logs`,
     params
   );
+};
+
+//字典列表
+export const getDictionaryList = (params: Dictionary.QueryDictionary) => {
+  return http.get<ResPage<Dictionary.DictionaryItem>>(PORT1 + `/dictionary/list`, params);
+};
+//新增字典
+export const addDictionary = (data: Dictionary.CreateDictionary) => {
+  return http.post<void>(PORT1 + `/dictionary/add`, data);
+};
+//编辑字典
+export const editDictionary = (data: Partial<Dictionary.UpdateDictionary>) => {
+  return http.put<void>(PORT1 + `/dictionary/edit`, data);
+};
+//删除字典
+export const delDictionary = (id: number | string) => {
+  return http.delete<void>(PORT1 + `/dictionary/delete/${id}`);
+};
+//按类型获取字典选项
+export const getDictionaryByType = (dictType: string) => {
+  return http.get<Dictionary.DictionaryItem[]>(PORT1 + `/dictionary/type/${dictType}`);
 };

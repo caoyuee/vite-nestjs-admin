@@ -72,7 +72,7 @@ import { getDatabaseConfig } from './config/database.config';
     // ServeStaticModule: 静态文件服务模块
     // 类似于 Express 的 express.static 或 Vite 的 public 目录
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'resource'), // 静态文件根目录
+      rootPath: join(__dirname, '..', 'resource'), // 静态文件根目录
       serveRoot: '/resource', // URL 访问路径前缀
     }),
 

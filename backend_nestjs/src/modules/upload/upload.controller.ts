@@ -17,17 +17,26 @@
 
 import {
   Controller,
-  Post, // 处理 POST 请求
-  UseInterceptors, // 使用拦截器
-  UploadedFile, // 获取上传的文件
+  Post,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
-// FileInterceptor 是 Multer 的文件拦截器
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
-// 上传配置和工具函数
 import { uploadOptions, getLastPathParts } from '../../config/upload.config';
-// Public 装饰器表示此接口不需要认证
 import { Public } from '../../common/decorators/public.decorator';
+
+interface MulterFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination: string;
+  filename: string;
+  path: string;
+  buffer: Buffer;
+}
 
 /**
  * 文件上传控制器类
@@ -80,7 +89,7 @@ export class UploadController {
     },
   })
   @UseInterceptors(FileInterceptor('file', uploadOptions))
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  uploadFile(@UploadedFile() file: MulterFile) {
     // 检查文件是否上传成功
     if (!file) {
       return {
@@ -89,11 +98,9 @@ export class UploadController {
         data: null,
       };
     }
-
     // 获取文件的相对路径（用于返回给前端）
     // getLastPathParts 会提取路径的最后几部分
     const filepath = getLastPathParts(file.path);
-
     // 返回上传结果
     return {
       code: 200,

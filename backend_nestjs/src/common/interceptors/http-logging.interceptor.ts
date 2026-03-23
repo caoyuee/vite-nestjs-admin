@@ -11,7 +11,7 @@ import { JwtPayload } from '../interfaces/response.interface';
 
 @Injectable()
 export class HttpLoggingInterceptor implements NestInterceptor {
-  constructor(private readonly logger: WinstonLoggerService) {}
+  constructor(private readonly logger: WinstonLoggerService) { }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const ctx = context.switchToHttp();
