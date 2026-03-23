@@ -26,18 +26,6 @@ import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { uploadOptions, getLastPathParts } from '../../config/upload.config';
 import { Public } from '../../common/decorators/public.decorator';
 
-interface MulterFile {
-  fieldname: string;
-  originalname: string;
-  encoding: string;
-  mimetype: string;
-  size: number;
-  destination: string;
-  filename: string;
-  path: string;
-  buffer: Buffer;
-}
-
 /**
  * 文件上传控制器类
  *
@@ -89,7 +77,7 @@ export class UploadController {
     },
   })
   @UseInterceptors(FileInterceptor('file', uploadOptions))
-  uploadFile(@UploadedFile() file: MulterFile) {
+  uploadFile(@UploadedFile() file: Express.Multer.File) {
     // 检查文件是否上传成功
     if (!file) {
       return {

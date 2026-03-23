@@ -52,7 +52,6 @@ const rules = reactive({
   label: [{ required: true, message: "请填写显示标签" }],
   value: [{ required: true, message: "请填写实际值" }],
   tag: [{ required: true, message: "请选择标签类型" }],
-  sort: [{ required: false, message: "请填写排序" }],
 });
 
 interface DrawerProps {

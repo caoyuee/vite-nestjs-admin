@@ -21,7 +21,7 @@
 import { ref } from "vue";
 import { Delete, EditPen, CirclePlus } from "@element-plus/icons-vue";
 import ProTable from "@/components/ProTable/index.vue";
-import { getDictionaryList, addDictionary, editDictionary, delDictionary } from '@/api/modules/system.ts'
+import { getDictionaryList, addDictionary, editDictionary, delDictionary } from '@/api/modules/system'
 import { useHandleData } from "@/hooks/useHandleData";
 import type { Dictionary } from "@/api/interface";
 import type { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
