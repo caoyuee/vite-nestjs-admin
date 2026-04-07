@@ -7,7 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import echarts, { ECOption } from "@/components/ECharts/config";
+import echarts, { type ECOption } from "@/components/ECharts/config";
 import ECharts from "@/components/ECharts/index.vue";
 import mapJson from "../assets/china.json";
 
@@ -205,6 +205,7 @@ const option: ECOption = {
   width: 100%;
   height: 100%;
 }
+
 .map-ball {
   position: absolute;
   top: 50%;
@@ -212,6 +213,7 @@ const option: ECOption = {
   width: 900px;
   height: 900px;
   transform: translate(-50%, -50%);
+
   img {
     width: 500px;
     height: 500px;

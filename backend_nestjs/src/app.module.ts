@@ -55,10 +55,10 @@ import { getDatabaseConfig } from './config/database.config';
   imports: [
     // ConfigModule: 配置模块，用于读取环境变量
     // isGlobal: true - 设置为全局模块，其他模块无需重复导入
-    // envFilePath - 指定环境变量文件路径
+    // envFilePath - 指定环境变量文件路径，按顺序加载，后面的会覆盖前面的
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env'],
+      envFilePath: ['.env', `.env.${process.env.NODE_ENV}`],
     }),
 
     // TypeOrmModule: 数据库连接模块
@@ -111,4 +111,4 @@ import { getDatabaseConfig } from './config/database.config';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }

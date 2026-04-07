@@ -50,11 +50,14 @@ interface TreeFilterProps {
   defaultValue?: any; // 默认选中的值 ==> 非必传
   params?: { [key: string]: any }//api携带参数
   defaultExpendAll?: boolean//是否默认展开
+  dataPath?: string; // 数据路径，用于指定 API 响应中数据的位置，如 "list" 或 "data.list"
+
 }
 const props = withDefaults(defineProps<TreeFilterProps>(), {
   id: "id",
   label: "label",
-  multiple: false
+  multiple: false,
+  dataPath: ""
 });
 
 const defaultProps = {
@@ -72,14 +75,23 @@ const setSelected = () => {
   else selected.value = typeof props.defaultValue === "string" ? props.defaultValue : "";
 };
 
+// 解析数据路径
+const getNestedData = (data: any, path: string): any => {
+  if (!path) return data;
+  return path.split('.').reduce((acc, key) => {
+    return acc?.[key];
+  }, data);
+};
+
 onBeforeMount(async () => {
   setSelected();
   if (props.requestApi) {
     console.log(props.params, '=========');
 
     const { data } = await props.requestApi!(props.params ?? {});
-    treeData.value = data;
-    treeAllData.value = [{ id: "", [props.label]: "全部" }, ...data];
+    const resolvedData = getNestedData(data, props.dataPath);
+    treeData.value = resolvedData;
+    treeAllData.value = [{ id: "", [props.label]: "全部" }, ...resolvedData];
   }
 });
 
@@ -126,7 +138,7 @@ const toggleTreeNodes = (isExpand: boolean) => {
   if (!nodes) return;
   for (const node in nodes) {
     if (nodes.hasOwnProperty(node)) {
-      nodes[node].expanded = isExpand;
+      nodes[node]!.expanded = isExpand;
     }
   }
 };

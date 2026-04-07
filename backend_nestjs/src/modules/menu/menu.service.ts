@@ -52,7 +52,7 @@ export class MenuService {
   constructor(
     @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,
-  ) {}
+  ) { }
 
   /**
    * 创建菜单
@@ -75,7 +75,7 @@ export class MenuService {
     menu.parentId = createMenuDto.parentId ?? 0; // 父级菜单 ID，0 表示顶级菜单
     menu.path = createMenuDto.path; // 路由路径
     menu.name = createMenuDto.name; // 路由名称
-    menu.nameZH = createMenuDto.meta.title; // 中文名称，从 meta 中获取
+    menu.nameZH = createMenuDto.meta?.title ?? ''; // 中文名称，从 meta 中获取
     menu.type = createMenuDto.type ?? 0; // 菜单类型
     menu.component = createMenuDto.component; // 组件路径
     menu.redirect = createMenuDto.redirect ?? null; // 重定向地址

@@ -1,7 +1,7 @@
 <template>
   <el-drawer v-model="drawerVisible" :destroy-on-close="true" size="480px" title="角色授权">
     <div class="trees">
-      <TreeFilter title="菜单列表(多选)" multiple label="nameZH" :request-api="getAllMenuList"
+      <TreeFilter title="菜单列表(多选)" multiple label="nameZH" dataPath="list" :request-api="getAllMenuList"
         :default-value="treeFilterValue.ids" @change="changeTreeFilter" />
       <TreeFilter title="权限列表(多选)" multiple label="name" :request-api="getAuthBtnsList" :params="{ type: 'btn' }"
         :default-value="treeFilterValue1.ids" @change="changeTreeFilter1" />
