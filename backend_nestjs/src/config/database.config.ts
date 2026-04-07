@@ -20,10 +20,10 @@ export const getDatabaseConfig = (
   configService: ConfigService,
 ): TypeOrmModuleOptions => ({
   type: 'mysql',
-  host: configService.get<string>('DB_HOST', 'localhost'),
+  host: configService.get<string>('DB_HOST', '127.0.0.1'),
   port: configService.get<number>('DB_PORT', 3306),
   username: configService.get<string>('DB_USER', 'root'),
-  password: configService.get<string>('DB_PASSWORD', ''),
+  password: configService.get<string>('DB_PASSWORD', 'asdzxc123.'),
   database: configService.get<string>('DB_NAME', 'koajs-sql'),
   synchronize: configService.get<string>('NODE_ENV') !== 'production',
   logging: configService.get<string>('NODE_ENV') === 'development',

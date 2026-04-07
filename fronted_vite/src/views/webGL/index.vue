@@ -14,6 +14,7 @@ import Stats from "three/examples/jsm/libs/stats.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 import earthTexture from "@/assets/webGL/earth.png";
+import facebook from "@/assets/webGL/facebook.png";
 const canvas = ref<HTMLElement>();
 const webGLContainer = ref<HTMLElement>();
 const meshList = ref<THREE.Object3D[]>([]);
@@ -26,64 +27,63 @@ const initThree = () => {
   const scene = new THREE.Scene();
 
   //创建2000个网格体
-  // const mesh = createMesh();
-
+  const mesh = createMesh();
 
   //创建一个组对象，并将网格体添加到组中
-//   const group = createGroup([]);
-//   const group1 = createGroup([]);
-//    const group2= createGroup([]);
+  //   const group = createGroup([]);
+  //   const group1 = createGroup([]);
+  //    const group2= createGroup([]);
 
-//   for (let index = 0; index < 5; index++) {
-//     const mesh = createMesh();
-//     mesh.position.x=100*index;
-//     mesh.geometry.scale(1, 3, 1);
-//     mesh.name = `mesh1${index}`;
-//     mesh.material.visible = false;//隐藏mesh1对象的材质
-//     // mesh.visible = true;//显示mesh1对象的材质
-//     group1.add(mesh);
-//     group1.name = "group1";
-//   }
+  //   for (let index = 0; index < 5; index++) {
+  //     const mesh = createMesh();
+  //     mesh.position.x=100*index;
+  //     mesh.geometry.scale(1, 3, 1);
+  //     mesh.name = `mesh1${index}`;
+  //     mesh.material.visible = false;//隐藏mesh1对象的材质
+  //     // mesh.visible = true;//显示mesh1对象的材质
+  //     group1.add(mesh);
+  //     group1.name = "group1";
+  //   }
 
-//   for (let index = 0; index < 5; index++) {
-//     const mesh = createMesh();
-//     mesh.position.x=100*index;
-//     mesh.position.y=100;
-//      mesh.name = `mesh2${index}`;
-//     group2.add(mesh);
-//     group2.name = "group2";
-//   }
-//   group.add(group1,group2);
-//   group.name = "group";
-//   group1.position.x=100;//本地坐标
-//   group.position.x=150//世界坐标
-//   const worldPosition = new THREE.Vector3(0, 0, 0);//新建一个三维向量对象，用于存储世界坐标
-//   group1.getWorldPosition(worldPosition);//读取group1的世界坐标，存储到worldPosition中
-//   console.log(worldPosition, 'worldPosition======');
-// group1.add(new THREE.AxesHelper(100));//给group1添加一个坐标轴辅助线
-// group2.add(new THREE.AxesHelper(100));//给group2添加一个坐标轴辅助线
-// group.remove(group1);//从group中移除group1对象
-// group.remove(group2);//从group中移除group2对象
-// group.remove(group1,group2);//从group中移除group1和group2对象
-// group1.translateX(-150);//group1平移50单位
-// group1.rotateY(Math.PI / 2);//group1绕Y轴旋转90度
-// group1.visible = false;//隐藏group1对象
-// group1.visible = true;//显示group1对象
+  //   for (let index = 0; index < 5; index++) {
+  //     const mesh = createMesh();
+  //     mesh.position.x=100*index;
+  //     mesh.position.y=100;
+  //      mesh.name = `mesh2${index}`;
+  //     group2.add(mesh);
+  //     group2.name = "group2";
+  //   }
+  //   group.add(group1,group2);
+  //   group.name = "group";
+  //   group1.position.x=100;//本地坐标
+  //   group.position.x=150//世界坐标
+  //   const worldPosition = new THREE.Vector3(0, 0, 0);//新建一个三维向量对象，用于存储世界坐标
+  //   group1.getWorldPosition(worldPosition);//读取group1的世界坐标，存储到worldPosition中
+  //   console.log(worldPosition, 'worldPosition======');
+  // group1.add(new THREE.AxesHelper(100));//给group1添加一个坐标轴辅助线
+  // group2.add(new THREE.AxesHelper(100));//给group2添加一个坐标轴辅助线
+  // group.remove(group1);//从group中移除group1对象
+  // group.remove(group2);//从group中移除group2对象
+  // group.remove(group1,group2);//从group中移除group1和group2对象
+  // group1.translateX(-150);//group1平移50单位
+  // group1.rotateY(Math.PI / 2);//group1绕Y轴旋转90度
+  // group1.visible = false;//隐藏group1对象
+  // group1.visible = true;//显示group1对象
 
-//   group.traverse((object) => {
-//     if (object instanceof THREE.Mesh) {
-//       console.log(object.name, 'object.name======');
-//       setMeshColor(object, 0xffffff); // 随机设置颜色
-//     }
-//   });
-//   const mesh22 = group.getObjectByName("mesh22") as THREE.Mesh | undefined;
-//   setMeshColor(mesh22, 0xffff00); // 将mesh2的颜色设置为黄色
+  //   group.traverse((object) => {
+  //     if (object instanceof THREE.Mesh) {
+  //       console.log(object.name, 'object.name======');
+  //       setMeshColor(object, 0xffffff); // 随机设置颜色
+  //     }
+  //   });
+  //   const mesh22 = group.getObjectByName("mesh22") as THREE.Mesh | undefined;
+  //   setMeshColor(mesh22, 0xffff00); // 将mesh2的颜色设置为黄色
   // const mesh2 = createMesh();
   // //复制mesh的位置到mesh2
   // mesh2.position.copy(mesh.position)
 
   //使用顶点坐标创建的网格体
-  const mesh = createMeshWithVertices();
+  // const mesh = createMeshWithVertices();
 
   //创建点模型
   // const mesh = createPoints();
@@ -134,7 +134,7 @@ const initThree = () => {
 
   //添加环境光到场景中
   scene.add(ambientLight);
-// scene.remove(ambientLight);//从场景中移除环境光对象
+  // scene.remove(ambientLight);//从场景中移除环境光对象
   //实例化一个平行光，参数为颜色默认白色、光照强度默认为1
   const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
 
@@ -163,6 +163,11 @@ const initThree = () => {
 
   //将可视化平行光辅助观察添加到场景中
   scene.add(directionalLightHelper);
+
+  //添加网格辅助线，参数为网格尺寸、网格线数量、网格线颜色默认为网格线颜色、网格线颜色默认为网格线颜色
+  const gridHelper = new THREE.GridHelper(200, 10 ,0x444,0xffffff);
+  //将网格辅助线添加到场景中
+  scene.add(gridHelper);
 
   //设置相机输出的画布尺寸
   const width = canvas?.value?.clientWidth ?? 800;
@@ -355,49 +360,68 @@ const createMesh = () => {
   // const geometry = new THREE.CylinderGeometry(10,10,10,10);//顶部圆半径、底部圆半径、高度、段数
 
   //定义一个球体
-  const geometry = new THREE.SphereGeometry(100, 48, 48); //半径
+  // const geometry = new THREE.SphereGeometry(100, 48, 48); //半径
 
   //定义一个圆锥
   // const geometry = new THREE.ConeGeometry(10,20);//底部圆半径、高度、段数
 
   //定义一个矩形平面,前两个参数为宽高，后两个参数为宽高细分段数，细分段数越多，平面越平滑，默认为1
-  // const geometry = new THREE.PlaneGeometry(100, 50, 2, 1);//长宽
+  const geometry = new THREE.PlaneGeometry(200, 150, 2, 1); //长宽
 
   //定义一个圆平面
-  // const geometry = new THREE.CircleGeometry(10);//半径
+  // const geometry = new THREE.CircleGeometry(100);//半径
 
   //创建一个材质-基础网格材质，并添加材质颜色和透明度
   //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
 
-//创建纹理加载器
-const textureLoader = new THREE.TextureLoader();
+  //创建纹理加载器
+  const textureLoader = new THREE.TextureLoader();
 
-//加载纹理
-const texture = textureLoader.load(earthTexture,(texture) => {
-    console.log("纹理加载成功", texture);
-  },
-  // onProgress - 加载进度回调（可选）
-  (xhr) => {
-    console.log(`加载进度: ${(xhr.loaded / xhr.total * 100)}%`);
-  },
-  // onError - 加载失败回调
-  (error) => {
-    console.error("纹理加载失败:", error);
-  });
+  //加载纹理地图
+  // const texture = textureLoader.load(earthTexture,(texture) => {
+  //     console.log("纹理加载成功", texture);
+  //   },
+  //   // onProgress - 加载进度回调（可选）
+  //   (xhr) => {
+  //     console.log(`加载进度: ${(xhr.loaded / xhr.total * 100)}%`);
+  //   },
+  //   // onError - 加载失败回调
+  //   (error) => {
+  //     console.error("纹理加载失败:", error);
+  //   });
 
+  const texture = textureLoader.load(
+    facebook,
+    (texture) => {
+      console.log("纹理加载成功", texture);
+    },
+    // onProgress - 加载进度回调（可选）
+    (xhr) => {
+      console.log(`加载进度: ${(xhr.loaded / xhr.total) * 100}%`);
+    },
+    // onError - 加载失败回调
+    (error) => {
+      console.error("纹理加载失败:", error);
+    },
+  );
+  //设置纹理阵列模式，开启纹理重复
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
 
+  //设置纹理缩放，X轴重复20次，Y轴重复15次
+  texture.repeat.set(4, 3);
 
-console.log(texture,'texture=============<');
+  console.log(texture, "texture=============<");
 
   //创建一个漫反射材质，有光源情况下能看到效果,双面显示(THREE.DoubleSide),线框显示(wireframe: true)
   const material = new THREE.MeshLambertMaterial({
-    // transparent: true,
+    transparent: true,
     // opacity: 1,
     // map: texture,//设置材质的颜色贴图
     // side: THREE.DoubleSide,//双面显示
     // wireframe: true,//线框显示
   });
- material.map = texture;
+  material.map = texture;
   //创建一个颜色对象，写法1，参数为十六进制颜色值
   // const color = new THREE.Color(0x00ff00);
   //创建一个颜色对象，写法2，参数为RGB颜色值，范围0-1
@@ -649,7 +673,7 @@ const createBufferGeometryWithIndex = () => {
   //定义属性缓冲对象，参数为类型化数组，和几个数据为一组表示一个顶点，3则代表3个数据为一组，表示一个顶点
   const attribute = new THREE.BufferAttribute(vertices, 3);
 
-  //定义几何体uv坐标数据
+  //定义几何体uv坐标数据，用来映射纹理坐标，相当于贴图的坐标
   const uv = new Float32Array([
     0,
     0, //索引  0
@@ -736,15 +760,15 @@ const createLine = () => {
 const createMeshWithVertices = () => {
   //实例化一个缓冲几何体对象
   const geometry = createBufferGeometryWithIndex();
-const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load(earthTexture);
+  const textureLoader = new THREE.TextureLoader();
+  const texture = textureLoader.load(earthTexture);
 
   //实例化一个网格模型材质，参数为颜色
   const material = new THREE.MeshLambertMaterial({
     // color: 0x00ff00,
     // transparent: true,
     // opacity: 1,
-    map: texture,//设置材质的颜色贴图
+    map: texture, //设置材质的颜色贴图
     side: THREE.DoubleSide,
   });
 
