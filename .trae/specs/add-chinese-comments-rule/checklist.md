@@ -1,5 +1,0 @@
-- [x] code-rules.md 文件中包含代码块中文注释要求
-- [x] code-rules.md 文件中包含函数注释格式示例
-- [x] code-rules.md 文件中包含代码块注释格式示例
-- [x] code-rules.md 文件中包含变量注释格式示例
-- [x] 规则内容格式正确，易于理解

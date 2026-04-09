@@ -165,7 +165,7 @@ const initThree = () => {
   scene.add(directionalLightHelper);
 
   //添加网格辅助线，参数为网格尺寸、网格线数量、网格线颜色默认为网格线颜色、网格线颜色默认为网格线颜色
-  const gridHelper = new THREE.GridHelper(200, 10 ,0x444,0xffffff);
+  const gridHelper = new THREE.GridHelper(200, 10, 0x444, 0xffffff);
   //将网格辅助线添加到场景中
   scene.add(gridHelper);
 
@@ -374,44 +374,8 @@ const createMesh = () => {
   //创建一个材质-基础网格材质，并添加材质颜色和透明度
   //const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
 
-  //创建纹理加载器
-  const textureLoader = new THREE.TextureLoader();
-
-  //加载纹理地图
-  // const texture = textureLoader.load(earthTexture,(texture) => {
-  //     console.log("纹理加载成功", texture);
-  //   },
-  //   // onProgress - 加载进度回调（可选）
-  //   (xhr) => {
-  //     console.log(`加载进度: ${(xhr.loaded / xhr.total * 100)}%`);
-  //   },
-  //   // onError - 加载失败回调
-  //   (error) => {
-  //     console.error("纹理加载失败:", error);
-  //   });
-
-  const texture = textureLoader.load(
-    facebook,
-    (texture) => {
-      console.log("纹理加载成功", texture);
-    },
-    // onProgress - 加载进度回调（可选）
-    (xhr) => {
-      console.log(`加载进度: ${(xhr.loaded / xhr.total) * 100}%`);
-    },
-    // onError - 加载失败回调
-    (error) => {
-      console.error("纹理加载失败:", error);
-    },
-  );
-  //设置纹理阵列模式，开启纹理重复
-  texture.wrapS = THREE.RepeatWrapping;
-  texture.wrapT = THREE.RepeatWrapping;
-
-  //设置纹理缩放，X轴重复20次，Y轴重复15次
-  texture.repeat.set(4, 3);
-
-  console.log(texture, "texture=============<");
+  //创建纹理对象
+  const texture = createTexture(facebook);
 
   //创建一个漫反射材质，有光源情况下能看到效果,双面显示(THREE.DoubleSide),线框显示(wireframe: true)
   const material = new THREE.MeshLambertMaterial({
@@ -461,6 +425,52 @@ const createMesh = () => {
 
   return mesh;
 };
+
+//创建纹理对象
+const createTexture = (url: string) => {
+  //创建纹理加载器
+  const textureLoader = new THREE.TextureLoader();
+
+  //加载纹理地图
+  // const texture = textureLoader.load(earthTexture,(texture) => {
+  //     console.log("纹理加载成功", texture);
+  //   },
+  //   // onProgress - 加载进度回调（可选）
+  //   (xhr) => {
+  //     console.log(`加载进度: ${(xhr.loaded / xhr.total * 100)}%`);
+  //   },
+  //   // onError - 加载失败回调
+  //   (error) => {
+  //     console.error("纹理加载失败:", error);
+  //   });
+
+  const texture = textureLoader.load(
+    url,
+    (texture) => {
+      console.log("纹理加载成功", texture);
+    },
+    // onProgress - 加载进度回调（可选）
+    (xhr) => {
+      console.log(`加载进度: ${(xhr.loaded / xhr.total) * 100}%`);
+    },
+    // onError - 加载失败回调
+    (error) => {
+      console.error("纹理加载失败:", error);
+    },
+  );
+  //改变UV映射方式，设置纹理阵列模式，开启纹理重复
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+
+  //设置纹理缩放，X轴重复20次，Y轴重复15次
+  texture.repeat.set(4, 3);
+
+  //贴图偏移，X轴（U方向）偏移0.5，Y轴（V方向）偏移0.5
+  texture.offset.set(0.5, 0.5);
+  console.log(texture, "texture=============<");
+  textureAnimation(texture);
+  return texture;
+};
 //创建组
 const createGroup = (meshList: THREE.Mesh[]) => {
   //创建一个组对象
@@ -489,6 +499,24 @@ const setMeshColor = (mesh?: THREE.Mesh | null, color?: number) => {
 const scaleNum = ref(1);
 // true 表示正在放大，false 表示正在缩小
 const scaleIncreasing = ref(true);
+
+//封装纹理动画方法
+const textureAnimation = (texture: THREE.Texture) => {
+  // 纹理动画
+  texture.offset.x += 0.005;
+  texture.offset.y += 0.005;
+  if (texture.offset.x > 1) {
+    texture.offset.x = 0;
+  }
+  if (texture.offset.y > 1) {
+    texture.offset.y = 0;
+  }
+  requestAnimationFrame(
+    textureAnimation.bind(null, texture),
+  );
+};
+
+
 //封装动画循环渲染方法
 const animate = (
   timer: THREE.Timer,
@@ -512,20 +540,20 @@ const animate = (
     meshList.value.map((mesh) => {
       // mesh.rotateY(0.01); // � � � 绕Y轴旋转
       // 在 1 到 5 范围内来回变化
-      if (scaleIncreasing.value) {
-        scaleNum.value += 0.01;
-        if (scaleNum.value >= 2) {
-          scaleNum.value = 2;
-          scaleIncreasing.value = false;
-        }
-      } else {
-        scaleNum.value -= 0.01;
-        if (scaleNum.value <= -2) {
-          scaleNum.value = -2;
-          scaleIncreasing.value = true;
-        }
-      }
-      console.log(scaleNum.value, "scale.value======");
+      // if (scaleIncreasing.value) {
+      //   scaleNum.value += 0.01;
+      //   if (scaleNum.value >= 2) {
+      //     scaleNum.value = 2;
+      //     scaleIncreasing.value = false;
+      //   }
+      // } else {
+      //   scaleNum.value -= 0.01;
+      //   if (scaleNum.value <= -2) {
+      //     scaleNum.value = -2;
+      //     scaleIncreasing.value = true;
+      //   }
+      // }
+      console.log(mesh, "mesh======");
 
       // mesh.scale.set(scaleNum.value, scaleNum.value, scaleNum.value); // 设置网格体缩放
       // mesh.rotateY(scaleNum.value); // � � � 绕Y轴旋转

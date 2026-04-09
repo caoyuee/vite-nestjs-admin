@@ -1,6 +1,0 @@
-- [x] LogService.getLogs() 直接读取 combined.log 和 error.log 文件
-- [x] 日志查询支持按时间范围筛选（基于 timestamp 字段）
-- [x] 日志查询支持按级别筛选（基于 level 字段）
-- [x] 日志查询支持关键字搜索
-- [x] LogService.clearLogs() 支持清理 combined.log 和 error.log 中的特定日志
-- [x] 前端能够正常获取日志列表

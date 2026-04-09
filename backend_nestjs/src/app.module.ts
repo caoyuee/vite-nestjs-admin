@@ -58,7 +58,7 @@ import { getDatabaseConfig } from './config/database.config';
     // envFilePath - 指定环境变量文件路径，按顺序加载，后面的会覆盖前面的
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', `.env.${process.env.NODE_ENV}`],
+      envFilePath: ['.env.development', '.env.production'],
     }),
 
     // TypeOrmModule: 数据库连接模块
