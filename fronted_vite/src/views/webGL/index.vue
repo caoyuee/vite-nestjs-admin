@@ -13,6 +13,7 @@ import * as THREE from "three";
 import Stats from "three/examples/jsm/libs/stats.module.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import earthTexture from "@/assets/webGL/earth.png";
 import facebook from "@/assets/webGL/facebook.png";
 const canvas = ref<HTMLElement>();
@@ -22,13 +23,17 @@ onMounted(() => {
   initThree();
 });
 //封装初始化threejs的方法
-const initThree = () => {
+const initThree = async () => {
   //创建一个场景
   const scene = new THREE.Scene();
 
   //创建2000个网格体
-  const mesh = createMesh();
-
+  // const mesh = createMesh();
+  //加载模型
+  const model = await loadGLTFModel('/models/work.gltf');
+  meshList.value.push(model);
+  model.position.set(0, 0, 0);
+  scene.add(model);
   //创建一个组对象，并将网格体添加到组中
   //   const group = createGroup([]);
   //   const group1 = createGroup([]);
@@ -116,50 +121,26 @@ const initThree = () => {
   // mesh.applyQuaternion(quaternion);
 
   //将网格体添加到网格体列表中
-  meshList.value.push(mesh);
+  // meshList.value.push(mesh);
   //将网格体添加到场景中
-  scene.add(mesh);
+  // scene.add(mesh);
   //将组对象添加到场景中
   // scene.add(group);
-
-  //创建一个点光源,参数为颜色默认白色,光照强度默认为1,光照距离默认0为无限远,沿光照距离衰退量默认为2(不随距离衰减时填0)
-  const pointLight = new THREE.PointLight(0xffffff, 100, 0, 0);
-  // pointLight.intensity = 2; 也可以单独设置光照强度、颜色、距离及衰退量
-
-  //设置点光源位置
-  pointLight.position.set(100, 100, 100);
-
-  //实例化一个环境光，参数为颜色默认白色、光照强度默认为1
-  const ambientLight = new THREE.AmbientLight(0x404040, 1);
-
+  //创建光源
+  const light = createLight();
+  //添加点光源到场景中
+  scene.add(light.pointLight);
   //添加环境光到场景中
-  scene.add(ambientLight);
+  scene.add(light.ambientLight);
   // scene.remove(ambientLight);//从场景中移除环境光对象
-  //实例化一个平行光，参数为颜色默认白色、光照强度默认为1
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
 
-  //设置平行光坐标位置，参数为x、y、z坐标值
-  directionalLight.position.set(100, 200, 300);
-
-  //设置平行光指向的物体，即光照方向指向该物体，可以不设置，默认指向(0,0,0)
-  //注意：对于目标的位置，如果要改为除默认值之外的其他位置，该位置必须被添加到场景（scene）中去。
-  directionalLight.target = meshList.value[0]!;
   //添加平行光到场景中
-  scene.add(directionalLight);
-
-  //添加可视化点光源辅助观察,参数为要模拟的点光源、光源大小、光源颜色
-  // const pointLightHelper = new THREE.PointLightHelper(pointLight, 5, 0xffffff);
-  //添加点光源辅助可视化到场景中
-  // scene.add(pointLightHelper);
+  scene.add(light.directionalLight);
 
   //光源添加到场景中
   // scene.add(pointLight);
-  //添加可视化平行光辅助观察，参数为平行光光源、平面尺寸、光源颜色默认为光源颜色
-  const directionalLightHelper = new THREE.DirectionalLightHelper(
-    directionalLight,
-    20,
-    0xffffff,
-  );
+  //创建平行光辅助观察
+  const directionalLightHelper = createDirectionalLightHelper(light.directionalLight);
 
   //将可视化平行光辅助观察添加到场景中
   scene.add(directionalLightHelper);
@@ -182,7 +163,7 @@ const initThree = () => {
   const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 
   //设置相机位置
-  camera.position.set(200, 200, 200);
+  camera.position.set(10, 10, 10);
 
   //设置相机视线（观察目标点的坐标）
   //camera.lookAt(10，20，10);//将相机视线观察xyz具体坐标
@@ -232,118 +213,16 @@ const initThree = () => {
   //默认显示fps面板0, 1: ms panel
   stats.showPanel(1); // 0: fps, 1: ms//显示性能监视器的fps面板
 
-  //创建默认GUI配置
-  const initConfig = [
-    {
-      type: "folder",
-      name: "光源",
-      items: [
-        {
-          type: "number",
-          name: "环境光源强度",
-          object: ambientLight,
-          property: "intensity",
-          min: 0,
-          max: 10,
-          step: 0.1,
-          onChange: (value: number) => {
-            console.log(value);
-          },
-        },
-        {
-          type: "number",
-          name: "平行光强度",
-          object: directionalLight,
-          property: "intensity",
-          min: 0,
-          max: 10,
-          step: 0.1,
-          onChange: (value: number) => {
-            console.log(value);
-          },
-        },
-      ],
-    },
-    {
-      type: "folder",
-      name: "颜色",
-      items: [
-        {
-          type: "color",
-          name: "网格体背景颜色",
-          object: mesh.material,
-          property: "color",
-          onChange: (value: any) => {
-            console.log(value, "meshColor");
-          },
-        },
-      ],
-    },
-    {
-      type: "folder",
-      name: "位置",
-      items: [
-        {
-          type: "array",
-          name: "网格体X轴",
-          object: mesh.position,
-          property: "x",
-          config: [0, 20, 40, 60, 80, 100],
-        },
-        {
-          type: "array",
-          name: "网格体Y轴",
-          object: mesh.position,
-          property: "y",
-          config: [0, 20, 40, 60, 80, 100],
-        },
-        {
-          type: "array",
-          name: "网格体Z轴",
-          object: mesh.position,
-          property: "z",
-          config: [0, 20, 40, 60, 80, 100],
-        },
-        {
-          type: "object",
-          name: "网格体X轴缩放",
-          object: mesh.scale,
-          property: "x",
-          config: { 大: 1, 中: 0.5, 小: 0.25 },
-        },
-        {
-          type: "object",
-          name: "网格体Y轴缩放",
-          object: mesh.scale,
-          property: "y",
-          config: { 大: 1, 中: 0.5, 小: 0.25 },
-        },
-        {
-          type: "object",
-          name: "网格体Z轴缩放",
-          object: mesh.scale,
-          property: "z",
-          config: { 大: 1, 中: 0.5, 小: 0.25 },
-        },
-        {
-          type: "boolean",
-          name: "网格体旋转",
-          object: isPlay,
-          property: "value",
-        },
-      ],
-    },
-  ];
 
   //创建GUI
-  const gui = createGUI(initConfig);
+  // const gui = createGUI(mesh, light, isPlay);
 
   //将GUI添加到页面中
-  canvas?.value?.appendChild(gui.domElement);
-  gui.domElement.style.position = "absolute";
-  gui.domElement.style.top = "10px";
-  gui.domElement.style.right = "10px";
-  gui.domElement.style.zIndex = "100";
+  // canvas?.value?.appendChild(gui.domElement);
+  // gui.domElement.style.position = "absolute";
+  // gui.domElement.style.top = "10px";
+  // gui.domElement.style.right = "10px";
+  // gui.domElement.style.zIndex = "100";
   //启动动画循环渲染
 
   animate(timer, stats, renderer, scene, camera, isPlay);
@@ -351,6 +230,56 @@ const initThree = () => {
   // 监听窗口变化，更新渲染器尺寸
   window.onresize = () => resize(renderer, camera);
 };
+
+//加载gltf三维模型
+const loadGLTFModel = async (url: any): Promise<THREE.Object3D> => {
+
+  const loader = new GLTFLoader();//实例化GLTFLoader加载器
+  const gltf = await loader.loadAsync(url);
+  console.log(gltf, 'gltf======');
+  return gltf.scene;
+}
+
+//创建光源
+const createLight = () => {
+  //创建一个点光源,参数为颜色默认白色,光照强度默认为1,光照距离默认0为无限远,沿光照距离衰退量默认为2(不随距离衰减时填0)
+  const pointLight = new THREE.PointLight(0xffffff, 10, 0, 0);
+  // pointLight.intensity = 2; 也可以单独设置光照强度、颜色、距离及衰退量
+
+  //设置点光源位置
+  pointLight.position.set(100, 100, 100);
+
+  //实例化一个环境光，参数为颜色默认白色、光照强度默认为1
+  const ambientLight = new THREE.AmbientLight(0x404040, 1);
+  //实例化一个平行光，参数为颜色默认白色、光照强度默认为1
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+
+  //设置平行光坐标位置，参数为x、y、z坐标值
+  directionalLight.position.set(100, 200, 300);
+
+  //设置平行光指向的物体，即光照方向指向该物体，可以不设置，默认指向(0,0,0)
+  //注意：对于目标的位置，如果要改为除默认值之外的其他位置，该位置必须被添加到场景（scene）中去。
+  directionalLight.target = meshList.value[0]!;
+  return {
+    pointLight,
+    ambientLight,
+    directionalLight,
+  }
+
+}
+//创建光源辅助观察
+const createDirectionalLightHelper = (directionalLight: THREE.DirectionalLight) => {
+  //创建可视化平行光辅助观察,参数为要模拟的平行光、平面尺寸、光源颜色默认为光源颜色
+  //添加可视化平行光辅助观察，参数为平行光光源、平面尺寸、光源颜色默认为光源颜色
+  const directionalLightHelper = new THREE.DirectionalLightHelper(
+    directionalLight,
+    20,
+    0xffffff,
+  );
+  //添加可视化点光源辅助观察,参数为要模拟的点光源、光源大小、光源颜色
+  // const pointLightHelper = new THREE.PointLightHelper(pointLight, 5, 0xffffff);
+  return directionalLightHelper;
+}
 //创建网格模型
 const createMesh = () => {
   //给场景添加几何体，比如一个立方体
@@ -422,7 +351,6 @@ const createMesh = () => {
   // mesh2.material = mesh.material.clone();
 
   // mesh2.position.set(100, 0, 0);
-
   return mesh;
 };
 
@@ -468,7 +396,7 @@ const createTexture = (url: string) => {
   //贴图偏移，X轴（U方向）偏移0.5，Y轴（V方向）偏移0.5
   texture.offset.set(0.5, 0.5);
   console.log(texture, "texture=============<");
-  textureAnimation(texture);
+  // textureAnimation(texture);
   return texture;
 };
 //创建组
@@ -600,7 +528,110 @@ const createControls = (
 };
 
 // 封装创建GUI的方法
-const createGUI = (options: any[]) => {
+const createGUI = (mesh: THREE.Mesh, light: ReturnType<typeof createLight>, isPlay: Ref<boolean>) => {
+  //创建默认GUI配置
+  const options = [
+    {
+      type: "folder",
+      name: "光源",
+      items: [
+        {
+          type: "number",
+          name: "环境光源强度",
+          object: light.ambientLight,
+          property: "intensity",
+          min: 0,
+          max: 10,
+          step: 0.1,
+          onChange: (value: number) => {
+            console.log(value);
+          },
+        },
+        {
+          type: "number",
+          name: "平行光强度",
+          object: light.directionalLight,
+          property: "intensity",
+          min: 0,
+          max: 10,
+          step: 0.1,
+          onChange: (value: number) => {
+            console.log(value);
+          },
+        },
+      ],
+    },
+    {
+      type: "folder",
+      name: "颜色",
+      items: [
+        {
+          type: "color",
+          name: "网格体背景颜色",
+          object: mesh.material,
+          property: "color",
+          onChange: (value: any) => {
+            console.log(value, "meshColor");
+          },
+        },
+      ],
+    },
+    {
+      type: "folder",
+      name: "位置",
+      items: [
+        {
+          type: "array",
+          name: "网格体X轴",
+          object: mesh.position,
+          property: "x",
+          config: [0, 20, 40, 60, 80, 100],
+        },
+        {
+          type: "array",
+          name: "网格体Y轴",
+          object: mesh.position,
+          property: "y",
+          config: [0, 20, 40, 60, 80, 100],
+        },
+        {
+          type: "array",
+          name: "网格体Z轴",
+          object: mesh.position,
+          property: "z",
+          config: [0, 20, 40, 60, 80, 100],
+        },
+        {
+          type: "object",
+          name: "网格体X轴缩放",
+          object: mesh.scale,
+          property: "x",
+          config: { 大: 1, 中: 0.5, 小: 0.25 },
+        },
+        {
+          type: "object",
+          name: "网格体Y轴缩放",
+          object: mesh.scale,
+          property: "y",
+          config: { 大: 1, 中: 0.5, 小: 0.25 },
+        },
+        {
+          type: "object",
+          name: "网格体Z轴缩放",
+          object: mesh.scale,
+          property: "z",
+          config: { 大: 1, 中: 0.5, 小: 0.25 },
+        },
+        {
+          type: "boolean",
+          name: "网格体旋转",
+          object: isPlay,
+          property: "value",
+        },
+      ],
+    },
+  ];
+
   //实例化GUI对象
   const gui = new GUI();
   options.forEach((option) => {
