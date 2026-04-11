@@ -186,6 +186,9 @@ const initThree = async () => {
   //设置渲染器的背景颜色，参数为RGB颜色值、透明度
   renderer.setClearColor(0x555555, 1);
 
+  //设置渲染器编码方式和gltf保持一致，解决渲染颜色偏差的问题
+  renderer.outputColorSpace = THREE.SRGBColorSpace
+
   //设置渲染器渲染的尺寸，单位为像素px，这里设置为画布的宽高，确保画布全屏显示
   // renderer.setSize(width, height, false);//参数为宽、高、是否更新样式,防止样式更改
   renderer.setSize(width, height, false);

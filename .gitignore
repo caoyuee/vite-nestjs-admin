@@ -24,3 +24,17 @@ stats.html
 *.njsproj
 *.sln
 *.sw?
+
+# Map tile files - very large files that should not be committed
+*.tif
+*.tif.ovr
+*.tiff
+*.tiff.ovr
+
+# Resource directories with large files
+backend_nestjs/resource/tiles/
+fronted_vite/public/tiles/
+
+# OS files
+Thumbs.db
+ehthumbs.db
