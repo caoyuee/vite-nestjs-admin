@@ -30,7 +30,7 @@ const initThree = async () => {
   //创建2000个网格体
   // const mesh = createMesh();
   //加载模型
-  const model = await loadGLTFModel('/models/work.gltf');
+  const model = await loadGLTFModel('/models/work.glb');
   meshList.value.push(model);
   model.position.set(0, 0, 0);
   scene.add(model);
@@ -239,7 +239,15 @@ const loadGLTFModel = async (url: any): Promise<THREE.Object3D> => {
 
   const loader = new GLTFLoader();//实例化GLTFLoader加载器
   const gltf = await loader.loadAsync(url);
-  console.log(gltf, 'gltf======');
+  //递归遍历每一个节点
+  gltf.scene.traverse((node) => {
+    console.log(node, '节点=========');
+
+  });
+  console.log(gltf.scene, 'gltf.scene======');
+  //查找名字为 face的物体
+  const face = gltf.scene.getObjectByName('face');
+  console.log(face, 'face======');
   return gltf.scene;
 }
 
