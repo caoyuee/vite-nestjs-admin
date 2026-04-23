@@ -253,8 +253,8 @@ searchColumns.value?.forEach((column, index) => {
   const key = column.search?.key ?? handleProp(column.prop!);
   const defaultValue = column.search?.defaultValue;
   if (defaultValue !== undefined && defaultValue !== null) {
-    searchParam.value[key] = defaultValue;
-    searchInitParam.value[key] = defaultValue;
+    searchParam.value[key!] = defaultValue;
+    searchInitParam.value[key!] = defaultValue;
   }
 });
 
