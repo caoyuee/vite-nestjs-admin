@@ -87,18 +87,18 @@ const select = (item: SelectDataProps, option: OptionsProps) => {
   } else {
     // * 多选
     // 如果选中的是第一个值，则直接设置
-    if (item.options[0].value === option.value) selected.value[item.key] = [option.value];
+    if (item.options[0]!.value === option.value) selected.value[item.key] = [option.value];
     // 如果选择的值已经选中了，则删除选中的值
     if (selected.value[item.key].includes(option.value)) {
       let currentIndex = selected.value[item.key].findIndex((s: any) => s === option.value);
       selected.value[item.key].splice(currentIndex, 1);
       // 当全部删光时，把第第一个值选中
-      if (selected.value[item.key].length == 0) selected.value[item.key] = [item.options[0].value];
+      if (selected.value[item.key].length == 0) selected.value[item.key] = [item.options[0]!.value];
     } else {
       // 未选中点击值的时候，追加选中值
       selected.value[item.key].push(option.value);
       // 单选中全部并且点击到了未选中的值，把第一个值删除掉
-      if (selected.value[item.key].includes(item.options[0].value)) selected.value[item.key].splice(0, 1);
+      if (selected.value[item.key].includes(item.options[0]!.value)) selected.value[item.key].splice(0, 1);
     }
   }
   emit("change", selected.value);
