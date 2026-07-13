@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts" name="waterChart">
-import echarts, { type ECOption } from "@/components/ECharts/config";
+import echarts, { createLiquidFillSeries, type ECOption } from "@/components/ECharts/config";
 import ECharts from "@/components/ECharts/index.vue";
 
 const option = {
@@ -72,8 +72,7 @@ const option = {
     }
   ],
   series: [
-    {
-      type: "liquidFill",
+    createLiquidFillSeries({
       radius: "50%",
       z: 6,
       center: ["25%", "50%"],
@@ -118,7 +117,7 @@ const option = {
         },
         borderDistance: 0
       }
-    },
+    }),
     {
       name: "第二层白边",
       type: "pie",
@@ -192,8 +191,7 @@ const option = {
         }
       ]
     },
-    {
-      type: "liquidFill",
+    createLiquidFillSeries({
       radius: "50%",
       z: 6,
       center: ["75%", "50%"],
@@ -215,7 +213,7 @@ const option = {
         },
         borderDistance: 0
       }
-    },
+    }),
     {
       name: "第二层白边",
       type: "pie",

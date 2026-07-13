@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import type { ECOption } from "@/components/ECharts/config";
+import { createLiquidFillSeries, type ECOption } from "@/components/ECharts/config";
 import ECharts from "@/components/ECharts/index.vue";
 
 const actualTotal = ref("216908");
@@ -99,8 +99,7 @@ const option = {
     }
   },
   series: [
-    {
-      type: "liquidFill",
+    createLiquidFillSeries({
       radius: "70%",
       z: 2,
       center: ["50%", "50%"],
@@ -146,7 +145,7 @@ const option = {
           global: false
         }
       }
-    },
+    }),
     {
       type: "pie",
       radius: ["80%", "80%"],
