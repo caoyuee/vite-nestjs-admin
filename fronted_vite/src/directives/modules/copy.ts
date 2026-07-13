@@ -22,9 +22,9 @@ const copy: Directive = {
   }
 };
 
-async function handleClick(this: any) {
+async function handleClick(this: ElType) {
   try {
-    await navigator.clipboard.writeText(this.copyData);
+    await navigator.clipboard.writeText(String(this.copyData));
     ElMessage({
       type: "success",
       message: "复制成功"

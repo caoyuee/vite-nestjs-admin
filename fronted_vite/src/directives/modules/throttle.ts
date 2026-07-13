@@ -10,7 +10,7 @@
 */
 import type { Directive, DirectiveBinding } from "vue";
 interface ElType extends HTMLElement {
-  __handleClick__: () => any;
+  __handleClick__: () => void;
   disabled: boolean;
 }
 const throttle: Directive = {

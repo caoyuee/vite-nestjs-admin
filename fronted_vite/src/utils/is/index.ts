@@ -29,7 +29,7 @@ export const isUnDef = <T = unknown>(val?: T): val is T => {
 /**
  * @description: 是否为对象
  */
-export const isObject = (val: any): val is Record<any, any> => {
+export const isObject = (val: unknown): val is Record<string, unknown> => {
   return val !== null && is(val, "Object");
 };
 
@@ -50,14 +50,14 @@ export function isNumber(val: unknown): val is number {
 /**
  * @description:  是否为AsyncFunction
  */
-export function isAsyncFunction<T = any>(val: unknown): val is Promise<T> {
+export function isAsyncFunction<T = unknown>(val: unknown): val is Promise<T> {
   return is(val, "AsyncFunction");
 }
 
 /**
  * @description:  是否为promise
  */
-export function isPromise<T = any>(val: unknown): val is Promise<T> {
+export function isPromise<T = unknown>(val: unknown): val is Promise<T> {
   return is(val, "Promise") && isObject(val) && isFunction(val.then) && isFunction(val.catch);
 }
 
@@ -78,8 +78,8 @@ export function isBoolean(val: unknown): val is boolean {
 /**
  * @description:  是否为数组
  */
-export function isArray(val: any): val is Array<any> {
-  return val && Array.isArray(val);
+export function isArray<T = unknown>(val: unknown): val is T[] {
+  return Array.isArray(val);
 }
 
 /**
@@ -92,7 +92,7 @@ export const isClient = () => {
 /**
  * @description: 是否为浏览器
  */
-export const isWindow = (val: any): val is Window => {
+export const isWindow = (val: unknown): val is Window => {
   return typeof window !== "undefined" && is(val, "Window");
 };
 

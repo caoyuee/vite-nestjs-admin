@@ -50,9 +50,8 @@ export class AuthPermissionService {
     // 根据查询参数构建筛选条件
     const where: FindOptionsWhere<Auth> = {};
     if (normalizedType) where.type = normalizedType;
-    if (name) where.name = Like(`%${name}%`) as unknown as string;
-    if (permission)
-      where.permission = Like(`%${permission}%`) as unknown as string;
+    if (name) where.name = Like(`%${name}%`);
+    if (permission) where.permission = Like(`%${permission}%`);
 
     const [result, total] = await this.authRepository.findAndCount({
       where,

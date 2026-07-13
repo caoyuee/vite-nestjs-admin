@@ -23,7 +23,6 @@
 
 import {
   Injectable,
-  CanActivate,
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -95,11 +94,19 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
    * @param info - 附加信息
    * @returns 用户信息
    */
-  handleRequest(err: any, user: any, info: any) {
-    if (err || !user) {
-      throw err || new UnauthorizedException('未授权，请先登录');
+  handleRequest<TUser = JwtPayload>(
+    err: Error | null,
+    user: TUser | false | null,
+    _info: unknown,
+  ): TUser {
+    if (err) {
+      throw err;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+
+    if (!user) {
+      throw new UnauthorizedException('未授权，请先登录');
+    }
+
     return user;
   }
 }

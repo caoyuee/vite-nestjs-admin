@@ -5,7 +5,7 @@
  */
 import type { Directive, DirectiveBinding } from "vue";
 interface ElType extends HTMLElement {
-  __handleClick__: () => any;
+  __handleClick__: () => void;
 }
 const debounce: Directive = {
   mounted(el: ElType, binding: DirectiveBinding) {

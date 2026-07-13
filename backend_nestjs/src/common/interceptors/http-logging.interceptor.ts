@@ -8,21 +8,24 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { WinstonLoggerService } from '../services/logger.service';
 import { JwtPayload } from '../interfaces/response.interface';
+import type { Request, Response } from 'express';
+
+type RequestWithUser = Request & { user?: JwtPayload };
 
 @Injectable()
 export class HttpLoggingInterceptor implements NestInterceptor {
-  constructor(private readonly logger: WinstonLoggerService) { }
+  constructor(private readonly logger: WinstonLoggerService) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const ctx = context.switchToHttp();
-    const request = ctx.getRequest();
-    const response = ctx.getResponse();
+    const request = ctx.getRequest<RequestWithUser>();
+    const response = ctx.getResponse<Response>();
 
     const { method, url, ip } = request;
     const startTime = Date.now();
 
     // 获取用户信息
-    const user = request.user as JwtPayload | undefined;
+    const user = request.user;
     const userId = user?.sub || '-';
     const username = user?.username || '-';
 
@@ -71,12 +74,18 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     );
   }
 
-  private sanitizeBody(body: any): any {
-    if (!body || typeof body !== 'object') {
+  private sanitizeBody(body: unknown): unknown {
+    if (!this.isRecord(body)) {
       return body;
     }
 
-    const sensitiveFields = ['password', 'token', 'accessToken', 'refreshToken', 'secret'];
+    const sensitiveFields = [
+      'password',
+      'token',
+      'accessToken',
+      'refreshToken',
+      'secret',
+    ];
     const sanitized = { ...body };
 
     for (const field of sensitiveFields) {
@@ -88,8 +97,8 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     return sanitized;
   }
 
-  private sanitizeQuery(query: any): any {
-    if (!query || typeof query !== 'object') {
+  private sanitizeQuery(query: unknown): unknown {
+    if (!this.isRecord(query)) {
       return query;
     }
 
@@ -103,5 +112,9 @@ export class HttpLoggingInterceptor implements NestInterceptor {
     }
 
     return sanitized;
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
   }
 }

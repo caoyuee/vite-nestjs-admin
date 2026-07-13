@@ -18,6 +18,8 @@ import { format } from 'date-fns';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const { diskStorage } = require('multer') as typeof import('multer');
+
 /**
  * 文件保存根目录
  * process.cwd() 返回当前工作目录
@@ -108,7 +110,7 @@ const categoryConfigs: CategoryConfig[] = [
 export const uploadOptions: MulterOptions = {
   // storage: 存储配置
   // diskStorage 表示存储到磁盘
-  storage: require('multer').diskStorage({
+  storage: diskStorage({
     /**
      * destination: 确定文件存储目录
      *
@@ -116,7 +118,7 @@ export const uploadOptions: MulterOptions = {
      * @param file - 上传的文件信息
      * @param cb - 回调函数，用于返回存储路径
      */
-    destination: (req, file, cb) => {
+    destination: (_req, file, cb) => {
       // 默认配置：未知类型文件存储到 common 文件夹
       let saveConfig: CategoryConfig = {
         folderPath: '/common',
@@ -154,7 +156,7 @@ export const uploadOptions: MulterOptions = {
      * @param file - 上传的文件信息
      * @param cb - 回调函数，用于返回文件名
      */
-    filename: (req, file, cb) => {
+    filename: (_req, file, cb) => {
       // 生成时间戳前缀，格式：yyyyMMddhhmmss
       const filenameP = format(new Date(), 'yyyyMMddhhmmss');
 
@@ -162,7 +164,7 @@ export const uploadOptions: MulterOptions = {
       const fileName = file.originalname
         .replaceAll(' ', '_') // 空格替换为下划线
         .replaceAll('resource', 'common') // 替换敏感词
-        .replace(/[`~!@#$%^&*()|\-=?;:'",<>\{\}\\\/]/gi, '_'); // 特殊字符替换
+        .replace(/[`~!@#$%^&*()|\-=?;:'",<>{}\\/]/gi, '_'); // 特殊字符替换
 
       // 调用回调，返回最终文件名（时间戳 + 处理后的原始文件名）
       cb(null, filenameP + fileName);

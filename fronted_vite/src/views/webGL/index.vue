@@ -19,6 +19,31 @@ import facebook from "@/assets/webGL/facebook.png";
 const canvas = ref<HTMLElement>();
 const webGLContainer = ref<HTMLElement>();
 const meshList = ref<THREE.Object3D[]>([]);
+
+type GuiBaseItem = {
+  name: string;
+  object: object;
+  property: string;
+  onChange?: (value: unknown) => void;
+};
+type GuiNumberItem = GuiBaseItem & {
+  type: "number";
+  min: number;
+  max: number;
+  step: number;
+};
+type GuiItem =
+  | GuiNumberItem
+  | (GuiBaseItem & { type: "color" })
+  | (GuiBaseItem & { type: "boolean" })
+  | (GuiBaseItem & { type: "array"; config: number[] })
+  | (GuiBaseItem & { type: "object"; config: Record<string, number> });
+type GuiFolder = {
+  type: "folder";
+  name: string;
+  items: GuiItem[];
+};
+
 onMounted(() => {
   initThree();
 });
@@ -235,7 +260,7 @@ const initThree = async () => {
 };
 
 //加载gltf三维模型
-const loadGLTFModel = async (url: any): Promise<THREE.Object3D> => {
+const loadGLTFModel = async (url: string): Promise<THREE.Object3D> => {
 
   const loader = new GLTFLoader();//实例化GLTFLoader加载器
   const gltf = await loader.loadAsync(url);
@@ -542,7 +567,7 @@ const createControls = (
 // 封装创建GUI的方法
 const createGUI = (mesh: THREE.Mesh, light: ReturnType<typeof createLight>, isPlay: Ref<boolean>) => {
   //创建默认GUI配置
-  const options = [
+  const options: GuiFolder[] = [
     {
       type: "folder",
       name: "光源",
@@ -555,7 +580,7 @@ const createGUI = (mesh: THREE.Mesh, light: ReturnType<typeof createLight>, isPl
           min: 0,
           max: 10,
           step: 0.1,
-          onChange: (value: number) => {
+          onChange: (value: unknown) => {
             console.log(value);
           },
         },
@@ -567,7 +592,7 @@ const createGUI = (mesh: THREE.Mesh, light: ReturnType<typeof createLight>, isPl
           min: 0,
           max: 10,
           step: 0.1,
-          onChange: (value: number) => {
+          onChange: (value: unknown) => {
             console.log(value);
           },
         },
@@ -582,7 +607,7 @@ const createGUI = (mesh: THREE.Mesh, light: ReturnType<typeof createLight>, isPl
           name: "网格体背景颜色",
           object: mesh.material,
           property: "color",
-          onChange: (value: any) => {
+          onChange: (value: unknown) => {
             console.log(value, "meshColor");
           },
         },
@@ -650,32 +675,40 @@ const createGUI = (mesh: THREE.Mesh, light: ReturnType<typeof createLight>, isPl
     if (option.type === "folder") {
       const folder = gui.addFolder(option.name);
       folder.close();
-      option.items.forEach((item: any) => {
+      option.items.forEach(item => {
+        const target = item.object as Record<string, unknown>;
+        const onChange = item.onChange ?? (() => undefined);
+        const addControl = folder.add as unknown as (
+          object: Record<string, unknown>,
+          property: string,
+          minOrOptions?: unknown,
+          max?: unknown,
+          step?: unknown
+        ) => { name: (name: string) => { onChange: (callback: (value: unknown) => void) => unknown } };
+        const addColor = folder.addColor as unknown as (
+          object: Record<string, unknown>,
+          property: string
+        ) => { name: (name: string) => { onChange: (callback: (value: unknown) => void) => unknown } };
         if (item.type === "number") {
-          folder
-            .add(item.object, item.property, item.min, item.max, item.step)
+          addControl(target, item.property, item.min, item.max, item.step)
             .name(item.name || item.property)
-            .onChange(item.onChange);
+            .onChange(onChange);
         } else if (item.type === "color") {
-          folder
-            .addColor(item.object, item.property)
+          addColor(target, item.property)
             .name(item.name || item.property)
-            .onChange(item.onChange);
+            .onChange(onChange);
         } else if (item.type === "boolean") {
-          folder
-            .add(item.object, item.property)
+          addControl(target, item.property)
             .name(item.name || item.property)
-            .onChange(item.onChange);
+            .onChange(onChange);
         } else if (item.type === "array") {
-          folder
-            .add(item.object, item.property, item.config)
+          addControl(target, item.property, item.config)
             .name(item.name || item.property)
-            .onChange(item.onChange);
+            .onChange(onChange);
         } else if (item.type === "object") {
-          folder
-            .add(item.object, item.property, item.config)
+          addControl(target, item.property, item.config)
             .name(item.name || item.property)
-            .onChange(item.onChange);
+            .onChange(onChange);
         }
       });
       return;

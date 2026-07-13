@@ -23,7 +23,7 @@ export function localGet(key: string) {
  * @param {*} value Storage值
  * @returns {void}
  */
-export function localSet(key: string, value: any) {
+export function localSet(key: string, value: unknown) {
   window.localStorage.setItem(key, JSON.stringify(value));
 }
 
@@ -49,7 +49,7 @@ export function localClear() {
  * @param {*} val 需要判断类型的数据
  * @returns {String}
  */
-export function isType(val: any) {
+export function isType(val: unknown) {
   if (val === null) return "null";
   if (typeof val !== "object") return typeof val;
   else
@@ -77,8 +77,8 @@ export function generateUUID() {
  * @returns {Boolean} 相同返回 true，反之 false
  */
 export function isObjectValueEqual(
-  a: { [key: string]: any },
-  b: { [key: string]: any }
+  a: Record<string, unknown>,
+  b: Record<string, unknown>
 ) {
   if (!a || !b) return false;
   let aProps = Object.getOwnPropertyNames(a);
@@ -89,8 +89,19 @@ export function isObjectValueEqual(
     let propA = a[propName];
     let propB = b[propName];
     if (!b.hasOwnProperty(propName)) return false;
-    if (propA instanceof Object) {
-      if (!isObjectValueEqual(propA, propB)) return false;
+    if (
+      propA &&
+      propB &&
+      typeof propA === "object" &&
+      typeof propB === "object"
+    ) {
+      if (
+        !isObjectValueEqual(
+          propA as Record<string, unknown>,
+          propB as Record<string, unknown>
+        )
+      )
+        return false;
     } else if (propA !== propB) {
       return false;
     }
@@ -189,8 +200,8 @@ export function getShowMenuList(menuList: Menu.MenuOptions[]) {
  */
 export const getAllBreadcrumbList = (
   menuList: Menu.MenuOptions[],
-  parent = [],
-  result: { [key: string]: any } = {}
+  parent: Menu.MenuOptions[] = [],
+  result: Record<string, Menu.MenuOptions[]> = {}
 ) => {
   for (const item of menuList) {
     result[item.path] = [...parent, item];
@@ -262,7 +273,11 @@ export function getKeepAliveRouterName(
  * @param {*} callValue 当前单元格值
  * @returns {String}
  * */
-export function formatTableColumn(_row: number, _col: number, callValue: any) {
+export function formatTableColumn(
+  _row: number,
+  _col: number,
+  callValue: unknown
+) {
   // 如果当前值为数组，使用 / 拼接（根据需求自定义）
   if (isArray(callValue))
     return callValue.length ? callValue.join(" / ") : "--";
@@ -274,7 +289,7 @@ export function formatTableColumn(_row: number, _col: number, callValue: any) {
  * @param {*} callValue 需要处理的值
  * @returns {String}
  * */
-export function formatValue(callValue: any) {
+export function formatValue(callValue: unknown) {
   // 如果当前值为数组，使用 / 拼接（根据需求自定义）
   if (isArray(callValue))
     return callValue.length ? callValue.join(" / ") : "--";
@@ -288,12 +303,18 @@ export function formatValue(callValue: any) {
  * @returns {*}
  * */
 export function handleRowAccordingToProp(
-  row: { [key: string]: any },
+  row: Record<string, unknown>,
   prop: string
 ) {
   if (!prop.includes(".")) return row[prop] ?? "--";
-  prop.split(".").forEach((item) => (row = row[item] ?? "--"));
-  return row;
+  let current: unknown = row;
+  prop.split(".").forEach((item) => {
+    current =
+      current && typeof current === "object"
+        ? (current as Record<string, unknown>)[item]
+        : "--";
+  });
+  return current ?? "--";
 }
 
 /**
@@ -316,21 +337,21 @@ export function handleProp(prop: string) {
  * @returns {String}
  * */
 export function filterEnum(
-  callValue: any,
-  enumData?: any,
+  callValue: unknown,
+  enumData?: unknown,
   fieldNames?: FieldNamesProps,
   type?: "tag"
 ) {
   const value = fieldNames?.value ?? "value";
   const label = fieldNames?.label ?? "label";
   const children = fieldNames?.children ?? "children";
-  let filterData: { [key: string]: any } = {};
+  let filterData: Record<string, unknown> | null = {};
   // 判断 enumData 是否为数组
   if (Array.isArray(enumData))
     filterData = findItemNested(enumData, callValue, value, children);
   // 判断是否输出的结果为 tag 类型
   if (type == "tag") {
-    return filterData?.tagType ? filterData.tagType : "";
+    return typeof filterData?.tagType === "string" ? filterData.tagType : "";
   } else {
     return filterData ? filterData[label] : "--";
   }
@@ -340,15 +361,21 @@ export function filterEnum(
  * @description 递归查找 callValue 对应的 enum 值
  * */
 export function findItemNested(
-  enumData: any,
-  callValue: any,
+  enumData: Record<string, unknown>[],
+  callValue: unknown,
   value: string,
   children: string
-) {
-  return enumData.reduce((accumulator: any, current: any) => {
+): Record<string, unknown> | null {
+  return enumData.reduce<Record<string, unknown> | null>((accumulator, current) => {
     if (accumulator) return accumulator;
     if (current[value] === callValue) return current;
-    if (current[children])
-      return findItemNested(current[children], callValue, value, children);
+    if (Array.isArray(current[children]))
+      return findItemNested(
+        current[children] as Record<string, unknown>[],
+        callValue,
+        value,
+        children
+      );
+    return null;
   }, null);
 }

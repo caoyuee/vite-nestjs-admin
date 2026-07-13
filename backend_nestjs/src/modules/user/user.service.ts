@@ -25,7 +25,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindOptionsWhere } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 
 import { User } from '../../entities/user.entity';
@@ -264,7 +264,7 @@ export class UserService {
     const { pageNum = 1, pageSize = 10, ...filters } = query;
 
     // 构建查询条件
-    const where: any = {};
+    const where: FindOptionsWhere<User> = {};
     if (filters.username) where.username = filters.username;
     if (filters.name) where.name = filters.name;
     if (filters.email) where.email = filters.email;

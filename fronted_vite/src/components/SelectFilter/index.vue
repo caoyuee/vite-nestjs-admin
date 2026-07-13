@@ -10,11 +10,7 @@
           <li
             v-for="option in item.options"
             :key="option.value"
-            :class="{
-              active:
-                option.value === selected[item.key] ||
-                (Array.isArray(selected[item.key]) && selected[item.key].includes(option.value))
-            }"
+            :class="{ active: isSelected(item.key, option.value) }"
             @click="select(item, option)"
           >
             <slot :row="option">
@@ -48,7 +44,7 @@ interface SelectDataProps {
 
 interface SelectFilterProps {
   data?: SelectDataProps[]; // 选择的列表数据
-  defaultValues?: { [key: string]: any }; // 默认值
+  defaultValues?: Record<string, string | number | Array<string | number>>; // 默认值
 }
 
 const props = withDefaults(defineProps<SelectFilterProps>(), {
@@ -57,7 +53,7 @@ const props = withDefaults(defineProps<SelectFilterProps>(), {
 });
 
 // 重新接收默认值
-const selected = ref<{ [key: string]: any }>({});
+const selected = ref<Record<string, string | number | Array<string | number>>>({});
 watch(
   () => props.defaultValues,
   () => {
@@ -71,8 +67,13 @@ watch(
 
 // emit
 const emit = defineEmits<{
-  change: [value: any];
+  change: [value: never];
 }>();
+
+const isSelected = (key: string, value: string | number) => {
+  const selectedValue = selected.value[key];
+  return selectedValue === value || (Array.isArray(selectedValue) && selectedValue.includes(value));
+};
 
 /**
  * @description 选择筛选项
@@ -89,19 +90,22 @@ const select = (item: SelectDataProps, option: OptionsProps) => {
     // 如果选中的是第一个值，则直接设置
     if (item.options[0]!.value === option.value) selected.value[item.key] = [option.value];
     // 如果选择的值已经选中了，则删除选中的值
-    if (selected.value[item.key].includes(option.value)) {
-      let currentIndex = selected.value[item.key].findIndex((s: any) => s === option.value);
-      selected.value[item.key].splice(currentIndex, 1);
+    const selectedValue = selected.value[item.key];
+    const selectedValues: Array<string | number> = Array.isArray(selectedValue) ? selectedValue : [];
+    if (selectedValues.includes(option.value)) {
+      const currentIndex = selectedValues.findIndex(s => s === option.value);
+      selectedValues.splice(currentIndex, 1);
       // 当全部删光时，把第第一个值选中
-      if (selected.value[item.key].length == 0) selected.value[item.key] = [item.options[0]!.value];
+      if (selectedValues.length == 0) selected.value[item.key] = [item.options[0]!.value];
     } else {
       // 未选中点击值的时候，追加选中值
-      selected.value[item.key].push(option.value);
+      selectedValues.push(option.value);
+      selected.value[item.key] = selectedValues;
       // 单选中全部并且点击到了未选中的值，把第一个值删除掉
-      if (selected.value[item.key].includes(item.options[0]!.value)) selected.value[item.key].splice(0, 1);
+      if (selectedValues.includes(item.options[0]!.value)) selectedValues.splice(0, 1);
     }
   }
-  emit("change", selected.value);
+  emit("change", selected.value as never);
 };
 </script>
 

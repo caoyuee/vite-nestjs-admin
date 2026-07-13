@@ -65,12 +65,12 @@ export class DictionaryService {
 
     // 字典类型筛选（模糊匹配）
     if (filters.dictType) {
-      where.dictType = Like(`%${filters.dictType}%`) as unknown as string;
+      where.dictType = Like(`%${filters.dictType}%`);
     }
 
     // 字典名称筛选（模糊匹配）
     if (filters.name) {
-      where.name = Like(`%${filters.name}%`) as unknown as string;
+      where.name = Like(`%${filters.name}%`);
     }
 
     // 执行分页查询

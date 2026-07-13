@@ -3,10 +3,10 @@ import { ElNotification } from "element-plus";
 /**
  * @description 全局代码错误捕捉
  * */
-const errorHandler = (error: any) => {
+const errorHandler = (error: unknown) => {
   // 过滤 HTTP 请求错误
-  if (error.status || error.status == 0) return false;
-  let errorMap: { [key: string]: string } = {
+  if (typeof error === "object" && error !== null && "status" in error) return false;
+  const errorMap: { [key: string]: string } = {
     InternalError: "Javascript引擎内部错误",
     ReferenceError: "未找到对象",
     TypeError: "使用了错误的类型或对象",
@@ -15,10 +15,10 @@ const errorHandler = (error: any) => {
     EvalError: "错误的使用了Eval",
     URIError: "URI错误"
   };
-  let errorName = errorMap[error.name] || "未知错误";
+  const errorName = error instanceof Error ? errorMap[error.name] || "未知错误" : "未知错误";
   ElNotification({
     title: errorName,
-    message: error,
+    message: error instanceof Error ? error.message : String(error),
     type: "error",
     duration: 3000
   });

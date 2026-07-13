@@ -33,6 +33,7 @@ import { User } from '../../entities/user.entity';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from '../../common/interfaces/response.interface';
 import { REDIS_CLIENT } from '../../config/redis.config';
+import { CaptchaService } from './captcha.service';
 
 /**
  * 认证服务
@@ -66,6 +67,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject(REDIS_CLIENT)
     private readonly redis: Redis,
+    private readonly captchaService: CaptchaService,
   ) {}
 
   /**
@@ -85,6 +87,9 @@ export class AuthService {
    * @throws {UnauthorizedException} 密码错误
    */
   async login(loginDto: LoginDto) {
+    // 步骤 0：先校验验证码，避免无效请求继续查询用户。
+    this.captchaService.assertCaptcha(loginDto.captchaId, loginDto.captchaCode);
+
     // 步骤 1：根据用户名查询用户
     // findOne 类似于 SQL 的 SELECT * FROM user WHERE username = ?
     const user = await this.userRepository.findOne({

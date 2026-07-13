@@ -21,7 +21,7 @@ import TreeFilter from "@/components/TreeFilter/index.vue";
 import { getAllMenuList, getAuthBtnsList } from "@/api/modules/system";
 interface DrawerProps {
   row: Partial<Role.RoleItem>;
-  api?: (params: any) => Promise<any>;
+  api?: (params: never) => Promise<unknown>;
   getTableList?: () => void;
 }
 
@@ -47,7 +47,7 @@ const handleSubmit = async () => {
     useMenus: treeFilterValue.ids,
     authButton: treeFilterValue1.ids,
   }
-  await drawerProps.value.api!(params);
+  await drawerProps.value.api!(params as never);
   ElMessage.success({ message: '角色授权成功！' });
   drawerProps.value.getTableList!();
   drawerVisible.value = false;

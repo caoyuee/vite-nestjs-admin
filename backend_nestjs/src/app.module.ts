@@ -113,4 +113,4 @@ import { getDatabaseConfig } from './config/database.config';
     },
   ],
 })
-export class AppModule { }
+export class AppModule {}

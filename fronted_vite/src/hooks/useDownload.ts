@@ -8,10 +8,10 @@ import { ElNotification } from "element-plus";
  * @param {Boolean} isNotify 是否有导出消息提示 (默认为 true)
  * @param {String} fileType 导出的文件格式 (默认为.xlsx)
  * */
-export const useDownload = async (
-  api: (param: any) => Promise<any>,
+export const useDownload = async <TApiParams = unknown, TInputParams = TApiParams>(
+  api: (param: TApiParams) => Promise<BlobPart>,
   tempName: string,
-  params: any = {},
+  params: TInputParams = {} as TInputParams,
   isNotify: boolean = true,
   fileType: string = ".xlsx"
 ) => {
@@ -24,7 +24,7 @@ export const useDownload = async (
     });
   }
   try {
-    const res = await api(params);
+    const res = await api(params as unknown as TApiParams);
     const blob = new Blob([res]);
     // 兼容 edge 不支持 createObjectURL 方法
     if ("msSaveOrOpenBlob" in navigator) return window.navigator.msSaveOrOpenBlob(blob, tempName + fileType);

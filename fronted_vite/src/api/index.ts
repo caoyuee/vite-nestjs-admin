@@ -34,6 +34,12 @@ const config = {
 
 const axiosCanceler = new AxiosCanceler();
 
+const getResponseMessage = (data: unknown) => {
+  if (!data || typeof data !== "object" || !("message" in data)) return "";
+  const message = (data as { message?: unknown }).message;
+  return typeof message === "string" ? message : "";
+};
+
 class RequestHttp {
   service: AxiosInstance;
   public constructor(config: AxiosRequestConfig) {
@@ -83,7 +89,11 @@ class RequestHttp {
           return Promise.reject(data);
         }
         // 全局错误信息拦截（防止下载文件的时候返回数据流，没有 code 直接报错）
-        if (data.code && data.code !== ResultEnum.SUCCESS&&data.code !== ResultEnum.CREATED) {
+        if (
+          data.code &&
+          data.code !== ResultEnum.SUCCESS &&
+          data.code !== ResultEnum.CREATED
+        ) {
           ElMessage.error(data.message);
           return Promise.reject(data);
         }
@@ -98,8 +108,13 @@ class RequestHttp {
           ElMessage.error("请求超时！请您稍后重试");
         if (error.message.indexOf("Network Error") !== -1)
           ElMessage.error("网络错误！请您稍后重试");
-        // 根据服务器响应的错误状态码，做不同的处理
-        if (response) checkStatus(response.status);
+        // 优先展示后端业务错误消息，没有 message 时再按 HTTP 状态码提示
+        const responseMessage = getResponseMessage(response?.data);
+        if (responseMessage) {
+          ElMessage.error(responseMessage);
+        } else if (response) {
+          checkStatus(response.status);
+        }
         // 服务器结果都没有返回(可能服务器错误可能客户端断网)，断网处理:可以跳转到断网页面
         if (!window.navigator.onLine) router.replace("/500");
         return Promise.reject(error);
@@ -123,7 +138,7 @@ class RequestHttp {
   put<T>(url: string, params?: object, _object = {}): Promise<ResultData<T>> {
     return this.service.put(url, params, _object);
   }
-  delete<T>(url: string, params?: any, _object = {}): Promise<ResultData<T>> {
+  delete<T>(url: string, params?: object, _object = {}): Promise<ResultData<T>> {
     return this.service.delete(url, { params, ..._object });
   }
   download(url: string, params?: object, _object = {}): Promise<BlobPart> {

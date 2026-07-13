@@ -44,7 +44,7 @@ interface DrawerProps {
   title: string;
   isView: boolean;
   row: Partial<Role.CreateRole>;
-  api?: (params: any) => Promise<any>;
+  api?: (params: never) => Promise<unknown>;
   getTableList?: () => void;
 }
 
@@ -70,7 +70,7 @@ const handleSubmit = () => {
   ruleFormRef.value!.validate(async (valid) => {
     if (valid) {
       try {
-        await drawerProps.value.api!(drawerProps.value.row);
+        await drawerProps.value.api!(drawerProps.value.row as never);
         ElMessage.success({ message: `${drawerProps.value.title}角色成功！` });
         drawerProps.value.getTableList!();
         drawerVisible.value = false;

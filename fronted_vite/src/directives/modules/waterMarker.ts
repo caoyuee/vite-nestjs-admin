@@ -9,15 +9,22 @@
   <div v-waterMarker="{text:'版权所有',textColor:'rgba(180, 180, 180, 0.4)'}"></div>
 */
 
-import type { Directive, DirectiveBinding } from "vue";
-const addWaterMarker: Directive = (str: string, parentNode: any, font: any, textColor: string) => {
+import type { DirectiveBinding } from "vue";
+
+interface WaterMarkerOptions {
+  text: string;
+  font?: string;
+  textColor?: string;
+}
+
+const addWaterMarker = (str: string, parentNode: HTMLElement, font: string | undefined, textColor: string | undefined) => {
   // 水印文字，父元素，字体，文字颜色
-  let can: HTMLCanvasElement = document.createElement("canvas");
+  const can: HTMLCanvasElement = document.createElement("canvas");
   parentNode.appendChild(can);
   can.width = 205;
   can.height = 140;
   can.style.display = "none";
-  let cans = can.getContext("2d") as CanvasRenderingContext2D;
+  const cans = can.getContext("2d") as CanvasRenderingContext2D;
   cans.rotate((-20 * Math.PI) / 180);
   cans.font = font || "16px Microsoft JhengHei";
   cans.fillStyle = textColor || "rgba(180, 180, 180, 0.3)";
@@ -28,7 +35,7 @@ const addWaterMarker: Directive = (str: string, parentNode: any, font: any, text
 };
 
 const waterMarker = {
-  mounted(el: DirectiveBinding, binding: DirectiveBinding) {
+  mounted(el: HTMLElement, binding: DirectiveBinding<WaterMarkerOptions>) {
     addWaterMarker(binding.value.text, el, binding.value.font, binding.value.textColor);
   }
 };

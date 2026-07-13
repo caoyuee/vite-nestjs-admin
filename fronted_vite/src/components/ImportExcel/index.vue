@@ -49,8 +49,8 @@ export interface ExcelParameterProps {
   title: string; // 标题
   fileSize?: number; // 上传文件的大小
   fileType?: File.ExcelMimeType[]; // 上传文件的类型
-  tempApi?: (params: any) => Promise<any>; // 下载模板的Api
-  importApi?: (params: any) => Promise<any>; // 批量导入的Api
+  tempApi?: (params: never) => Promise<BlobPart>; // 下载模板的Api
+  importApi?: (params: FormData) => Promise<unknown>; // 批量导入的Api
   getTableList?: () => void; // 获取表格数据的Api
 }
 

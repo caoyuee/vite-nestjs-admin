@@ -114,7 +114,7 @@ interface DrawerProps {
   title: string;
   isView: boolean;
   row: Partial<Menu.MenuTreeItem>;
-  api?: (params: any) => Promise<any>;
+  api?: (params: never) => Promise<unknown>;
   getTableList?: () => void;
 }
 
@@ -173,7 +173,7 @@ Promise.all([dispatchValidate, formValidate])
 .then(async() => {  
     // 调用接口  
     try {
-      await drawerProps.value.api!(drawerProps.value.row);
+      await drawerProps.value.api!(drawerProps.value.row as never);
       ElMessage.success({ message: `${drawerProps.value.title}菜单成功！` });
       drawerProps.value.getTableList!();
       drawerVisible.value = false;

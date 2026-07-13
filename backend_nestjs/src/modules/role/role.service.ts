@@ -21,7 +21,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, FindOptionsWhere } from 'typeorm';
 import { Role } from '../../entities/role.entity';
 import { User } from '../../entities/user.entity';
 import { Auth } from '../../entities/auth.entity';
@@ -97,7 +97,7 @@ export class RoleService {
     const { pageNum = 1, pageSize = 10, ...filters } = query;
 
     // 构建查询条件
-    const where: any = {};
+    const where: FindOptionsWhere<Role> = {};
     if (filters.role) where.role = filters.role;
     if (filters.name) where.name = filters.name;
     if (filters.status !== undefined) where.status = filters.status;

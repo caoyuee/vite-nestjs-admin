@@ -8,7 +8,17 @@
 import type { ECOption } from "@/components/ECharts/config";
 import ECharts from "@/components/ECharts/index.vue";
 
-const curveData = [
+type CurveItem = {
+  value: number;
+  spotName: string;
+};
+
+type TooltipItem = {
+  name: string;
+  value: number;
+};
+
+const curveData: CurveItem[] = [
   { value: 30, spotName: "掘金" },
   { value: 90, spotName: "CSDN" },
   { value: 10, spotName: "Gitee" },
@@ -28,11 +38,13 @@ const option: ECOption = {
       type: "none"
     },
     padding: 0,
-    formatter: (p: any) => {
+    formatter: (p: unknown) => {
+      if (!Array.isArray(p)) return "";
+      const tooltipParams = p as TooltipItem[];
       let dom = `<div style="width:100%; height: 70px !important; display:flex;flex-direction: column;justify-content: space-between;padding:10px;box-sizing: border-box;
       color:#fff; background: #6B9DFE;border-radius: 4px;font-size:14px; ">
-        <div style="display: flex; align-items: center;"> <div style="width:5px;height:5px;background:#ffffff;border-radius: 50%;margin-right:5px"></div>平台 :  ${p[0].name}</div>
-        <div style="display: flex;align-items: center;"><div style="width:5px;height:5px;background:#ffffff;border-radius: 50%;margin-right:5px"></div>数据量 :  ${p[0].value}</div>
+        <div style="display: flex; align-items: center;"> <div style="width:5px;height:5px;background:#ffffff;border-radius: 50%;margin-right:5px"></div>平台 :  ${tooltipParams[0]?.name ?? ""}</div>
+        <div style="display: flex;align-items: center;"><div style="width:5px;height:5px;background:#ffffff;border-radius: 50%;margin-right:5px"></div>数据量 :  ${tooltipParams[0]?.value ?? ""}</div>
       </div>`;
       return dom;
     }
@@ -70,7 +82,7 @@ const option: ECOption = {
   xAxis: [
     {
       type: "category",
-      data: curveData.map((val: any) => {
+      data: curveData.map(val => {
         return {
           value: val.spotName
         };
@@ -129,7 +141,7 @@ const option: ECOption = {
     {
       name: "Direct",
       type: "bar",
-      data: curveData.map((val: any) => {
+      data: curveData.map(val => {
         return {
           value: val.value
         };

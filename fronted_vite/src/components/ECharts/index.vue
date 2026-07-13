@@ -14,10 +14,10 @@ interface Props {
   option: ECOption;
   renderer?: "canvas" | "svg";
   resize?: boolean;
-  theme?: Object | string;
+  theme?: object | string;
   width?: number | string;
   height?: number | string;
-  onClick?: (event: ECElementEvent) => any;
+  onClick?: (event: ECElementEvent) => void;
 }
 
 const props = withDefaults(defineProps<Props>(), {

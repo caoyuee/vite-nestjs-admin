@@ -1,6 +1,10 @@
 import { type Table } from "./interface";
 import { reactive, computed, toRefs } from "vue";
 
+type TableApiResult = {
+  data: unknown;
+};
+
 /**
  * @description table 页面操作方法封装
  * @param {Function} api 获取表格数据 api 方法 (必传)
@@ -9,11 +13,11 @@ import { reactive, computed, toRefs } from "vue";
  * @param {Function} dataCallBack 对后台返回的数据进行处理的方法 (非必传)
  * */
 export const useTable = (
-  api?: (params: any) => Promise<any>,
+  api?: (params: never) => Promise<TableApiResult>,
   initParam: object = {},
   isPageable: boolean = true,
-  dataCallBack?: (data: any) => any,
-  requestError?: (error: any) => void
+  dataCallBack?: (data: never) => unknown,
+  requestError?: (error: unknown) => void
 ) => {
   const state = reactive<Table.StateProps>({
     // 表格数据
@@ -45,7 +49,7 @@ export const useTable = (
         pageSize: state.pageable.pageSize,
       };
     },
-    set: (newVal: any) => {
+    set: (newVal: unknown) => {
       console.log("我是分页更新之后的值", newVal);
     },
   });
@@ -66,12 +70,19 @@ export const useTable = (
       let { data } = await api({
         ...state.searchInitParam,
         ...state.totalParam,
-      });
-      dataCallBack && (data = dataCallBack(data));
-      state.tableData = isPageable ? data.list : data;
+      } as never);
+      dataCallBack && (data = dataCallBack(data as never));
+      const tablePayload = data as { list?: unknown[]; total?: number };
+      state.tableData = (
+        isPageable
+          ? (tablePayload.list ?? [])
+          : Array.isArray(data)
+            ? data
+            : []
+      ) as Table.TableRow[];
       // 解构后台返回的分页数据 (如果有分页更新分页信息)
       if (isPageable) {
-        state.pageable.total = data.total;
+        state.pageable.total = tablePayload.total ?? 0;
       }
     } catch (error) {
       requestError && requestError(error);

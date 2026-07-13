@@ -74,7 +74,7 @@ interface DrawerProps {
   title: string;
   isView: boolean;
   row: User.ResUserList;
-  api?: (params: any) => Promise<any>;
+  api?: (params: never) => Promise<unknown>;
   getTableList?: () => void;
 }
 
@@ -114,7 +114,7 @@ const handleSubmit = () => {
   ruleFormRef.value!.validate(async valid => {
     if (!valid) return;
     try {
-      await drawerProps.value.api!(drawerProps.value.row);
+      await drawerProps.value.api!(drawerProps.value.row as never);
       ElMessage.success({ message: `${drawerProps.value.title}用户成功！` });
       drawerProps.value.getTableList!();
       drawerVisible.value = false;

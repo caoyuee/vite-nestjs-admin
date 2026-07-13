@@ -149,11 +149,23 @@ let heightMarker: L.Marker | null = null
 let geoRasterLayer: L.Layer | null = null
 let currentGeoRaster: GeoRaster | null = null
 
+type LeafletDefaultIconPrototype = L.Icon.Default & {
+    _getIconUrl?: unknown
+}
+
+type TooltipPoint = {
+    value: [number, number]
+}
+
+type ChartMouseEvent = {
+    componentType?: string
+    dataIndex: number
+}
+
 const initMap = () => {
     if (!mapRef.value) return
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    delete (L.Icon.Default.prototype as any)._getIconUrl
+    delete (L.Icon.Default.prototype as LeafletDefaultIconPrototype)._getIconUrl
     L.Icon.Default.mergeOptions({
         iconRetinaUrl: markerIcon2x,
         iconUrl: markerIcon,
@@ -227,9 +239,10 @@ const initChart = () => {
     const option: echarts.EChartsOption = {
         tooltip: {
             trigger: 'axis',
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            formatter: (params: any) => {
-                const p = params[0]
+            formatter: (params: unknown) => {
+                if (!Array.isArray(params)) return ''
+                const p = params[0] as TooltipPoint | undefined
+                if (!p) return ''
                 return `距离: ${p.value[0].toFixed(2)} km<br/>海拔: ${p.value[1]} m`
             }
         },
@@ -286,10 +299,10 @@ const initChart = () => {
 
     chart.setOption(option)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    chart.on('mousemove', (params: any) => {
-        if (params.componentType === 'series') {
-            const dataIndex = params.dataIndex
+    chart.on('mousemove', (params: unknown) => {
+        const chartParams = params as ChartMouseEvent
+        if (chartParams.componentType === 'series') {
+            const dataIndex = chartParams.dataIndex
             const point = elevationPoints.value[dataIndex]
             if (point) {
                 hoveredPoint.value = point

@@ -20,9 +20,9 @@
     <el-scrollbar :style="{ height: title ? `calc(100% - 95px)` : `calc(100% - 56px)` }">
       <el-tree ref="treeRef" :default-expand-all="defaultExpendAll" :node-key="id"
         :data="multiple ? treeData : treeAllData" :show-checkbox="multiple" :check-strictly="false"
-        :current-node-key="!multiple ? selected : ''" :highlight-current="!multiple" :expand-on-click-node="false"
+        :current-node-key="!multiple ? selectedKey : ''" :highlight-current="!multiple" :expand-on-click-node="false"
         :check-on-click-node="multiple" :props="defaultProps" :filter-node-method="filterNode"
-        :default-checked-keys="multiple ? selected : []" @node-click="handleNodeClick" @check="handleCheckChange">
+        :default-checked-keys="multiple ? selectedKeys : []" @node-click="handleNodeClick" @check="handleCheckChange">
         <template #default="scope">
           <span class="el-tree-node__label">
             <slot :row="scope">
@@ -36,19 +36,27 @@
 </template>
 
 <script setup lang="ts" name="TreeFilter">
-import { ref, watch, onBeforeMount, nextTick } from "vue";
+import { computed, ref, watch, onBeforeMount, nextTick } from "vue";
 import { ElTree } from "element-plus";
+
+type TreeNodeData = Record<string, unknown>;
+type TreeNodeValue = string | number | Array<string | number>;
+type TreeNodeLike = {
+  label: string;
+  level: number;
+  parent?: TreeNodeLike | null;
+};
 
 // 接收父组件参数并设置默认值
 interface TreeFilterProps {
-  requestApi?: (data?: any) => Promise<any>; // 请求分类数据的 api ==> 非必传
-  data?: { [key: string]: any }[]; // 分类数据，如果有分类数据，则不会执行 api 请求 ==> 非必传
+  requestApi?: (data: never) => Promise<{ data: unknown }>; // 请求分类数据的 api ==> 非必传
+  data?: TreeNodeData[]; // 分类数据，如果有分类数据，则不会执行 api 请求 ==> 非必传
   title?: string; // treeFilter 标题 ==> 非必传
   id?: string; // 选择的id ==> 非必传，默认为 “id”
   label?: string; // 显示的label ==> 非必传，默认为 “label”
   multiple?: boolean; // 是否为多选 ==> 非必传，默认为 false
-  defaultValue?: any; // 默认选中的值 ==> 非必传
-  params?: { [key: string]: any }//api携带参数
+  defaultValue?: TreeNodeValue; // 默认选中的值 ==> 非必传
+  params?: TreeNodeData//api携带参数
   defaultExpendAll?: boolean//是否默认展开
   dataPath?: string; // 数据路径，用于指定 API 响应中数据的位置，如 "list" 或 "data.list"
 
@@ -66,21 +74,28 @@ const defaultProps = {
 };
 
 const treeRef = ref<InstanceType<typeof ElTree>>();
-const treeData = ref<{ [key: string]: any }[]>([]);
-const treeAllData = ref<{ [key: string]: any }[]>([]);
+const treeData = ref<TreeNodeData[]>([]);
+const treeAllData = ref<TreeNodeData[]>([]);
 
-const selected = ref();
+const selected = ref<TreeNodeValue | "">("");
+const selectedKey = computed(() => (Array.isArray(selected.value) ? "" : selected.value));
+const selectedKeys = computed(() => (Array.isArray(selected.value) ? selected.value : []));
 const setSelected = () => {
-  if (props.multiple) selected.value = Array.isArray(props.defaultValue) ? props.defaultValue : [props.defaultValue];
+  if (props.multiple)
+    selected.value = Array.isArray(props.defaultValue)
+      ? props.defaultValue
+      : props.defaultValue === undefined
+        ? []
+        : [props.defaultValue];
   else selected.value = typeof props.defaultValue === "string" ? props.defaultValue : "";
 };
 
 // 解析数据路径
-const getNestedData = (data: any, path: string): any => {
+const getNestedData = (data: unknown, path: string): unknown => {
   if (!path) return data;
   return path.split('.').reduce((acc, key) => {
-    return acc?.[key];
-  }, data);
+    return acc && typeof acc === "object" ? (acc as TreeNodeData)[key] : undefined;
+  }, data as unknown);
 };
 
 onBeforeMount(async () => {
@@ -88,10 +103,10 @@ onBeforeMount(async () => {
   if (props.requestApi) {
     console.log(props.params, '=========');
 
-    const { data } = await props.requestApi!(props.params ?? {});
+    const { data } = await props.requestApi!((props.params ?? {}) as never);
     const resolvedData = getNestedData(data, props.dataPath);
-    treeData.value = resolvedData;
-    treeAllData.value = [{ id: "", [props.label]: "全部" }, ...resolvedData];
+    treeData.value = Array.isArray(resolvedData) ? resolvedData as TreeNodeData[] : [];
+    treeAllData.value = [{ id: "", [props.label]: "全部" }, ...treeData.value];
   }
 });
 
@@ -119,12 +134,13 @@ watch(filterText, val => {
 });
 
 // 过滤
-const filterNode = (value: string, _data: { [key: string]: any }, node: any) => {
+const filterNode = (value: string, _data: TreeNodeData, node: TreeNodeLike) => {
   if (!value) return true;
   let parentNode = node.parent,
     labels = [node.label],
     level = 1;
   while (level < node.level) {
+    if (!parentNode) break;
     labels = [...labels, parentNode.label];
     parentNode = parentNode.parent;
     level++;
@@ -145,18 +161,19 @@ const toggleTreeNodes = (isExpand: boolean) => {
 
 // emit
 const emit = defineEmits<{
-  change: [value: any];
+  change: [value: never];
 }>();
 
 // 单选
-const handleNodeClick = (data: { [key: string]: any }) => {
+const handleNodeClick = (data: TreeNodeData) => {
   if (props.multiple) return;
-  emit("change", data[props.id]);
+  const value = data[props.id];
+  emit("change", (typeof value === "string" || typeof value === "number" ? value : undefined) as never);
 };
 
 // 多选
 const handleCheckChange = () => {
-  emit("change", treeRef.value?.getCheckedKeys());
+  emit("change", treeRef.value?.getCheckedKeys() as never);
 };
 
 // 暴露给父组件使用

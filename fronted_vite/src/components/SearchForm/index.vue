@@ -34,7 +34,7 @@
 </template>
 <script setup lang="ts" name="SearchForm">
 import { computed, ref } from "vue";
-import { type ColumnProps } from "@/components/ProTable/interface";
+import { type ColumnProps, type SearchParam } from "@/components/ProTable/interface";
 import { type BreakPoint } from "@/components/Grid/interface";
 import { Delete, Search, ArrowDown, ArrowUp } from "@element-plus/icons-vue";
 import SearchFormItem from "./components/SearchFormItem.vue";
@@ -43,10 +43,10 @@ import GridItem from "@/components/Grid/components/GridItem.vue";
 
 interface ProTableProps {
   columns?: ColumnProps[]; // 搜索配置列
-  searchParam?: { [key: string]: any }; // 搜索参数
+  searchParam?: SearchParam; // 搜索参数
   searchCol: number | Record<BreakPoint, number>;
-  search: (params: any) => void; // 搜索方法
-  reset: (params: any) => void; // 重置方法
+  search: () => void; // 搜索方法
+  reset: () => void; // 重置方法
 }
 
 // 默认值

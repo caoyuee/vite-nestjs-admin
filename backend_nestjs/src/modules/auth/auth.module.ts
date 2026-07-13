@@ -24,6 +24,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 // 导入本模块的 Controller 和 Service
 import { AuthController, SystemAuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { CaptchaService } from './captcha.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
 // 导入需要的实体
@@ -100,6 +101,7 @@ import { REDIS_CLIENT, createRedisClient } from '../../config/redis.config';
    */
   providers: [
     AuthService,
+    CaptchaService,
     JwtStrategy,
     // 自定义 Provider：Redis 客户端
     // provide: 提供令牌（类似 Vue 的 provide key）
@@ -116,6 +118,6 @@ import { REDIS_CLIENT, createRedisClient } from '../../config/redis.config';
    * 导出后，其他模块导入 AuthModule 时可以使用这些服务
    * 类似于 Vue 组件的 expose
    */
-  exports: [AuthService, JwtStrategy, REDIS_CLIENT],
+  exports: [AuthService, CaptchaService, JwtStrategy, REDIS_CLIENT],
 })
 export class AuthModule {}

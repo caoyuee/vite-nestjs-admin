@@ -5,8 +5,8 @@ import { ref, onMounted, onUnmounted } from "vue";
  * */
 export const useOnline = () => {
   const online = ref(true);
-  const showStatus = (val: any) => {
-    online.value = typeof val == "boolean" ? val : val.target.online;
+  const showStatus = (val: boolean | Event) => {
+    online.value = typeof val == "boolean" ? val : navigator.onLine;
   };
   // 在页面加载后，设置正确的网络状态
   navigator.onLine ? showStatus(true) : showStatus(false);

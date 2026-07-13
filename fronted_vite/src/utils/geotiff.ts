@@ -49,7 +49,7 @@ const defaultColorMap: ColorMapConfig = {
   noDataValue: null
 }
 
-let cachedGeoTiff: any = null
+let cachedGeoTiff: Awaited<ReturnType<typeof fromUrl>> | null = null
 let cachedTiffUrl: string | null = null
 
 export async function loadGeoTIFF(url: string): Promise<GeoRaster> {
@@ -100,8 +100,8 @@ export function createGeoRasterLayer(
     noDataValue
   }
 
-  const layer = new GeoRasterLayer({
-    georaster: georaster as any,
+  const layerOptions = {
+    georaster,
     opacity: 0.9,
     resolution: 256,
     noWrap: true,
@@ -115,7 +115,9 @@ export function createGeoRasterLayer(
       }
       return getColorForValue(value, config.min, config.max, config.colors)
     }
-  })
+  }
+
+  const layer = new GeoRasterLayer(layerOptions as never)
 
   return layer as unknown as L.Layer
 }

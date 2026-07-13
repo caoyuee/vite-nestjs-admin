@@ -1,17 +1,17 @@
-import { ref, computed } from "vue";
+import { ref, computed, type Ref } from "vue";
 
 /**
  * @description 表格多选数据操作
  * @param {String} rowKey 当表格可以多选时，所指定的 id
  * */
-export const useSelection = (rowKey: string = "id") => {
+export const useSelection = <T extends Record<string, unknown> = Record<string, unknown>>(rowKey: keyof T = "id" as keyof T) => {
   const isSelected = ref<boolean>(false);
-  const selectedList = ref<{ [key: string]: any }[]>([]);
+  const selectedList = ref<T[]>([]) as Ref<T[]>;
 
   // 当前选中的所有 ids 数组
   const selectedListIds = computed((): string[] => {
-    let ids: string[] = [];
-    selectedList.value.forEach(item => ids.push(item[rowKey]));
+    const ids: string[] = [];
+    selectedList.value.forEach(item => ids.push(String(item[rowKey])));
     return ids;
   });
 
@@ -20,7 +20,7 @@ export const useSelection = (rowKey: string = "id") => {
    * @param {Array} rowArr 当前选择的所有数据
    * @return void
    */
-  const selectionChange = (rowArr: { [key: string]: any }[]) => {
+  const selectionChange = (rowArr: T[]) => {
     rowArr.length ? (isSelected.value = true) : (isSelected.value = false);
     selectedList.value = rowArr;
   };

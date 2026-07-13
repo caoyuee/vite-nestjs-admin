@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "preinstall": "node ../scripts/check-pnpm.js",
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "dev": "pnpm check && vite",
+    "build": "pnpm check && vite build",
     "preview": "vite preview",
+    "type-check": "vue-tsc -b",
+    "check": "pnpm type-check && pnpm lint:check",
     "lint": "eslint . --fix",
     "lint:check": "eslint .",
     "format": "prettier --write \"src/**/*.{vue,ts,tsx,js,jsx,json,scss,css,md}\" \"*.{ts,js,json,md}\"",

@@ -27,6 +27,8 @@ import type {Role} from '@/api/interface/index'
 import {ElMessage,type FormInstance } from "element-plus";
 import{resetPassword} from '@/api/modules/system'
 import {useLogout} from "@/hooks/useLogout"
+type ValidatorCallback = (error?: string | Error) => void;
+
 interface ResetPassword extends Role.ResetPassword{
   newPasswordAgain:string
 }
@@ -36,7 +38,7 @@ const passwordForm=ref<ResetPassword>({
   newPasswordAgain:''
 })
 const ruleFormRef = ref<FormInstance>();
-  const validatePass1 = (_rule: any, value: any, callback: any) => {
+  const validatePass1 = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   const reg=/^[A-Za-z0-9]{6,16}$/
   if (value==='') {
     callback(new Error('请输入原密码'))
@@ -46,7 +48,7 @@ const ruleFormRef = ref<FormInstance>();
     callback()
   }
 }
-const validatePass2 = (_rule: any, value: any, callback: any) => {
+const validatePass2 = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   const reg=/^[A-Za-z0-9]{6,16}$/
   if (value==='') {
     callback(new Error('请输入新密码'))
@@ -58,7 +60,7 @@ const validatePass2 = (_rule: any, value: any, callback: any) => {
     callback()
   }
 }
-const validatePass3 = (_rule: any, value: any, callback: any) => {
+const validatePass3 = (_rule: unknown, value: string, callback: ValidatorCallback) => {
   const reg=/^[A-Za-z0-9]{6,16}$/
   if (value==='') {
     callback(new Error('请再次输入密码'))

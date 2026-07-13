@@ -1,24 +1,19 @@
 export namespace Table {
+  export type SearchParams = Record<string, unknown>;
+  export type TableRow = Record<string, unknown> & { id?: string | number };
+
   export interface Pageable {
     pageNum: number;
     pageSize: number;
     total: number;
   }
   export interface StateProps {
-    tableData: any[];
+    tableData: TableRow[];
     pageable: Pageable;
-    searchParam: {
-      [key: string]: any;
-    };
-    searchInitParam: {
-      [key: string]: any;
-    };
-    totalParam: {
-      [key: string]: any;
-    };
-    icon?: {
-      [key: string]: any;
-    };
+    searchParam: SearchParams;
+    searchInitParam: SearchParams;
+    totalParam: SearchParams;
+    icon?: SearchParams;
   }
 }
 

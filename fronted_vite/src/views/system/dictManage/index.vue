@@ -6,7 +6,7 @@
         <el-button type="primary" :icon="CirclePlus" @click="openDrawer('新增')">新增字典 </el-button>
       </template>
       <template #tag="scope">
-        <el-tag :type="scope.row.tag as any">{{ scope.row.tag }}</el-tag>
+        <el-tag :type="getTagType(scope.row.tag)">{{ scope.row.tag }}</el-tag>
       </template>
       <template #operation="scope">
         <el-button type="primary" link :icon="EditPen" @click="openDrawer('编辑', scope.row)"> 编辑 </el-button>
@@ -28,6 +28,12 @@ import type { ProTableInstance, ColumnProps } from "@/components/ProTable/interf
 import DictDrawer from "@/views/system/dictManage/components/DictDrawer.vue";
 
 const proTable = ref<ProTableInstance>();
+type TagType = "primary" | "success" | "info" | "warning" | "danger";
+
+const getTagType = (tag: unknown): TagType => {
+  const tagTypes: TagType[] = ["primary", "success", "info", "warning", "danger"];
+  return typeof tag === "string" && tagTypes.includes(tag as TagType) ? (tag as TagType) : "primary";
+};
 
 const columns: ColumnProps[] = [
   { prop: "id", label: "ID" },

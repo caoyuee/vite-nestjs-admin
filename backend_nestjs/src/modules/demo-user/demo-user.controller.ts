@@ -60,7 +60,7 @@ export class DemoUserController {
    */
   @Post()
   @ApiOperation({ summary: '新增演示用户' })
-  createUser(@Body() payload: Record<string, any>) {
+  createUser(@Body() payload: Record<string, unknown>) {
     return this.demoUserService.createUser(payload);
   }
 
@@ -127,7 +127,10 @@ export class DemoUserController {
    */
   @Put(':id')
   @ApiOperation({ summary: '编辑演示用户' })
-  updateUser(@Param('id') id: string, @Body() payload: Record<string, any>) {
+  updateUser(
+    @Param('id') id: string,
+    @Body() payload: Record<string, unknown>,
+  ) {
     return this.demoUserService.updateUser(id, payload);
   }
 
@@ -136,10 +139,7 @@ export class DemoUserController {
    */
   @Put(':id/status')
   @ApiOperation({ summary: '切换演示用户状态' })
-  changeStatus(
-    @Param('id') id: string,
-    @Body() payload: { status: number },
-  ) {
+  changeStatus(@Param('id') id: string, @Body() payload: { status: number }) {
     return this.demoUserService.changeStatus(id, payload.status);
   }
 

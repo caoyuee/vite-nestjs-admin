@@ -75,11 +75,11 @@ const initParam = reactive({ departmentId: "" });
 
 // 获取 treeFilter 数据
 // 当 proTable 的 requestAuto 属性为 false，不会自动请求表格数据，等待 treeFilter 数据回来之后，更改 initParam.departmentId 的值，才会触发请求 proTable 数据
-const treeFilterData = ref<any>([]);
+const treeFilterData = ref<User.ResDepartment[]>([]);
 const getTreeFilter = async () => {
   const { data } = await getUserDepartment();
   treeFilterData.value = data;
-  initParam.departmentId = treeFilterData.value[1].id;
+  initParam.departmentId = treeFilterData.value[1]?.id ?? "";
 };
 
 // 树形筛选切换

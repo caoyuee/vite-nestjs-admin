@@ -17,7 +17,7 @@
       <el-input v-model="inputValue" placeholder="搜索图标" size="large" :prefix-icon="Icons.Search" />
       <el-scrollbar v-if="Object.keys(iconsList).length">
         <div class="icon-list">
-          <div v-for="item in iconsList" :key="item" class="icon-item" @click="selectIcon(item)">
+          <div v-for="item in iconsList" :key="item.name" class="icon-item" @click="selectIcon(item)">
             <component :is="item"></component>
             <span>{{ item.name }}</span>
           </div>
@@ -31,6 +31,9 @@
 <script setup lang="ts" name="SelectIcon">
 import { ref, computed } from "vue";
 import * as Icons from "@element-plus/icons-vue";
+import type { Component } from "vue";
+
+type IconComponent = Component & { name?: string };
 
 interface SelectIconProps {
   iconValue: string;
@@ -57,10 +60,10 @@ const openDialog = () => (dialogVisible.value = true);
 const emit = defineEmits<{
   "update:iconValue": [value: string];
 }>();
-const selectIcon = (item: any) => {
+const selectIcon = (item: IconComponent) => {
   dialogVisible.value = false;
-  valueIcon.value = item.name;
-  emit("update:iconValue", item.name);
+  valueIcon.value = item.name ?? "";
+  emit("update:iconValue", item.name ?? "");
   setTimeout(() => inputRef.value.blur(), 0);
 };
 
@@ -74,10 +77,10 @@ const clearIcon = () => {
 
 // 监听搜索框值
 const inputValue = ref("");
-const customIcons: { [key: string]: any } = Icons;
-const iconsList = computed((): { [key: string]: any } => {
+const customIcons: Record<string, IconComponent> = Icons;
+const iconsList = computed((): Record<string, IconComponent> => {
   if (!inputValue.value) return Icons;
-  let result: { [key: string]: any } = {};
+  let result: Record<string, IconComponent> = {};
   for (const key in customIcons) {
     if (key.toLowerCase().indexOf(inputValue.value.toLowerCase()) > -1) result[key] = customIcons[key];
   }

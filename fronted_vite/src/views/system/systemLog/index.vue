@@ -61,7 +61,7 @@
 import { ref, reactive } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import ProTable from "@/components/ProTable/index.vue";
-import type { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
+import type { ProTableInstance, ColumnProps, SearchParam } from "@/components/ProTable/interface";
 import { getSystemLogs, clearSystemLogs } from "@/api/modules/system";
 import type { System } from "@/api/interface/index";
 
@@ -81,7 +81,7 @@ const searchCol = reactive({
  * 获取表格数据
  * @param params 请求参数
  */
-const getTableList = (params: any) => {
+const getTableList = (params: SearchParam) => {
   // 处理日期范围参数（ProTable使用timestamp作为参数名）
   const newParams = { ...params };
   // 兼容 timestamp 和 time 两种参数名
@@ -167,7 +167,7 @@ const handleRefresh = () => {
 const handleClearLogs = async () => {
   try {
     // 获取当前的搜索参数
-    const searchParams = (proTable.value as any)?.searchParam || {};
+    const searchParams = proTable.value?.searchParam ?? {};
 
     // 处理日期范围参数
     const timeParam = searchParams.timestamp || searchParams.time;
@@ -184,8 +184,8 @@ const handleClearLogs = async () => {
     const clearParams = {
       startTime,
       endTime,
-      level: searchParams.level || undefined,
-      keyword: searchParams.keyword || undefined
+      level: typeof searchParams.level === "string" ? searchParams.level : undefined,
+      keyword: typeof searchParams.keyword === "string" ? searchParams.keyword : undefined
     };
 
     // 确认信息
@@ -205,10 +205,10 @@ const handleClearLogs = async () => {
     ElMessage.success(`成功清理 ${res.data?.deletedCount || 0} 个日志文件`);
     // 刷新日志列表
     proTable.value?.getTableList();
-  } catch (error: any) {
+  } catch (error: unknown) {
     // 用户取消操作 或 接口调用失败
     if (error !== 'cancel') {
-      ElMessage.error(error?.message || "清空日志失败");
+      ElMessage.error(error instanceof Error ? error.message : "清空日志失败");
     }
   }
 };

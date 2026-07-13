@@ -1,3 +1,5 @@
+import type { UploadUserFile } from "element-plus";
+
 // 请求响应参数（不包含data）
 export interface Result {
   code: number;
@@ -5,7 +7,7 @@ export interface Result {
 }
 
 // 请求响应参数（包含data）
-export interface ResultData<T = any> extends Result {
+export interface ResultData<T = unknown> extends Result {
   data: T;
 }
 
@@ -35,9 +37,15 @@ export namespace Login {
   export interface ReqLoginForm {
     username: string;
     password: string;
+    captchaId: string;
+    captchaCode: string;
   }
   export interface ResLogin {
     token: string;
+  }
+  export interface ResCaptcha {
+    captchaId: string;
+    svg: string;
   }
   export interface ResAuthButtons {
     [key: string]: string[];
@@ -75,7 +83,7 @@ export namespace User {
     createTime: string;
     status: number;
     avatar: string;
-    photo: any[];
+    photo: UploadUserFile[];
     children?: ResUserList[];
   }
   export interface ResStatus {

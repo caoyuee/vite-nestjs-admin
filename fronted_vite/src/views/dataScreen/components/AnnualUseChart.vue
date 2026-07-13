@@ -14,6 +14,13 @@ interface ChartProp {
   value: string[];
 }
 
+type TooltipItem = {
+  color: string;
+  seriesName: string;
+  data: number;
+  dataIndex: number;
+};
+
 const gradientColors = ["rgba(254, 219, 101,0.1)", "rgba(0, 122, 254,0.1)", "rgba(255, 75, 122, 0.1)"];
 const annualData = [
   {
@@ -46,9 +53,11 @@ const option: ECOption = {
     borderWidth: 0,
     padding: 0,
     backgroundColor: "transparent",
-    formatter: (params: any) => {
+    formatter: (params: unknown) => {
+      if (!Array.isArray(params)) return "";
+      const tooltipParams = params as TooltipItem[];
       let str = "";
-      params.forEach((val: { color: string; seriesName: string; data: number }) => {
+      tooltipParams.forEach(val => {
         str += `
           <div class="year-item">
             <span class="year-dot" style="background-color: ${val.color};"></span>
@@ -59,7 +68,7 @@ const option: ECOption = {
       });
       const dom = `
                     <div class="annual-tooltip">
-                      <span class="annual-month">${params[0].dataIndex + 1}月</span>
+                      <span class="annual-month">${(tooltipParams[0]?.dataIndex ?? 0) + 1}月</span>
                       <div class="annual-list">
                         ${str}
                       </div>

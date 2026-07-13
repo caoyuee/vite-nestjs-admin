@@ -106,7 +106,7 @@ export class WinstonLoggerService implements LoggerService {
   error(
     message: string,
     trace?: string,
-    context?: string | Record<string, any>,
+    context?: string | Record<string, unknown>,
   ) {
     if (typeof context === 'object') {
       this.logger.error(message, { trace, ...context });
@@ -127,11 +127,15 @@ export class WinstonLoggerService implements LoggerService {
     this.logger.verbose(message, { context });
   }
 
-  http(message: string, meta?: Record<string, any>) {
+  http(message: string, meta?: Record<string, unknown>) {
     this.logger.http(message, meta);
   }
 
-  logWithLevel(level: LogLevel, message: string, meta?: Record<string, any>) {
+  logWithLevel(
+    level: LogLevel,
+    message: string,
+    meta?: Record<string, unknown>,
+  ) {
     this.logger.log(level, message, meta);
   }
 }

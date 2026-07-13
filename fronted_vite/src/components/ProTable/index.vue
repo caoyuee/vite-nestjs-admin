@@ -106,9 +106,10 @@
 import { ref, watch, provide, onMounted, unref, computed } from "vue";
 import { type TableInstance } from "element-plus";
 import { useTable } from "@/hooks/useTable.ts";
+import { type Table } from "@/hooks/interface";
 import { useSelection } from "@/hooks/useSelection.ts";
 import { type BreakPoint } from "@/components/Grid/interface/index.ts";
-import type{ ColumnProps, TypeProps } from "@/components/ProTable/interface/index.ts";
+import type { ColumnProps, EnumProps, SearchParam, TypeProps } from "@/components/ProTable/interface/index.ts";
 import { Refresh, Operation, Search } from "@element-plus/icons-vue";
 import { generateUUID, handleProp } from "@/utils/index.ts";
 import SearchForm from "@/components/SearchForm/index.vue";
@@ -118,15 +119,15 @@ import TableColumn from "./components/TableColumn.vue";
 import Sortable from "sortablejs";
 
 export interface ProTableProps {
-  columns: ColumnProps[]; // 列配置项  ==> 必传
-  data?: any[]; // 静态 table data 数据，若存在则不会使用 requestApi 返回的 data ==> 非必传
-  requestApi?: (params: any) => Promise<any>; // 请求表格数据的 api ==> 非必传
+  columns: unknown[]; // 列配置项  ==> 必传
+  data?: Table.TableRow[]; // 静态 table data 数据，若存在则不会使用 requestApi 返回的 data ==> 非必传
+  requestApi?: (params: never) => Promise<{ data: unknown }>; // 请求表格数据的 api ==> 非必传
   requestAuto?: boolean; // 是否自动执行请求 api ==> 非必传（默认为true）
-  requestError?: (params: any) => void; // 表格 api 请求错误监听 ==> 非必传
-  dataCallback?: (data: any) => any; // 返回数据的回调函数，可以对数据进行处理 ==> 非必传
+  requestError?: (params: unknown) => void; // 表格 api 请求错误监听 ==> 非必传
+  dataCallback?: (data: never) => unknown; // 返回数据的回调函数，可以对数据进行处理 ==> 非必传
   title?: string; // 表格标题 ==> 非必传
   pagination?: boolean; // 是否需要分页组件 ==> 非必传（默认为true）
-  initParam?: any; // 初始化请求参数 ==> 非必传（默认为{}）
+  initParam?: SearchParam; // 初始化请求参数 ==> 非必传（默认为{}）
   border?: boolean; // 是否带有纵向边框 ==> 非必传（默认为true）
   toolButton?: ("refresh" | "setting" | "search")[] | boolean; // 是否显示表格功能按钮 ==> 非必传（默认为true）
   rowKey?: string; // 行数据的 Key，用来优化 Table 的渲染，当表格数据多选时，所指定的 id ==> 非必传（默认为 id）
@@ -138,7 +139,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
   columns: () => [],
   requestAuto: true,
   pagination: true,
-  initParam: {},
+  initParam: () => ({}),
   border: true,
   toolButton: true,
   rowKey: "id",
@@ -163,10 +164,10 @@ const showToolButton = (key: "refresh" | "setting" | "search") => {
 };
 
 // 单选值
-const radio = ref("");
+const radio = ref<string | number>("");
 
 // 表格多选 Hooks
-const { selectionChange, selectedList, selectedListIds, isSelected } = useSelection(props.rowKey);
+const { selectionChange, selectedList, selectedListIds, isSelected } = useSelection<Table.TableRow>(props.rowKey);
 
 // 表格操作 Hooks
 const { tableData, pageable, searchParam, searchInitParam, getTableList, search, reset, handleSizeChange, handleCurrentChange } =
@@ -202,7 +203,7 @@ const tableColumns = props.columns as ColumnProps[];
 const flatColumns = computed(() => flatColumnsFunc(tableColumns));
 
 // 定义 enumMap 存储 enum 值（避免异步请求无法格式化单元格内容 || 无法填充搜索下拉选择）
-const enumMap = ref(new Map<string, { [key: string]: any }[]>());
+const enumMap = ref(new Map<string, EnumProps[]>());
 const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
   if (!enumValue) return;
 
@@ -210,14 +211,14 @@ const setEnumMap = async ({ prop, enum: enumValue }: ColumnProps) => {
   if (enumMap.value.has(prop!) && (typeof enumValue === "function" || enumMap.value.get(prop!) === enumValue)) return;
 
   // 当前 enum 为静态数据，则直接存储到 enumMap
-  if (typeof enumValue !== "function") return enumMap.value.set(prop!, unref(enumValue!));
+  if (typeof enumValue !== "function") return enumMap.value.set(prop!, unref(enumValue!) as EnumProps[]);
 
   // 为了防止接口执行慢，而存储慢，导致重复请求，所以预先存储为[]，接口返回后再二次存储
   enumMap.value.set(prop!, []);
 
   // 当前 enum 为后台数据需要请求数据，则调用该请求接口，并存储到 enumMap
-  const { data } = await enumValue();
-  enumMap.value.set(prop!, data);
+  const enumResult = await enumValue();
+  enumMap.value.set(prop!, (Array.isArray(enumResult) ? enumResult : enumResult.data) as EnumProps[]);
 };
 
 // 注入 enumMap

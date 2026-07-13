@@ -52,7 +52,7 @@ export class MenuService {
   constructor(
     @InjectRepository(Menu)
     private readonly menuRepository: Repository<Menu>,
-  ) { }
+  ) {}
 
   /**
    * 创建菜单

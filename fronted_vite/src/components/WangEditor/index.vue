@@ -15,17 +15,17 @@
 
 <script setup lang="ts" name="WangEditor">
 import { nextTick, computed, inject, shallowRef, onBeforeUnmount } from "vue";
-import type{ IToolbarConfig, IEditorConfig } from "@wangeditor/editor";
+import type { IDomEditor, IEditorConfig, IToolbarConfig } from "@wangeditor/editor";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import { uploadImg, uploadVideo } from "@/api/modules/upload";
 import "@wangeditor/editor/dist/css/style.css";
 import { formContextKey, formItemContextKey } from "element-plus";
 
 // 富文本 DOM 元素
-const editorRef = shallowRef();
+const editorRef = shallowRef<IDomEditor>();
 
 // 实列化编辑器
-const handleCreated = (editor: any) => {
+const handleCreated = (editor: IDomEditor) => {
   editorRef.value = editor;
 };
 
@@ -67,7 +67,7 @@ const self_disabled = computed(() => {
 });
 
 // 判断当前富文本编辑器是否禁用
-if (self_disabled.value) nextTick(() => editorRef.value.disable());
+if (self_disabled.value) nextTick(() => editorRef.value?.disable());
 
 // 富文本的内容监听，触发父组件改变，实现双向数据绑定
 const emit = defineEmits<{
@@ -80,7 +80,7 @@ const valueHtml = computed({
   },
   set(val: string) {
     // 防止富文本内容为空时，校验失败
-    if (editorRef.value.isEmpty()) val = "";
+    if (editorRef.value?.isEmpty()) val = "";
     emit("update:value", val);
   }
 });

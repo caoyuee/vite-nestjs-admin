@@ -108,7 +108,10 @@ const selectFilterData = reactive([
 onMounted(() => getUserRoleDict());
 const getUserRoleDict = async () => {
   const { data } = await getUserRole();
-  selectFilterData[1].options = data as any;
+  selectFilterData[1].options = data.map(item => ({
+    label: item.name,
+    value: item.id
+  }));
 };
 
 // 默认 selectFilter 参数
@@ -129,8 +132,10 @@ const changeTreeFilter = (val: string[]) => {
 
 // 选择行
 const setCurrent = () => {
-  proTable.value!.radio = proTable.value?.tableData[3].id;
-  proTable.value?.element?.setCurrentRow(proTable.value?.tableData[3]);
+  const currentRow = proTable.value?.tableData[3];
+  if (!currentRow?.id) return;
+  proTable.value!.radio = currentRow.id;
+  proTable.value?.element?.setCurrentRow(currentRow);
 };
 
 watch(

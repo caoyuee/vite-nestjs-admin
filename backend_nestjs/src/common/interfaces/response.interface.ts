@@ -38,7 +38,7 @@
  *   data: null
  * }
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   /** HTTP 状态码，200 表示成功，其他表示错误 */
   code: number;
 

@@ -17,7 +17,6 @@ import { getRoleList, editAccount } from "@/api/modules/system";
 import { ElMessage } from "element-plus";
 interface DialogProps {
   row: Partial<Account.UserItem>;
-  api?: (params: any) => Promise<any>;
   getTableList?: () => void;
 }
 const dialogVisible = ref(false);

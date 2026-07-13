@@ -9,13 +9,13 @@ import type{ HandleData } from "./interface";
  * @param {String} confirmType icon类型 (不必传,默认为 warning)
  * @returns {Promise}
  */
-export const useHandleData = (
-  api: (params: any) => Promise<any>,
-  params: any = {},
+export const useHandleData = <TParams = unknown>(
+  api: (params: TParams) => Promise<unknown>,
+  params: TParams = {} as TParams,
   message: string,
   confirmType: HandleData.MessageType = "warning"
-) => {
-  return new Promise((resolve, reject) => {
+): Promise<boolean> => {
+  return new Promise<boolean>((resolve, reject) => {
     ElMessageBox.confirm(`是否${message}?`, "温馨提示", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",

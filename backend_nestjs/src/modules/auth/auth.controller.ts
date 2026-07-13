@@ -21,6 +21,7 @@
 
 import {
   Controller,
+  Get,
   Post,
   Body,
   UseGuards,
@@ -29,6 +30,7 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
+import { CaptchaService } from './captcha.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -60,7 +62,20 @@ export class AuthController {
    * NestJS 会自动创建 AuthService 实例并注入
    * 类似于 Vue 的依赖注入，但更强大
    */
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly captchaService: CaptchaService,
+  ) {}
+
+  /**
+   * 获取登录验证码
+   */
+  @Public()
+  @Get('captcha')
+  @ApiOperation({ summary: '获取登录验证码' })
+  getCaptcha() {
+    return this.captchaService.generateCaptcha();
+  }
 
   /**
    * 用户登录
@@ -144,7 +159,20 @@ export class SystemAuthController {
    *
    * @param authService - 认证业务服务
    */
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly captchaService: CaptchaService,
+  ) {}
+
+  /**
+   * 获取登录验证码
+   */
+  @Public()
+  @Get('captcha')
+  @ApiOperation({ summary: '获取登录验证码' })
+  getCaptcha() {
+    return this.captchaService.generateCaptcha();
+  }
 
   /**
    * 用户登录

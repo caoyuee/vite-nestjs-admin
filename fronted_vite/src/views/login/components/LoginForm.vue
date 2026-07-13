@@ -19,6 +19,20 @@
         </template>
       </el-input>
     </el-form-item>
+    <el-form-item prop="captchaCode">
+      <div class="captcha-row">
+        <el-input v-model="loginForm.captchaCode" maxlength="4" placeholder="验证码" autocomplete="off">
+          <template #prefix>
+            <el-icon class="el-input__icon">
+              <key />
+            </el-icon>
+          </template>
+        </el-input>
+        <button class="captcha-image" type="button" aria-label="刷新验证码" :disabled="captchaLoading" @click="refreshCaptcha">
+          <img v-if="captchaImageUrl" :src="captchaImageUrl" alt="验证码" />
+        </button>
+      </div>
+    </el-form-item>
   </el-form>
   <div class="login-btn">
     <el-button :icon="CircleClose" round size="large" @click="resetForm(loginFormRef)"> 重置 </el-button>
@@ -29,18 +43,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onBeforeUnmount } from "vue";
+import { computed, ref, reactive, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 import { HOME_URL } from "@/config";
 import { getTimeState } from "@/utils";
 import { type Login } from "@/api/interface";
 import { ElNotification } from "element-plus";
-import { loginApi, getUserInfoApi } from "@/api/modules/login";
+import { loginApi, getCaptchaApi, getUserInfoApi } from "@/api/modules/login";
 import { useUserStore } from "@/stores/modules/user";
 import { useTabsStore } from "@/stores/modules/tabs";
 import { useKeepAliveStore } from "@/stores/modules/keepAlive";
 import { initDynamicRouter } from "@/routers/modules/dynamicRouter";
-import { CircleClose, UserFilled } from "@element-plus/icons-vue";
+import { CircleClose, Key, UserFilled } from "@element-plus/icons-vue";
 import type { ElForm } from "element-plus";
 
 const router = useRouter();
@@ -52,14 +66,36 @@ type FormInstance = InstanceType<typeof ElForm>;
 const loginFormRef = ref<FormInstance>();
 const loginRules = reactive({
   username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-  password: [{ required: true, message: "请输入密码", trigger: "blur" }]
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+  captchaCode: [{ required: true, message: "请输入验证码", trigger: "blur" }]
 });
 
 const loading = ref(false);
+const captchaLoading = ref(false);
+const captchaSvg = ref("");
 const loginForm = reactive<Login.ReqLoginForm>({
   username: "",
-  password: ""
+  password: "",
+  captchaId: "",
+  captchaCode: ""
 });
+const captchaImageUrl = computed(() => {
+  if (!captchaSvg.value) return "";
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(captchaSvg.value)}`;
+});
+
+// 获取验证码
+const refreshCaptcha = async () => {
+  captchaLoading.value = true;
+  try {
+    const { data } = await getCaptchaApi();
+    loginForm.captchaId = data.captchaId;
+    loginForm.captchaCode = "";
+    captchaSvg.value = data.svg;
+  } finally {
+    captchaLoading.value = false;
+  }
+};
 
 // login
 const login = (formEl: FormInstance | undefined) => {
@@ -69,7 +105,7 @@ const login = (formEl: FormInstance | undefined) => {
     loading.value = true;
     try {
       // 1.执行登录接口
-      const { data } = await loginApi({ ...loginForm, password: loginForm.password });
+      const { data } = await loginApi({ ...loginForm });
       userStore.setToken(data.token);
 
       // 2.添加动态路由
@@ -96,6 +132,8 @@ const login = (formEl: FormInstance | undefined) => {
       //   type: "success",
       //   duration: 8000
       // });
+    } catch {
+      await refreshCaptcha();
     } finally {
       loading.value = false;
     }
@@ -106,9 +144,11 @@ const login = (formEl: FormInstance | undefined) => {
 const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.resetFields();
+  refreshCaptcha();
 };
 
 onMounted(() => {
+  refreshCaptcha();
   // 监听 enter 事件（调用登录）
   document.onkeydown = (e: KeyboardEvent) => {
     if (e.code === "Enter" || e.code === "enter" || e.code === "NumpadEnter") {
@@ -125,4 +165,34 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 @use "../index";
+
+.captcha-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px;
+  gap: 12px;
+  width: 100%;
+}
+
+.captcha-image {
+  box-sizing: border-box;
+  width: 120px;
+  height: 44px;
+  padding: 0;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--el-fill-color-light);
+  border: 1px solid var(--el-border-color);
+  border-radius: 6px;
+
+  &:disabled {
+    cursor: wait;
+    opacity: 0.65;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
 </style>

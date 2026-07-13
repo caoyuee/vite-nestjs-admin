@@ -18,6 +18,15 @@ export const loginApi = (params: Login.ReqLoginForm) => {
   // return http.get<Login.ResLogin>(PORT1 + `/login?${qs.stringify(params, { arrayFormat: "repeat" })}`); // get 请求可以携带数组等复杂参数
 };
 
+// 获取登录验证码
+export const getCaptchaApi = () => {
+  return http.get<Login.ResCaptcha>(
+    PORT1 + `/auth/captcha`,
+    {},
+    { loading: false, cancel: false }
+  );
+};
+
 // 获取菜单列表
 export const getAuthMenuListApi = () => {
   return http.get<Menu.MenuOptions[]>(

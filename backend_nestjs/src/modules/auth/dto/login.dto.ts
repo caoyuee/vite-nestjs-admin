@@ -60,4 +60,23 @@ export class LoginDto {
   @IsString()
   @IsNotEmpty({ message: '密码不能为空' })
   password: string;
+
+  /**
+   * 验证码 ID
+   */
+  @ApiProperty({
+    description: '验证码 ID',
+    example: 'f8f9c2b2-8f1a-4b5d-a8d1-123456789abc',
+  })
+  @IsString()
+  @IsNotEmpty({ message: '验证码ID不能为空' })
+  captchaId: string;
+
+  /**
+   * 用户输入的验证码
+   */
+  @ApiProperty({ description: '验证码', example: 'A7K9' })
+  @IsString()
+  @IsNotEmpty({ message: '验证码不能为空' })
+  captchaCode: string;
 }

@@ -25,11 +25,11 @@
 <script setup lang="ts" name="SearchFormItem">
 import { computed, inject, ref } from "vue";
 import { handleProp } from "@/utils";
-import type { ColumnProps } from "@/components/ProTable/interface";
+import type { ColumnProps, EnumProps, SearchParam } from "@/components/ProTable/interface";
 
 interface SearchFormItem {
   column: ColumnProps;
-  searchParam: { [key: string]: any };
+  searchParam: SearchParam;
 }
 const props = defineProps<SearchFormItem>();
 
@@ -46,13 +46,17 @@ const fieldNames = computed(() => {
 });
 
 // 接收 enumMap (el 为 select-v2 需单独处理 enumData)
-const enumMap = inject("enumMap", ref(new Map()));
+const enumMap = inject("enumMap", ref(new Map<string, EnumProps[]>()));
 const columnEnum = computed(() => {
-  let enumData = enumMap.value.get(props.column.prop);
+  let enumData = enumMap.value.get(props.column.prop ?? "");
   if (!enumData) return [];
   if (props.column.search?.el === "select-v2" && props.column.fieldNames) {
-    enumData = enumData.map((item: { [key: string]: any }) => {
-      return { ...item, label: item[fieldNames.value.label], value: item[fieldNames.value.value] };
+    enumData = enumData.map(item => {
+      return {
+        ...item,
+        label: String(item[fieldNames.value.label] ?? ""),
+        value: item[fieldNames.value.value] as string | number | boolean | unknown[]
+      };
     });
   }
   return enumData;
@@ -77,7 +81,8 @@ const handleSearchProps = computed(() => {
 // 处理默认 placeholder
 const placeholder = computed(() => {
   const search = props.column.search;
-  if (["datetimerange", "daterange", "monthrange"].includes(search?.props?.type) || search?.props?.isRange) {
+  const searchType = typeof search?.props?.type === "string" ? search.props.type : "";
+  if (["datetimerange", "daterange", "monthrange"].includes(searchType) || search?.props?.isRange) {
     return {
       rangeSeparator: search?.props?.rangeSeparator ?? "至",
       startPlaceholder: search?.props?.startPlaceholder ?? "开始时间",

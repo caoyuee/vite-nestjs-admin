@@ -58,7 +58,7 @@ interface DrawerProps {
   title: string;
   isView: boolean;
   row: Partial<Dictionary.CreateDictionary>;
-  api?: (params: any) => Promise<any>;
+  api?: (params: never) => Promise<unknown>;
   getTableList?: () => void;
 }
 
@@ -79,7 +79,7 @@ const handleSubmit = () => {
   ruleFormRef.value!.validate(async (valid) => {
     if (valid) {
       try {
-        await drawerProps.value.api!(drawerProps.value.row);
+        await drawerProps.value.api!(drawerProps.value.row as never);
         ElMessage.success({ message: `${drawerProps.value.title}字典成功！` });
         drawerProps.value.getTableList!();
         drawerVisible.value = false;

@@ -4,7 +4,7 @@ export interface GeoJSONFeature {
     name?: string
     description?: string
     color?: string
-    [key: string]: any
+    [key: string]: unknown
   }
   geometry: {
     type: 'LineString'

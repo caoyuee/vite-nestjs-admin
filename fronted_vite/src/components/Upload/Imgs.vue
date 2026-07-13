@@ -50,9 +50,13 @@ import { uploadImg } from "@/api/modules/upload";
 import type { UploadProps, UploadFile, UploadUserFile, UploadRequestOptions } from "element-plus";
 import { ElNotification, formContextKey, formItemContextKey } from "element-plus";
 
+type UploadImageResponse = {
+  fileUrl: string;
+};
+
 interface UploadFileProps {
   fileList: UploadUserFile[];
-  api?: (params: any) => Promise<any>; // 上传图片的 api 方法，一般项目上传都是同一个 api 方法，在组件里直接引入即可 ==> 非必传
+  api?: (params: FormData) => Promise<{ data: UploadImageResponse }>; // 上传图片的 api 方法，一般项目上传都是同一个 api 方法，在组件里直接引入即可 ==> 非必传
   drag?: boolean; // 是否支持拖拽上传 ==> 非必传（默认为 true）
   disabled?: boolean; // 是否禁用上传组件 ==> 非必传（默认为 false）
   limit?: number; // 最大图片上传数 ==> 非必传（默认为 5张）
@@ -130,7 +134,8 @@ const handleHttpUpload = async (options: UploadRequestOptions) => {
     const { data } = await api(formData);
     options.onSuccess(data);
   } catch (error) {
-    options.onError(error as any);
+    const uploadError = error instanceof Error ? error : new Error(String(error));
+    options.onError(uploadError as Parameters<typeof options.onError>[0]);
   }
 };
 

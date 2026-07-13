@@ -75,11 +75,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
       if (typeof exceptionResponse === 'string') {
         // 如果响应是字符串，直接使用
         message = exceptionResponse;
-      } else if (typeof exceptionResponse === 'object') {
+      } else if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse !== null
+      ) {
         // 如果响应是对象，尝试提取 message 字段
-        const responseObj = exceptionResponse as Record<string, any>;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        message = responseObj.message || exception.message;
+        const responseObj = exceptionResponse as Record<string, unknown>;
+        const responseMessage = responseObj.message;
+        message =
+          typeof responseMessage === 'string'
+            ? responseMessage
+            : exception.message;
       }
     } else if (exception instanceof Error) {
       // 处理普通 JavaScript 错误
