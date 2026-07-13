@@ -1,357 +1,243 @@
-# AGENTS.md - AI Agent 项目指南
+# AGENTS.md - AI 编码代理项目规则
 
-> 本文档为 AI 编码代理提供项目入门指南，包含项目结构、技术栈、开发规范和工作流程。
+> 本文件是本仓库给 AI 编码代理和后来维护者读取的项目级规则入口。
+> 人类项目介绍请看根目录 `readme.md`；接口细则请看 `docs/API_CONTRACT_RULES.md`。
 
-***
+## 规则来源
 
-## 项目概述
+本文件整合以下来源，并抽象成可执行规则：
 
-这是一个**全栈 Monorepo 项目**，包含 Vue 3 前端和 NestJS 后端两个子项目。
+- `.agents/rules/code-rules.md`：原项目代码规范和示例。
+- `.agents/rules/superpowers-zh.md`：设计先行、调试先找根因、完成前验证等协作原则。
+- `.agents/skills/*`：AI 工作流方法论，仅抽取适合项目协作的部分。
+- `docs/API_CONTRACT_RULES.md`：前后端接口契约。
+- `docs/superpowers/plans/2026-07-13-api-contract-unification.md`：接口统一实施计划和约束。
+- `.codex/`：当前为空；统一以根目录 `AGENTS.md` 作为 Codex/AI 代理规则入口。
 
-| 子项目 | 目录                | 技术栈                         | 说明             |
-| --- | ----------------- | --------------------------- | -------------- |
-| 前端  | `fronted_vite/`   | Vue 3 + Vite + Element Plus | 管理后台前端         |
-| 后端  | `backend_nestjs/` | NestJS + TypeORM + MySQL    | RESTful API 服务 |
+当规则冲突时，优先级为：
 
-***
+1. 用户当前明确指令。
+2. `docs/API_CONTRACT_RULES.md` 中的接口契约。
+3. 本文件。
+4. `.agents/rules/code-rules.md` 中更细的示例规则。
 
-## 技术栈详情
+## 项目定位
 
-### 前端 (fronted\_vite)
+这是一个前后端一体的后台管理项目。
 
-| 技术           | 版本            | 用途       |
-| ------------ | ------------- | -------- |
-| Vue          | 3.5+          | 前端框架     |
-| Vite         | rolldown-vite | 构建工具     |
-| Pinia        | 3.0+          | 状态管理     |
-| Element Plus | 2.11+         | UI 组件库   |
-| Vue Router   | 4.x           | 路由管理     |
-| Axios        | 1.x           | HTTP 客户端 |
-| ECharts      | 6.0+          | 图表库      |
-| SCSS         | -             | CSS 预处理器 |
+| 子项目 | 目录 | 技术栈 | 说明 |
+| --- | --- | --- | --- |
+| 前端 | `fronted_vite/` | Vue 3、Vite/rolldown-vite、Pinia、Element Plus、Vue Router、Axios、ECharts | 管理后台界面 |
+| 后端 | `backend_nestjs/` | NestJS 11、TypeORM、MySQL、Redis、JWT、Swagger、Winston | RESTful API 服务 |
 
-### 后端 (backend\_nestjs)
+## 工作方式
 
-| 技术      | 版本              | 用途     |
-| ------- | --------------- | ------ |
-| NestJS  | 11.x            | 后端框架   |
-| TypeORM | 0.3.x           | ORM 框架 |
-| MySQL   | -               | 关系型数据库 |
-| Redis   | ioredis         | 缓存服务   |
-| JWT     | @nestjs/jwt     | 身份认证   |
-| Winston | 3.x             | 日志系统   |
-| Swagger | @nestjs/swagger | API 文档 |
+- 先读现有代码和文档，再改代码。不要暗猜接口、目录、类型或业务语义。
+- 新增或修改功能前，先确认已有模块是否能复用；确需新增模块时，保持边界清晰。
+- 遇到 bug 时先定位根因，再修改。不要用多处试探性改动掩盖问题。
+- 完成前必须运行和变更范围匹配的验证命令，并在回复中说明命令和结果。
+- 工作区可能已有他人改动，不得回滚或覆盖与任务无关的修改。
+- 不允许擅自新增依赖。确需新增依赖时，先说明用途、影响和替代方案，由用户确认。
+- 统一使用 `pnpm`，禁止使用 `npm` 或 `yarn`。
 
-***
+## 目录边界
 
-## 项目结构
+### 前端 `fronted_vite/`
 
-```
-front_backend_vite_nestjs/
-├── .trae/                      # Trae IDE 配置目录
-│   ├── plans/                  # 开发计划文档
-│   ├── rules/                  # 代码规范文档
-│   │   └── code-rules.md       # 详细代码规范（必读）
-│   └── specs/                  # 功能规格说明
-├── fronted_vite/               # 前端项目
-│   ├── src/
-│   │   ├── api/               # API 接口封装
-│   │   ├── assets/            # 静态资源
-│   │   ├── components/        # 公共组件
-│   │   ├── directives/        # 自定义指令
-│   │   ├── enums/             # 枚举定义
-│   │   ├── hooks/             # 组合式函数
-│   │   ├── languages/         # 国际化
-│   │   ├── layouts/           # 布局组件
-│   │   ├── routers/           # 路由配置
-│   │   ├── stores/            # Pinia 状态管理
-│   │   ├── styles/            # 全局样式
-│   │   ├── utils/             # 工具函数
-│   │   └── views/             # 页面视图
-│   ├── build/                  # 构建配置
-│   └── public/                 # 公共资源
-├── backend_nestjs/             # 后端项目
-│   ├── src/
-│   │   ├── common/            # 公共模块
-│   │   │   ├── decorators/    # 自定义装饰器
-│   │   │   ├── filters/       # 异常过滤器
-│   │   │   ├── guards/        # 守卫
-│   │   │   ├── interceptors/  # 拦截器
-│   │   │   └── services/      # 公共服务
-│   │   ├── config/            # 配置文件
-│   │   ├── entities/          # TypeORM 实体
-│   │   ├── modules/           # 功能模块
-│   │   │   ├── auth/          # 认证模块
-│   │   │   ├── user/          # 用户模块
-│   │   │   ├── menu/          # 菜单模块
-│   │   │   ├── role/          # 角色模块
-│   │   │   ├── log/           # 日志模块
-│   │   │   ├── upload/        # 上传模块
-│   │   │   └── dictionary/    # 字典模块
-│   │   ├── utils/             # 工具函数
-│   │   ├── app.module.ts      # 根模块
-│   │   └── main.ts            # 入口文件
-│   └── test/                   # 测试文件
-└── docker-compose.yml          # Docker 编排配置
-```
+- `src/api/`：Axios 实例、接口封装和接口类型。
+- `src/components/`：可复用公共组件。
+- `src/views/`：页面视图。
+- `src/routers/`：路由配置。
+- `src/stores/`：Pinia 状态。
+- `src/styles/`：全局样式。
+- `src/utils/`：通用工具函数。
 
-***
+### 后端 `backend_nestjs/`
 
-## 开发环境设置
+- `src/common/`：装饰器、过滤器、守卫、拦截器、公共服务。
+- `src/config/`：数据库、JWT、Redis、上传等配置。
+- `src/entities/`：TypeORM 实体。
+- `src/modules/`：业务模块，每个模块保持 controller/service/dto/module 边界。
+- `src/utils/`：通用工具函数。
 
-### 前置要求
+### 文档和规则
 
-- Node.js 18+
-- pnpm 10.20.0+
-- MySQL 8.0+
-- Redis 6.0+
+- `readme.md`：项目介绍、启动方式和文档索引，写给人看。
+- `AGENTS.md`：AI 编码代理必须读取的项目规则。
+- `docs/API_CONTRACT_RULES.md`：接口契约唯一细则来源。
+- `.agents/rules/code-rules.md`：更细的代码规范示例。
 
-### 安装依赖
+## 接口契约
 
-```bash
-# 前端
-cd fronted_vite
-pnpm install
+新增或修改接口必须先遵守 `docs/API_CONTRACT_RULES.md`。
 
-# 后端
-cd backend_nestjs
-pnpm install
-```
+### 路由分组
 
-### 启动开发服务
+| 业务域 | 路由前缀 |
+| --- | --- |
+| 认证 | `/api/system/auth` |
+| 当前用户 | `/api/system/users/me` |
+| 用户账号 | `/api/system/users` |
+| 菜单 | `/api/system/menus` |
+| 角色 | `/api/system/roles` |
+| 权限 | `/api/system/permissions` |
+| 日志 | `/api/system/logs` |
+| 字典 | `/api/system/dictionaries` |
+| 演示用户 | `/api/system/demo/users` |
+| 上传 | `/api/upload` |
 
-```bash
-# 前端开发服务 (默认端口 5173)
-cd fronted_vite
-pnpm dev
+### HTTP 方法
 
-# 后端开发服务 (默认端口 3000)
-cd backend_nestjs
-pnpm start:dev
-```
+- 列表：`GET /resource`
+- 详情：`GET /resource/:id`
+- 新增：`POST /resource`
+- 编辑：`PUT /resource/:id`
+- 删除：`DELETE /resource/:id`
+- 特殊动作：`POST /resource/:id/action` 或 `PUT /resource/:id/action`
 
-### 构建生产版本
+当前登录用户相关接口不从前端传用户 ID，统一从 JWT 中读取。
 
-```bash
-# 前端构建
-cd fronted_vite
-pnpm build
+### 请求参数
 
-# 后端构建
-cd backend_nestjs
-pnpm build
-```
+- 分页参数和筛选条件放 `@Query()`。
+- 新增和编辑数据放 `@Body()`。
+- 资源 ID 放 `@Param('id')`。
+- 当前用户通过 `@CurrentUser()` 获取。
+- 上传文件使用 `multipart/form-data` 的 `file` 字段。
 
-***
+### 响应格式
 
-## 代码规范
+所有 JSON 接口统一返回：
 
-> **重要**: 详细代码规范请查阅 [.trae/rules/code-rules.md](.trae/rules/code-rules.md)
-
-### 核心原则
-
-1. **代码结构清晰** - 遵循设计模式最佳实践，考虑长远维护
-2. **逻辑严谨整洁** - 容易理解和维护，避免过度设计
-3. **工程化优先** - 以安全正常使用为主，越简单越可控
-4. **组件化设计** - 考虑组件复用性
-
-### 设计原则
-
-- 开闭原则（OCP）
-- 单一职责原则（SRP）
-- 里氏代换原则（LSP）
-- 依赖倒转原则（DIP）
-- 接口隔离原则（ISP）
-- 合成/聚合复用原则（CARP）
-- 最少知识原则（LKP）
-
-### 代码编写八荣八耻
-
-| 耻    | 荣    |
-| ---- | ---- |
-| 暗猜接口 | 认真查阅 |
-| 模糊执行 | 寻求确认 |
-| 盲想业务 | 人类确认 |
-| 创造接口 | 复用现有 |
-| 跳过验证 | 主动测试 |
-| 破坏架构 | 遵循规范 |
-| 假装理解 | 诚实无知 |
-| 盲目修改 | 谨慎重构 |
-
-### 注释规范
-
-**所有代码必须添加中文注释**，使用 JSDoc 格式：
-
-```typescript
-/**
- * 获取用户列表数据
- *
- * @description 分页查询用户列表，支持按用户名、姓名、邮箱、电话、状态筛选
- * @param {UserListQueryDto} query - 查询参数对象
- * @returns {Promise<UserListResponse>} 用户列表响应
- */
-async getUserList(query: UserListQueryDto) {
-  // 实现逻辑...
-}
-```
-
-### 命名规范
-
-| 类型            | 命名方式           | 示例                     |
-| ------------- | -------------- | ---------------------- |
-| 目录            | kebab-case     | `user-manage/`         |
-| TypeScript 文件 | camelCase      | `userService.ts`       |
-| Vue 组件        | PascalCase     | `LoginForm.vue`        |
-| 类型定义文件        | camelCase      | `index.d.ts`           |
-| 配置文件          | kebab-case     | `vite.config.ts`       |
-| 测试文件          | 原文件名 + `.spec` | `auth.service.spec.ts` |
-
-***
-
-## API 规范
-
-### 后端 API 路由前缀
-
-- `/api/system/*` - 系统 API
-- `/api/upload/*` - 文件上传 API
-- `/swagger/docs` - Swagger API 文档
-
-### 统一响应格式
-
-```typescript
+```ts
 {
-  "code": 200,           // HTTP 状态码
-  "message": "success",  // 响应消息
-  "data": { ... }        // 响应数据
+  code: number;
+  message: string;
+  data: T | null;
 }
 ```
 
-### 认证方式
+分页响应统一为：
 
-- 使用 JWT Bearer Token 认证
-- 公开接口使用 `@Public()` 装饰器标记
+```ts
+{
+  list: T[];
+  total: number;
+  pageNum: number;
+  pageSize: number;
+}
+```
 
-***
+前端 API 类型和后端 DTO/返回值必须同步更新，不允许前端调用不存在的后端接口。
 
-## 测试规范
+## 前端规则
 
-### 后端测试
+- Vue 组件使用 `<script setup lang="ts" name="ComponentName">`。
+- 组件文件使用 PascalCase，例如 `LoginForm.vue`。
+- 前端路径别名使用 `@/` 指向 `src/`，避免深层相对路径。
+- API 封装放在 `src/api/modules/`，类型放在 `src/api/interface/`。
+- API 函数命名使用明确动作，如 `getRoleList`、`createRole`、`updateRole`、`deleteRole`。
+- 业务错误提示优先展示后端返回的 `message`，没有业务消息时再使用通用状态码提示。
+- Pinia store 只保存跨页面共享状态；局部页面状态留在组件或组合式函数里。
+- 样式优先使用已有变量、布局和 Element Plus 规范，不随意引入新的视觉体系。
+- 图表、地图、WebGL 等页面优先复用已有工具和依赖，不手写可由成熟库处理的底层逻辑。
+
+## 后端规则
+
+- 新增业务模块放在 `backend_nestjs/src/modules/<module>/`。
+- 常规模块结构为 `dto/`、`*.controller.ts`、`*.service.ts`、`*.module.ts`。
+- Controller 只处理路由、参数、认证和 Swagger 描述；业务逻辑放 Service。
+- DTO 使用 `class-validator` 和 Swagger 装饰器描述输入。
+- 实体放在 `src/entities/`，字段类型要和数据库语义一致。
+- 公开接口必须显式使用 `@Public()`。
+- 当前用户必须通过 JWT 和 `@CurrentUser()` 获取，避免信任前端传入的用户 ID。
+- 异常使用 NestJS 标准异常类，由全局过滤器统一转换为 `{ code, message, data }`。
+- 新增服务依赖必须在对应 Module 中注册和导出，不要依赖隐式注入。
+
+## TypeScript 和类型规则
+
+- 前后端 TypeScript 版本保持一致。
+- 新代码默认写明确类型，优先使用 interface/type/泛型描述数据结构。
+- 不新增无意义的 `any`。历史 `any` 能就地收敛时顺手处理，不能安全判断时保留并说明原因。
+- 对第三方库缺失类型时，优先寻找已有类型声明或局部声明，不用大面积 `any` 放开。
+- API 类型以实际后端语义为准，不能为了前端方便改错后端契约。
+- `unknown` 优先于 `any` 用于外部输入，再通过类型保护收窄。
+
+## 注释和命名
+
+- 复杂业务、公共函数、Controller、Service、DTO、实体需要中文 JSDoc 或中文注释说明语义。
+- 注释解释“为什么”和业务约束，不写无价值的逐行翻译。
+- 目录使用 kebab-case。
+- Vue 组件使用 PascalCase。
+- TypeScript 普通文件遵循项目现有命名风格；新增文件优先使用 kebab-case 或与同目录一致。
+- 测试文件使用 `*.spec.ts` 或 `*.e2e-spec.ts`。
+
+## 质量检查
+
+前端启动和打包必须先通过 TS 与 ESLint 检查：
 
 ```bash
-# 运行单元测试
+cd fronted_vite
+pnpm check
+pnpm build
+```
+
+后端启动和打包必须先通过 TS 与 ESLint 检查：
+
+```bash
 cd backend_nestjs
-pnpm test
-
-# 运行 e2e 测试
-pnpm test:e2e
-
-# 测试覆盖率
-pnpm test:cov
+pnpm check
+pnpm build
 ```
 
-### 测试文件命名
+当前脚本已经把检查接入 `dev`、`start`、`start:dev` 和 `build`。修改脚本时不得移除这些检查。
 
-- 单元测试: `*.spec.ts`
-- E2E 测试: `*.e2e-spec.ts`
+## 测试要求
 
-***
+- 修 bug 时优先补最小回归测试；无法自动化时说明人工验证步骤。
+- 后端业务逻辑变更优先补 Jest 单元测试。
+- 接口契约变更要同时检查前端 API 类型、后端 DTO、Controller 路由和响应格式。
+- 登录、权限、菜单、上传等链路依赖数据库或 Redis 时，至少运行构建检查，并说明未覆盖的人工联调项。
 
-## Git 提交规范
+## Git 规则
 
-### Commit Message 格式
+提交格式：
 
-```
+```text
 <type>(<scope>): <subject>
 ```
 
-### Type 类型
+常用类型：
 
-| 类型         | 描述      |
-| ---------- | ------- |
-| `feat`     | 新功能     |
-| `fix`      | Bug 修复  |
-| `docs`     | 文档更新    |
-| `style`    | 代码格式调整  |
-| `refactor` | 代码重构    |
-| `perf`     | 性能优化    |
-| `test`     | 测试相关    |
-| `chore`    | 构建/工具相关 |
+- `feat`：新功能
+- `fix`：问题修复
+- `docs`：文档
+- `style`：格式
+- `refactor`：重构
+- `perf`：性能
+- `test`：测试
+- `chore`：构建或工具
 
-### Scope 范围
+常用范围：
 
-| 范围         | 描述        |
-| ---------- | --------- |
-| `frontend` | 前端项目      |
-| `nestjs`   | NestJS 后端 |
-| `shared`   | 共享代码      |
+- `frontend`
+- `nestjs`
+- `shared`
+- `docs`
 
-### 示例
+提交前确认：
 
-```bash
-feat(frontend): 添加用户头像上传功能
-fix(nestjs): 修复登录 Token 过期问题
-docs(shared): 更新项目文档
-```
+- 工作区只包含本次任务相关变更。
+- 已运行必要检查。
+- 不包含密钥、密码、Token、数据库真实凭据。
 
-***
+## 禁止事项
 
-## 常见开发场景
+- 禁止暗猜接口或新增与后端不一致的前端 API。
+- 禁止跳过 TS/ESLint 检查后宣称完成。
+- 禁止为了通过类型检查扩大 `any`。
+- 禁止无确认新增依赖。
+- 禁止回滚他人未说明的改动。
+- 禁止提交敏感信息。
 
-### 场景 1: 新增后端模块
-
-1. 在 `backend_nestjs/src/modules/` 下创建模块目录
-2. 创建必要文件: `xxx.module.ts`, `xxx.controller.ts`, `xxx.service.ts`
-3. 在 `dto/` 目录下创建 DTO 文件
-4. 在 `app.module.ts` 中导入新模块
-5. 添加中文注释和 Swagger 文档
-
-### 场景 2: 新增前端页面
-
-1. 在 `fronted_vite/src/views/` 下创建页面目录
-2. 创建 `index.vue` 组件文件
-3. 在 `routers/modules/` 中添加路由配置
-4. 在 `api/modules/` 中添加 API 接口
-5. 如需状态管理，在 `stores/modules/` 中添加 store
-
-### 场景 3: 代码质量检查
-
-```bash
-# 前端检查
-cd fronted_vite
-pnpm run format        # Prettier 格式化
-pnpm run lint          # ESLint 检查
-
-# 后端检查
-cd backend_nestjs
-pnpm run format        # Prettier 格式化
-pnpm run lint          # ESLint 检查
-pnpm run build         # TypeScript 类型检查
-```
-
-***
-
-## 重要文件索引
-
-| 文件                                 | 用途            |
-| ---------------------------------- | ------------- |
-| `.trae/rules/code-rules.md`        | 详细代码规范（必读）    |
-| `fronted_vite/vite.config.ts`      | Vite 配置       |
-| `fronted_vite/src/main.ts`         | 前端入口          |
-| `backend_nestjs/src/main.ts`       | 后端入口          |
-| `backend_nestjs/src/app.module.ts` | NestJS 根模块    |
-| `backend_nestjs/tsconfig.json`     | TypeScript 配置 |
-
-***
-
-## 注意事项
-
-1. **包管理器**: 统一使用 pnpm，禁止使用 npm 或 yarn
-2. **路径别名**: 前端使用 `@/` 作为 `src/` 目录别名
-3. **环境变量**: 前端使用 `.env.*` 文件，后端使用 `.env` 文件
-4. **API 文档**: 后端 Swagger 文档地址 `/swagger/docs`
-5. **敏感信息**: 禁止提交密钥、密码等敏感信息到代码仓库
-6. **依赖规范**:不允许擅自新增依赖，需明确告知依赖的作用，由老板来确定是否安装依赖
-
-***
-
-*文档更新时间: 2026-03-23*
+*更新时间：2026-07-13*
