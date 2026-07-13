@@ -7,7 +7,8 @@
 </template>
 
 <script setup lang="ts" name="webgpu">
-import { ref, onMounted, type Ref } from "vue";
+import { ref, onMounted, onBeforeUnmount, type Ref } from "vue";
+import { onBeforeRouteLeave } from "vue-router";
 import * as THREE from "three";
 //引入性能监视器
 import Stats from "three/examples/jsm/libs/stats.module.js";
@@ -19,6 +20,18 @@ import facebook from "@/assets/webGL/facebook.png";
 const canvas = ref<HTMLElement>();
 const webGLContainer = ref<HTMLElement>();
 const meshList = ref<THREE.Object3D[]>([]);
+let animationFrameId: number | undefined;
+let isDestroyed = false;
+
+type ThreeRuntime = {
+  scene: THREE.Scene;
+  renderer: THREE.WebGLRenderer;
+  controls: OrbitControls;
+  stats: Stats;
+  resizeHandler: () => void;
+};
+
+let threeRuntime: ThreeRuntime | null = null;
 
 type GuiBaseItem = {
   name: string;
@@ -45,7 +58,18 @@ type GuiFolder = {
 };
 
 onMounted(() => {
+  isDestroyed = false;
   initThree();
+});
+
+onBeforeUnmount(() => {
+  isDestroyed = true;
+  destroyThree();
+});
+
+onBeforeRouteLeave(() => {
+  isDestroyed = true;
+  destroyThree();
 });
 //封装初始化threejs的方法
 const initThree = async () => {
@@ -56,6 +80,10 @@ const initThree = async () => {
   // const mesh = createMesh();
   //加载模型
   const model = await loadGLTFModel('/models/work.glb');
+  if (isDestroyed) {
+    disposeObject3D(model);
+    return;
+  }
   meshList.value.push(model);
   model.position.set(0, 0, 0);
   scene.add(model);
@@ -225,7 +253,7 @@ const initThree = async () => {
   canvas?.value?.appendChild(renderer.domElement);
 
   //创建相机控件
-  createControls(camera, renderer);
+  const controls = createControls(camera, renderer);
 
   //获取动画渲染时间间隔
   const timer = new THREE.Timer();
@@ -256,7 +284,63 @@ const initThree = async () => {
   animate(timer, stats, renderer, scene, camera, isPlay);
 
   // 监听窗口变化，更新渲染器尺寸
-  window.onresize = () => resize(renderer, camera);
+  const resizeHandler = () => resize(renderer, camera);
+  window.addEventListener("resize", resizeHandler);
+  threeRuntime = {
+    scene,
+    renderer,
+    controls,
+    stats,
+    resizeHandler,
+  };
+};
+
+const disposeMaterial = (material?: THREE.Material | THREE.Material[]) => {
+  if (!material) return;
+  const materials = Array.isArray(material) ? material : [material];
+  materials.forEach(item => {
+    Object.values(item as unknown as Record<string, unknown>).forEach(value => {
+      if (value instanceof THREE.Texture) {
+        value.dispose();
+      }
+    });
+    item.dispose();
+  });
+};
+
+const disposeObject3D = (object: THREE.Object3D) => {
+  object.traverse(child => {
+    const disposable = child as THREE.Object3D & {
+      geometry?: THREE.BufferGeometry;
+      material?: THREE.Material | THREE.Material[];
+    };
+    disposable.geometry?.dispose();
+    disposeMaterial(disposable.material);
+  });
+};
+
+const destroyThree = () => {
+  if (animationFrameId !== undefined) {
+    cancelAnimationFrame(animationFrameId);
+    animationFrameId = undefined;
+  }
+
+  if (!threeRuntime) {
+    meshList.value = [];
+    return;
+  }
+
+  window.removeEventListener("resize", threeRuntime.resizeHandler);
+  threeRuntime.controls.dispose();
+  threeRuntime.stats.dom.remove();
+  disposeObject3D(threeRuntime.scene);
+  threeRuntime.scene.clear();
+  threeRuntime.renderer.renderLists.dispose();
+  threeRuntime.renderer.dispose();
+  threeRuntime.renderer.forceContextLoss();
+  threeRuntime.renderer.domElement.remove();
+  meshList.value = [];
+  threeRuntime = null;
 };
 
 //加载gltf三维模型
@@ -490,6 +574,7 @@ const animate = (
   camera: THREE.PerspectiveCamera,
   isPlay: Ref<boolean>,
 ) => {
+  if (isDestroyed) return;
   // 更新定时器状态
   timer.update();
 
@@ -530,9 +615,7 @@ const animate = (
   // mesh.rotateZ(0.01); // � � � 绕Z轴旋转
   stats.update(); //更新性能监视器
   renderer.render(scene, camera);
-  requestAnimationFrame(
-    animate.bind(null, timer, stats, renderer, scene, camera, isPlay),
-  );
+  animationFrameId = requestAnimationFrame(() => animate(timer, stats, renderer, scene, camera, isPlay));
 };
 
 // 监听窗口变化，更新渲染器尺寸
@@ -562,6 +645,7 @@ const createControls = (
     // console.log("camera changed", camera.position);
     // renderer.render(scene, camera);//添加了动画不需要再更新了
   });
+  return controls;
 };
 
 // 封装创建GUI的方法
