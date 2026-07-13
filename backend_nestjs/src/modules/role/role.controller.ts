@@ -19,8 +19,10 @@ import {
   Controller,
   Get, // 处理 GET 请求
   Post, // 处理 POST 请求
+  Put, // 处理 PUT 请求
   Delete, // 处理 DELETE 请求
   Body, // 获取请求体
+  Param, // 获取路径参数
   Query, // 获取查询参数
   UseGuards, // 使用守卫
 } from '@nestjs/common';
@@ -29,6 +31,7 @@ import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { RoleListQueryDto } from './dto/role-list-query.dto';
 import { RolePermissionDto } from './dto/role-permission.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { JwtPayload } from '../../common/interfaces/response.interface';
@@ -74,6 +77,17 @@ export class RoleController {
   }
 
   /**
+   * 编辑角色
+   *
+   * @Put('editRole') - 旧路由：PUT /api/system/user/editRole
+   */
+  @Put('editRole')
+  @ApiOperation({ summary: '编辑角色（兼容旧接口）' })
+  async updateRole(@Body() updateRoleDto: UpdateRoleDto & { id: string }) {
+    return this.roleService.updateRole(updateRoleDto.id, updateRoleDto);
+  }
+
+  /**
    * 获取当前用户的角色权限信息
    *
    * @Get('getRoleInfo') - 路由：GET /api/system/user/getRoleInfo
@@ -104,6 +118,17 @@ export class RoleController {
   }
 
   /**
+   * 删除角色
+   *
+   * @Delete('deleteRole/:id') - 兼容前端旧封装中的路径参数写法
+   */
+  @Delete('deleteRole/:id')
+  @ApiOperation({ summary: '删除角色（路径参数兼容）' })
+  async deleteRoleByParam(@Param('id') id: string) {
+    return this.roleService.deleteRole(id);
+  }
+
+  /**
    * 角色授权
    *
    * @Post('putRolePermission') - 路由：POST /api/system/user/putRolePermission
@@ -118,5 +143,84 @@ export class RoleController {
   @ApiOperation({ summary: '角色授权' })
   async setRolePermission(@Body() rolePermissionDto: RolePermissionDto) {
     return this.roleService.setRolePermission(rolePermissionDto);
+  }
+}
+
+/**
+ * 语义化角色控制器
+ *
+ * @class SystemRoleController
+ * @description 按统一接口契约暴露 `/api/system/roles` 资源路由。
+ */
+@ApiTags('角色')
+@Controller('api/system/roles')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+export class SystemRoleController {
+  /**
+   * 构造函数
+   *
+   * @param roleService - 角色业务服务
+   */
+  constructor(private readonly roleService: RoleService) {}
+
+  /**
+   * 获取角色列表
+   */
+  @Get()
+  @ApiOperation({ summary: '获取角色列表' })
+  async getRoleList(@Query() query: RoleListQueryDto) {
+    return this.roleService.getRoleList(query);
+  }
+
+  /**
+   * 新增角色
+   */
+  @Post()
+  @ApiOperation({ summary: '新增角色' })
+  async createRole(@Body() createRoleDto: CreateRoleDto) {
+    return this.roleService.createRole(createRoleDto);
+  }
+
+  /**
+   * 编辑角色
+   */
+  @Put(':id')
+  @ApiOperation({ summary: '编辑角色' })
+  async updateRole(
+    @Param('id') id: string,
+    @Body() updateRoleDto: UpdateRoleDto,
+  ) {
+    return this.roleService.updateRole(id, updateRoleDto);
+  }
+
+  /**
+   * 删除角色
+   */
+  @Delete(':id')
+  @ApiOperation({ summary: '删除角色' })
+  async deleteRole(@Param('id') id: string) {
+    return this.roleService.deleteRole(id);
+  }
+
+  /**
+   * 获取当前用户角色权限
+   */
+  @Get('current-permissions')
+  @ApiOperation({ summary: '获取当前用户角色权限' })
+  async getRoleInfo(@CurrentUser() user: JwtPayload) {
+    return this.roleService.getRoleInfo(user.sub);
+  }
+
+  /**
+   * 更新角色权限
+   */
+  @Put(':id/permissions')
+  @ApiOperation({ summary: '更新角色权限' })
+  async setRolePermission(
+    @Param('id') id: string,
+    @Body() rolePermissionDto: Omit<RolePermissionDto, 'id'>,
+  ) {
+    return this.roleService.setRolePermissionById(id, rolePermissionDto);
   }
 }

@@ -3,7 +3,7 @@
     <div class="trees">
       <TreeFilter title="菜单列表(多选)" multiple label="nameZH" dataPath="list" :request-api="getAllMenuList"
         :default-value="treeFilterValue.ids" @change="changeTreeFilter" />
-      <TreeFilter title="权限列表(多选)" multiple label="name" :request-api="getAuthBtnsList" :params="{ type: 'btn' }"
+      <TreeFilter title="权限列表(多选)" multiple label="name" dataPath="list" :request-api="getAuthBtnsList" :params="{ type: 'button' }"
         :default-value="treeFilterValue1.ids" @change="changeTreeFilter1" />
     </div>
     <template #footer>

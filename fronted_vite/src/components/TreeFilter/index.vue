@@ -119,7 +119,7 @@ watch(filterText, val => {
 });
 
 // 过滤
-const filterNode = (value: string, data: { [key: string]: any }, node: any) => {
+const filterNode = (value: string, _data: { [key: string]: any }, node: any) => {
   if (!value) return true;
   let parentNode = node.parent,
     labels = [node.label],

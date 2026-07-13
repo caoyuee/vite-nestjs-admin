@@ -470,6 +470,7 @@ const animate = (
 
   // 获取上一帧到当前帧的时间差（秒）
   const delta = timer.getDelta();
+  void delta;
 
   // 使用 delta 进行动画更新
   // console.log(`Delta time: ${delta}s`);
@@ -816,9 +817,11 @@ const createLine = () => {
 
   //实例化一个线模型，参数为缓冲几何体和线模型材质，LineBasicMaterial线基础材质
   const line = new THREE.Line(geometry, material);
+  void line;
 
   //LineLoop 线模型，线模型成环
   const lineLoop = new THREE.LineLoop(geometry, material);
+  void lineLoop;
 
   //LineSegments 线模型，线模型成段
   const lineSegments = new THREE.LineSegments(geometry, material);
@@ -846,6 +849,16 @@ const createMeshWithVertices = () => {
   const mesh = new THREE.Mesh(geometry, material);
   return mesh;
 };
+
+// 保留演示 helper，供本页面调试 Three.js 基础对象时切换使用。
+void createMesh;
+void createGroup;
+void setMeshColor;
+void scaleIncreasing;
+void createGUI;
+void createPoints;
+void createLine;
+void createMeshWithVertices;
 </script>
 
 <style lang="scss" scoped>

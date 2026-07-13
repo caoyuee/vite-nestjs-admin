@@ -86,7 +86,6 @@
 
 <script setup lang="ts" name="MenuDrawer">
 import { ref, reactive } from "vue";
-import { genderType } from "@/utils/dict";
 import { ElMessage, type FormInstance } from "element-plus";
 import type { Menu } from "@/api/interface";
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'

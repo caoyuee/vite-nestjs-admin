@@ -275,7 +275,7 @@ export class MenuService {
     return {
       code: 200,
       message: 'success',
-      data: { list, total },
+      data: { list, total, pageNum, pageSize: pageSize ?? total },
     };
   }
 }

@@ -156,3 +156,82 @@ export class UserController {
     return this.userService.resetPassword(user.sub, resetPasswordDto);
   }
 }
+
+/**
+ * 语义化用户控制器
+ *
+ * @class SystemUsersController
+ * @description 按统一接口契约暴露 `/api/system/users` 用户资源接口。
+ */
+@ApiTags('用户')
+@Controller('api/system/users')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+export class SystemUsersController {
+  /**
+   * 构造函数
+   *
+   * @param userService - 用户业务服务
+   */
+  constructor(private readonly userService: UserService) {}
+
+  /**
+   * 获取当前登录用户信息
+   */
+  @Get('me')
+  @ApiOperation({ summary: '获取当前用户信息' })
+  async getCurrentUserInfo(@CurrentUser() user: JwtPayload) {
+    return this.userService.getUserInfo(user.sub);
+  }
+
+  /**
+   * 获取用户列表
+   */
+  @Get()
+  @ApiOperation({ summary: '获取用户列表' })
+  async getUserList(@Query() query: UserListQueryDto) {
+    return this.userService.getUserList(query);
+  }
+
+  /**
+   * 创建用户
+   */
+  @Post()
+  @ApiOperation({ summary: '创建用户' })
+  async createUser(@Body() createUserDto: CreateUserDto) {
+    return this.userService.createUser(createUserDto);
+  }
+
+  /**
+   * 编辑用户
+   */
+  @Put(':id')
+  @ApiOperation({ summary: '编辑用户' })
+  async updateUser(
+    @Param('id') id: string,
+    @Body() updateUserDto: Omit<UpdateUserDto, 'id'>,
+  ) {
+    return this.userService.updateUser({ ...updateUserDto, id });
+  }
+
+  /**
+   * 删除用户
+   */
+  @Delete(':id')
+  @ApiOperation({ summary: '删除用户' })
+  async deleteUser(@Param('id') id: string) {
+    return this.userService.deleteUser(id);
+  }
+
+  /**
+   * 当前用户重置密码
+   */
+  @Put('me/reset-password')
+  @ApiOperation({ summary: '当前用户重置密码' })
+  async resetPassword(
+    @CurrentUser() user: JwtPayload,
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ) {
+    return this.userService.resetPassword(user.sub, resetPasswordDto);
+  }
+}

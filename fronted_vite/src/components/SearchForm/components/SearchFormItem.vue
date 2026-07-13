@@ -25,7 +25,7 @@
 <script setup lang="ts" name="SearchFormItem">
 import { computed, inject, ref } from "vue";
 import { handleProp } from "@/utils";
-import { ColumnProps } from "@/components/ProTable/interface";
+import type { ColumnProps } from "@/components/ProTable/interface";
 
 interface SearchFormItem {
   column: ColumnProps;

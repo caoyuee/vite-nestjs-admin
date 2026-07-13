@@ -96,4 +96,48 @@ export class UploadController {
       data: { fileUrl: filepath }, // 前端可以使用这个 URL 访问文件
     };
   }
+
+  /**
+   * 上传视频文件
+   *
+   * @description
+   * 统一上传契约：前端使用 multipart/form-data，并把文件放在 file 字段中。
+   *
+   * @param file - Multer 解析后的上传文件
+   * @returns 上传后的文件访问路径
+   */
+  @Public()
+  @Post('files/video')
+  @ApiOperation({ summary: '上传视频文件' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('file', uploadOptions))
+  uploadVideo(@UploadedFile() file: Express.Multer.File) {
+    // 检查视频文件是否上传成功
+    if (!file) {
+      return {
+        code: 500,
+        message: '视频上传失败',
+        data: null,
+      };
+    }
+
+    // 复用上传配置，返回相对资源路径
+    const filepath = getLastPathParts(file.path);
+    return {
+      code: 200,
+      message: '上传成功',
+      data: { fileUrl: filepath },
+    };
+  }
 }

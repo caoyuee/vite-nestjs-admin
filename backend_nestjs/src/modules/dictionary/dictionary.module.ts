@@ -9,7 +9,10 @@
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DictionaryController } from './dictionary.controller';
+import {
+  DictionaryController,
+  SystemDictionaryController,
+} from './dictionary.controller';
 import { DictionaryService } from './dictionary.service';
 import { Dictionary } from '../../entities/dictionary.entity';
 
@@ -29,7 +32,7 @@ import { Dictionary } from '../../entities/dictionary.entity';
   imports: [TypeOrmModule.forFeature([Dictionary])],
 
   // 注册控制器
-  controllers: [DictionaryController],
+  controllers: [DictionaryController, SystemDictionaryController],
 
   // 注册服务
   providers: [DictionaryService],

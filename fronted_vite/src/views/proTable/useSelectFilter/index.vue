@@ -41,7 +41,7 @@
 </template>
 <script setup lang="ts" name="useSelectFilter">
 import { ref, reactive, onMounted, watch } from "vue";
-import { User } from "@/api/interface";
+import type { User } from "@/api/interface";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useHandleData } from "@/hooks/useHandleData";
 import { useDownload } from "@/hooks/useDownload";
@@ -51,7 +51,7 @@ import TreeFilter from "@/components/TreeFilter/index.vue";
 import ImportExcel from "@/components/ImportExcel/index.vue";
 import UserDrawer from "@/views/proTable/components/UserDrawer.vue";
 import SelectFilter from "@/components/SelectFilter/index.vue";
-import { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
+import type { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
 import { CirclePlus, Delete, EditPen, Pointer, Download, Upload, View, Refresh } from "@element-plus/icons-vue";
 import {
   getUserList,

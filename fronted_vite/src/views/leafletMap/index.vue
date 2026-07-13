@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, watch } from 'vue'
+import { ref, reactive } from 'vue'
 import ElevationMap from './components/ElevationMap.vue'
 import { simpleTrack, hardTrack, greatWallTrack } from './data/tracks'
 import type { GeoJSONFeature, TrackInfo, ElevationHoverEvent, MapClickEvent, GeoRaster } from '@/typings/leaflet'
@@ -145,10 +145,6 @@ const currentTrackInfo = reactive<TrackInfo>({
 })
 
 const hoverInfo = ref<ElevationHoverEvent | null>(null)
-
-const hasTIFF = computed(() => {
-  return !!tiffUrl.value
-})
 
 // 切换省份
 const handleProvinceChange = (key: ProvinceKey) => {

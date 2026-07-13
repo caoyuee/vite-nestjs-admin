@@ -22,7 +22,7 @@
  */
 
 import { Module } from '@nestjs/common';
-import { LogController } from './log.controller';
+import { LogController, SystemLogController } from './log.controller';
 import { LogService } from './log.service';
 
 /**
@@ -31,7 +31,7 @@ import { LogService } from './log.service';
  * 注意：日志模块不需要数据库，直接读取文件系统中的日志文件
  */
 @Module({
-  controllers: [LogController],
+  controllers: [LogController, SystemLogController],
   providers: [LogService],
   exports: [LogService],
 })

@@ -14,7 +14,6 @@ import {
   Scene3D,         // 3D场景
   CameraUtil,      // 相机工具类
   AtmosphericComponent, // 大气效果组件
-  webGPUContext,   // WebGPU上下文
   HoverCameraController, // 悬停相机控制器
   Object3D,        // 3D对象基类
   DirectLight,     // 定向光源
@@ -51,7 +50,7 @@ onMounted(() => {
  */
 const initEngine3D = async () => {
   // 初始化Orillusion 3D引擎，传入canvas配置
-  await Engine3D.init({
+  const engine = await Engine3D.init({
     canvasConfig: { canvas: canvas.value }
   });
 
@@ -71,7 +70,7 @@ const initEngine3D = async () => {
   view.camera = CameraUtil.createCamera3DObject(view.scene);
 
   // 设置相机透视投影参数：视野角度60度，宽高比，近裁剪面1，远裁剪面50000
-  view.camera.perspective(60, webGPUContext.aspect, 1, 50000.0);
+  view.camera.perspective(60, engine.aspect, 1, 50000.0);
 
   // 设置相机Z轴位置（向后移动）
   view.camera.object3D.z = -15;
@@ -80,7 +79,7 @@ const initEngine3D = async () => {
   view.camera.object3D.addComponent(HoverCameraController).setCamera(35, -20, 10000);
 
   // 开始渲染视图
-  Engine3D.startRenderView(view);
+  engine.startRenderView(view);
   // 将性能统计面板移动到canvas的右上角
   if (stats.container && canvas.value) {
     // 设置Stats容器的样式，使其位于canvas的右上角
@@ -124,14 +123,14 @@ const initEngine3D = async () => {
   fog.dirHeightLine = 6.5;
 
   // 调用场景创建函数
-  createScene(view.scene);
+  createScene(engine, view.scene);
 };
 
 /**
  * 创建3D场景内容
  * @param scene - 要添加内容的3D场景对象
  */
-const createScene = async (scene: Scene3D) => {
+const createScene = async (engine: Engine3D, scene: Scene3D) => {
   // 创建太阳光源
   {
     // 创建太阳对象
@@ -159,10 +158,10 @@ const createScene = async (scene: Scene3D) => {
 
   // 加载地形纹理
   // 加载地形位图纹理（地形表面贴图）
-  let bitmapTexture = await Engine3D.res.loadTexture('https://cdn.orillusion.com/terrain/test01/bitmap.png');
+  let bitmapTexture = await engine.res.loadTexture('https://cdn.orillusion.com/terrain/test01/bitmap.png');
 
   // 加载地形高度图纹理（用于地形高度变化）
-  let heightTexture = await Engine3D.res.loadTexture('https://cdn.orillusion.com/terrain/test01/height.png');
+  let heightTexture = await engine.res.loadTexture('https://cdn.orillusion.com/terrain/test01/height.png');
 
   // 定义地形尺寸
   let terrainSizeW = 20488; // 地形宽度

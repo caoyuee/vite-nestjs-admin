@@ -28,6 +28,7 @@ import { Auth } from '../../entities/auth.entity';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { RoleListQueryDto } from './dto/role-list-query.dto';
 import { RolePermissionDto } from './dto/role-permission.dto';
+import { UpdateRoleDto } from './dto/update-role.dto';
 // 权限数据提取和合并工具函数
 import { extractAndMergeAuthDataAdvanced } from '../../utils/menu-tree.util';
 
@@ -113,7 +114,57 @@ export class RoleService {
     return {
       code: 200,
       message: 'success',
-      data: { list, total },
+      data: { list, total, pageNum, pageSize },
+    };
+  }
+
+  /**
+   * 更新角色信息
+   *
+   * @param id - 角色 ID
+   * @param updateRoleDto - 角色更新数据
+   * @returns 更新结果
+   */
+  async updateRole(id: string, updateRoleDto: UpdateRoleDto) {
+    // 查询角色是否存在，避免静默更新不存在的数据
+    const role = await this.roleRepository.findOne({
+      where: { id: Number(id) },
+    });
+    if (!role) {
+      throw new NotFoundException('角色不存在');
+    }
+
+    // 仅更新前端提交的字段，避免覆盖未修改数据
+    const updateData: Partial<Role> = {};
+    if (updateRoleDto.sort !== undefined) updateData.sort = updateRoleDto.sort;
+    if (updateRoleDto.role !== undefined) updateData.role = updateRoleDto.role;
+    if (updateRoleDto.name !== undefined) updateData.name = updateRoleDto.name;
+    if (updateRoleDto.description !== undefined)
+      updateData.description = updateRoleDto.description;
+    if (updateRoleDto.status !== undefined)
+      updateData.status = updateRoleDto.status;
+    if (updateRoleDto.useMenus !== undefined) {
+      updateData.useMenus = updateRoleDto.useMenus.map((menuId) =>
+        String(menuId),
+      );
+    }
+    if (updateRoleDto.authButton !== undefined)
+      updateData.authButton = updateRoleDto.authButton;
+    if (updateRoleDto.useProTable !== undefined)
+      updateData.useProTable = updateRoleDto.useProTable;
+
+    const result = await this.roleRepository.update(
+      { id: Number(id) },
+      updateData,
+    );
+    if (result.affected === 0) {
+      throw new BadRequestException('角色更新失败');
+    }
+
+    return {
+      code: 200,
+      message: '角色更新成功',
+      data: null,
     };
   }
 
@@ -290,5 +341,22 @@ export class RoleService {
       message: '授权成功',
       data: null,
     };
+  }
+
+  /**
+   * 根据路径参数更新角色权限
+   *
+   * @param id - 角色 ID
+   * @param rolePermissionDto - 权限数据
+   * @returns 授权结果
+   */
+  async setRolePermissionById(
+    id: string,
+    rolePermissionDto: Omit<RolePermissionDto, 'id'>,
+  ) {
+    return this.setRolePermission({
+      ...rolePermissionDto,
+      id,
+    });
   }
 }

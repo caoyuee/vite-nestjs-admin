@@ -114,7 +114,7 @@ interface SummaryMethodProps<T extends Record<string, any> = User.ResUserList> {
 const getSummaries = (param: SummaryMethodProps) => {
   const { columns } = param;
   const sums: string[] = [];
-  columns.forEach((column, index) => {
+  columns.forEach((_column, index) => {
     if (index === 0) return (sums[index] = "合计");
     else sums[index] = "N/A";
   });

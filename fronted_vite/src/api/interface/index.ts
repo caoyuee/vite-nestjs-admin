@@ -1,6 +1,6 @@
 // 请求响应参数（不包含data）
 export interface Result {
-  code: string;
+  code: number;
   message: string;
 }
 
@@ -12,8 +12,8 @@ export interface ResultData<T = any> extends Result {
 // 分页响应参数
 export interface ResPage<T> {
   list: T[];
-  pageNum: number;
-  pageSize: number;
+  pageNum?: number;
+  pageSize?: number;
   total: number;
 }
 

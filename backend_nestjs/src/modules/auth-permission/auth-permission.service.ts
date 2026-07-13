@@ -8,7 +8,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Like, Repository } from 'typeorm';
 import { Auth } from '../../entities/auth.entity';
 import { AuthQueryDto } from './dto/auth-query.dto';
 
@@ -43,31 +43,37 @@ export class AuthPermissionService {
    * - 其他自定义类型
    */
   async getAuthBtns(query: AuthQueryDto) {
-    const { type } = query;
+    const { pageNum = 1, pageSize = 10, type, name, permission } = query;
+    // 兼容旧前端使用的 btn，同时统一新规则为 button
+    const normalizedType = type === 'btn' ? 'button' : type;
 
-    // 根据是否有类型参数决定查询方式
-    let result: Auth[];
-    if (type) {
-      // 按类型查询
-      result = await this.authRepository.findBy({ type });
-    } else {
-      // 查询所有
-      result = await this.authRepository.find();
-    }
+    // 根据查询参数构建筛选条件
+    const where: FindOptionsWhere<Auth> = {};
+    if (normalizedType) where.type = normalizedType;
+    if (name) where.name = Like(`%${name}%`) as unknown as string;
+    if (permission)
+      where.permission = Like(`%${permission}%`) as unknown as string;
+
+    const [result, total] = await this.authRepository.findAndCount({
+      where,
+      skip: (pageNum - 1) * pageSize,
+      take: pageSize,
+      order: { sort: 'ASC', createTime: 'DESC' },
+    });
 
     // 如果没有数据，返回空数组
     if (!result || result.length === 0) {
       return {
         code: 200,
         message: '未找到权限数据',
-        data: [],
+        data: { list: [], total: 0, pageNum, pageSize },
       };
     }
 
     return {
       code: 200,
       message: '查询成功',
-      data: result,
+      data: { list: result, total, pageNum, pageSize },
     };
   }
 }

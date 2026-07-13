@@ -12,7 +12,7 @@
 
 <script setup lang="ts">
 import ECharts from "@/components/ECharts/index.vue";
-import { ECOption } from "@/components/ECharts/config";
+import type { ECOption } from "@/components/ECharts/config";
 import { ranking1, ranking2, ranking3, ranking4 } from "../assets/ranking-icon";
 
 interface ChartProp {

@@ -16,7 +16,7 @@
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RoleController } from './role.controller';
+import { RoleController, SystemRoleController } from './role.controller';
 import { RoleService } from './role.service';
 // 导入角色实体
 import { Role } from '../../entities/role.entity';
@@ -37,7 +37,7 @@ import { Auth } from '../../entities/auth.entity';
 @Module({
   // 注册三个数据库实体
   imports: [TypeOrmModule.forFeature([Role, User, Auth])],
-  controllers: [RoleController],
+  controllers: [RoleController, SystemRoleController],
   providers: [RoleService],
   exports: [RoleService],
 })

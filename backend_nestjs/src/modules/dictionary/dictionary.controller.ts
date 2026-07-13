@@ -125,3 +125,73 @@ export class DictionaryController {
     return this.dictionaryService.deleteDictionary(Number(id));
   }
 }
+
+/**
+ * 语义化字典控制器
+ *
+ * @class SystemDictionaryController
+ * @description 按统一接口契约暴露 `/api/system/dictionaries` 字典资源接口。
+ */
+@ApiTags('字典')
+@Controller('api/system/dictionaries')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+export class SystemDictionaryController {
+  /**
+   * 构造函数
+   *
+   * @param dictionaryService - 字典业务服务
+   */
+  constructor(private readonly dictionaryService: DictionaryService) {}
+
+  /**
+   * 获取字典列表
+   */
+  @Get()
+  @ApiOperation({ summary: '获取字典列表' })
+  async getDictionaryList(@Query() query: DictionaryListQueryDto) {
+    return this.dictionaryService.getDictionaryList(query);
+  }
+
+  /**
+   * 按字典类型获取字典选项
+   */
+  @Get('type/:dictType')
+  @ApiOperation({ summary: '按类型获取字典选项' })
+  async getDictionaryByType(@Param('dictType') dictType: string) {
+    return this.dictionaryService.getDictionaryByType(dictType);
+  }
+
+  /**
+   * 创建字典项
+   */
+  @Post()
+  @ApiOperation({ summary: '创建字典项' })
+  async createDictionary(@Body() createDictionaryDto: CreateDictionaryDto) {
+    return this.dictionaryService.createDictionary(createDictionaryDto);
+  }
+
+  /**
+   * 编辑字典项
+   */
+  @Put(':id')
+  @ApiOperation({ summary: '编辑字典项' })
+  async updateDictionary(
+    @Param('id') id: string,
+    @Body() updateDictionaryDto: Omit<UpdateDictionaryDto, 'id'>,
+  ) {
+    return this.dictionaryService.updateDictionary({
+      ...updateDictionaryDto,
+      id: Number(id),
+    });
+  }
+
+  /**
+   * 删除字典项
+   */
+  @Delete(':id')
+  @ApiOperation({ summary: '删除字典项' })
+  async deleteDictionary(@Param('id') id: string) {
+    return this.dictionaryService.deleteDictionary(Number(id));
+  }
+}

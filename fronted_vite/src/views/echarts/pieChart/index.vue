@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts" name="pieChart">
-import { ECOption } from "@/components/ECharts/config";
+import type { ECOption } from "@/components/ECharts/config";
 import ECharts from "@/components/ECharts/index.vue";
 
 const option: ECOption = {

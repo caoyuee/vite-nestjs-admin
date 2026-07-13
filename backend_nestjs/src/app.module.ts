@@ -31,6 +31,7 @@ import { AuthPermissionModule } from './modules/auth-permission/auth-permission.
 import { LogModule } from './modules/log/log.module';
 import { UploadModule } from './modules/upload/upload.module';
 import { DictionaryModule } from './modules/dictionary/dictionary.module';
+import { DemoUserModule } from './modules/demo-user/demo-user.module';
 
 // 导入全局过滤器、拦截器、守卫
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -86,6 +87,7 @@ import { getDatabaseConfig } from './config/database.config';
     LogModule, // 日志模块：日志查询、清理
     UploadModule, // 上传模块：文件上传
     DictionaryModule, // 字典模块：字典管理
+    DemoUserModule, // 演示用户模块：ProTable 和组件示例数据
   ],
   providers: [
     WinstonLoggerService,

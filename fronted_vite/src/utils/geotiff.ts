@@ -101,7 +101,7 @@ export function createGeoRasterLayer(
   }
 
   const layer = new GeoRasterLayer({
-    georaster: georaster,
+    georaster: georaster as any,
     opacity: 0.9,
     resolution: 256,
     noWrap: true,

@@ -14,7 +14,7 @@
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserController } from './user.controller';
+import { SystemUsersController, UserController } from './user.controller';
 import { UserService } from './user.service';
 import { User } from '../../entities/user.entity';
 
@@ -35,7 +35,7 @@ import { User } from '../../entities/user.entity';
   imports: [TypeOrmModule.forFeature([User])],
 
   // 注册控制器
-  controllers: [UserController],
+  controllers: [UserController, SystemUsersController],
 
   // 注册服务
   providers: [UserService],

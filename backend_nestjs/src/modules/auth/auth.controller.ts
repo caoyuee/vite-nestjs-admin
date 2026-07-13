@@ -128,3 +128,42 @@ export class AuthController {
     return this.authService.logout(user.sub);
   }
 }
+
+/**
+ * 语义化认证控制器
+ *
+ * @class SystemAuthController
+ * @description 按统一接口契约暴露 `/api/system/auth` 认证接口。
+ */
+@ApiTags('认证')
+@Controller('api/system/auth')
+@UseInterceptors(ClassSerializerInterceptor)
+export class SystemAuthController {
+  /**
+   * 构造函数
+   *
+   * @param authService - 认证业务服务
+   */
+  constructor(private readonly authService: AuthService) {}
+
+  /**
+   * 用户登录
+   */
+  @Public()
+  @Post('login')
+  @ApiOperation({ summary: '用户登录' })
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
+  }
+
+  /**
+   * 用户退出登录
+   */
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @ApiOperation({ summary: '退出登录' })
+  @ApiBearerAuth()
+  async logout(@CurrentUser() user: JwtPayload) {
+    return this.authService.logout(user.sub);
+  }
+}

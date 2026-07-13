@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import ECharts from "@/components/ECharts/index.vue";
-import { ECOption } from "@/components/ECharts/config";
+import type { ECOption } from "@/components/ECharts/config";
 
 interface ChartProp {
   label: string;

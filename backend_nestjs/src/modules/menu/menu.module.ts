@@ -19,7 +19,7 @@
 import { Module } from '@nestjs/common';
 // TypeOrmModule 用于在模块中注册数据库实体
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MenuController } from './menu.controller';
+import { MenuController, SystemMenuController } from './menu.controller';
 import { MenuService } from './menu.service';
 // 导入菜单实体，用于数据库操作
 import { Menu } from '../../entities/menu.entity';
@@ -48,7 +48,7 @@ import { Role } from '../../entities/role.entity';
   imports: [TypeOrmModule.forFeature([Menu, Role])],
 
   // 注册控制器，处理 HTTP 请求
-  controllers: [MenuController],
+  controllers: [MenuController, SystemMenuController],
 
   // 注册服务，提供业务逻辑
   providers: [MenuService],

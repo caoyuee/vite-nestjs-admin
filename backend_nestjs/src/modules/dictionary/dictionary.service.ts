@@ -85,7 +85,7 @@ export class DictionaryService {
     return {
       code: 200,
       message: 'success',
-      data: { list, total },
+      data: { list, total, pageNum, pageSize },
     };
   }
 

@@ -20,7 +20,10 @@
 
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthPermissionController } from './auth-permission.controller';
+import {
+  AuthPermissionController,
+  SystemPermissionController,
+} from './auth-permission.controller';
 import { AuthPermissionService } from './auth-permission.service';
 // 导入权限实体
 import { Auth } from '../../entities/auth.entity';
@@ -31,7 +34,7 @@ import { Auth } from '../../entities/auth.entity';
 @Module({
   // 注册权限实体
   imports: [TypeOrmModule.forFeature([Auth])],
-  controllers: [AuthPermissionController],
+  controllers: [AuthPermissionController, SystemPermissionController],
   providers: [AuthPermissionService],
   exports: [AuthPermissionService],
 })

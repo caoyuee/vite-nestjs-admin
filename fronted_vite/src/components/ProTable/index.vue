@@ -103,8 +103,8 @@
 </template>
 
 <script setup lang="ts" name="ProTable">
-import { ref, watch, provide, onMounted, unref, computed, reactive } from "vue";
-import { ElTable } from "element-plus";
+import { ref, watch, provide, onMounted, unref, computed } from "vue";
+import { type TableInstance } from "element-plus";
 import { useTable } from "@/hooks/useTable.ts";
 import { useSelection } from "@/hooks/useSelection.ts";
 import { type BreakPoint } from "@/components/Grid/interface/index.ts";
@@ -146,7 +146,7 @@ const props = withDefaults(defineProps<ProTableProps>(), {
 });
 
 // table 实例
-const tableRef = ref<InstanceType<typeof ElTable>>();
+const tableRef = ref<TableInstance>();
 
 // 生成组件唯一id
 const uuid = ref("id-" + generateUUID());
@@ -196,7 +196,7 @@ const processTableData = computed(() => {
 watch(() => props.initParam, getTableList, { deep: true });
 
 // 接收 columns 并设置为响应式
-const tableColumns = reactive<ColumnProps[]>(props.columns);
+const tableColumns = props.columns as ColumnProps[];
 
 // 扁平化 columns
 const flatColumns = computed(() => flatColumnsFunc(tableColumns));

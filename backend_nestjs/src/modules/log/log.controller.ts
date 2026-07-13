@@ -81,3 +81,50 @@ export class LogController {
     };
   }
 }
+
+/**
+ * 语义化日志控制器
+ *
+ * @class SystemLogController
+ * @description 按统一接口契约暴露 `/api/system/logs` 日志接口。
+ */
+@ApiTags('日志')
+@Controller('api/system/logs')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+export class SystemLogController {
+  /**
+   * 构造函数
+   *
+   * @param logService - 日志业务服务
+   */
+  constructor(private readonly logService: LogService) {}
+
+  /**
+   * 获取系统日志
+   */
+  @Get()
+  @ApiOperation({ summary: '获取系统日志' })
+  getLogs(@Query() query: LogQueryDto) {
+    const result = this.logService.getLogs(query);
+    return {
+      code: 200,
+      message: '获取成功',
+      data: result,
+    };
+  }
+
+  /**
+   * 清空系统日志
+   */
+  @Delete()
+  @ApiOperation({ summary: '清空日志' })
+  clearLogs(@Query() query: ClearLogDto, @CurrentUser() _user: JwtPayload) {
+    const result = this.logService.clearLogs(query);
+    return {
+      code: 200,
+      message: `成功清理 ${result.deletedCount} 个日志文件`,
+      data: result,
+    };
+  }
+}

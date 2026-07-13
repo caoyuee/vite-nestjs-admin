@@ -22,7 +22,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 // 导入本模块的 Controller 和 Service
-import { AuthController } from './auth.controller';
+import { AuthController, SystemAuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 
@@ -86,7 +86,7 @@ import { REDIS_CLIENT, createRedisClient } from '../../config/redis.config';
    * 控制器负责处理 HTTP 请求
    * 类似于 Vue Router 的路由处理函数
    */
-  controllers: [AuthController],
+  controllers: [AuthController, SystemAuthController],
 
   /**
    * providers: 注册服务提供者

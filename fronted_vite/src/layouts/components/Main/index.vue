@@ -16,7 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onBeforeUnmount, provide, watch, h } from "vue";
+import { ref, onBeforeUnmount, provide, watch, h, type Component } from "vue";
+import type { RouteLocationNormalizedLoaded } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useDebounceFn } from "@vueuse/core";
 import { useGlobalStore } from "@/stores/modules/global";
@@ -37,8 +38,8 @@ const refreshCurrentPage = (val: boolean) => (isRouterShow.value = val);
 provide("refresh", refreshCurrentPage);
 
 // 解决详情页 keep-alive 问题
-const wrapperMap = new Map();
-function createComponentWrapper(component, route) {
+const wrapperMap = new Map<string, Component>();
+function createComponentWrapper(component: Component | undefined, route: RouteLocationNormalizedLoaded) {
   if (!component) return;
   const wrapperName = route.fullPath;
   let wrapper = wrapperMap.get(wrapperName);

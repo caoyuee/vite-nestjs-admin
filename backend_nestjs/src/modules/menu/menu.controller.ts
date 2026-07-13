@@ -172,3 +172,92 @@ export class MenuController {
     return this.menuService.getAllMenus(query);
   }
 }
+
+/**
+ * 语义化菜单控制器
+ *
+ * @class SystemMenuController
+ * @description 按统一接口契约暴露 `/api/system/menus` 菜单资源接口。
+ */
+@ApiTags('菜单')
+@Controller('api/system/menus')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+export class SystemMenuController {
+  /**
+   * 构造函数
+   *
+   * @param menuService - 菜单业务服务
+   * @param roleRepository - 角色仓库，用于查询当前用户可访问菜单
+   */
+  constructor(
+    private readonly menuService: MenuService,
+    @InjectRepository(Role)
+    private readonly roleRepository: Repository<Role>,
+  ) {}
+
+  /**
+   * 获取当前用户可访问菜单
+   */
+  @Get('current')
+  @ApiOperation({ summary: '获取当前用户菜单' })
+  async getCurrentMenus(@CurrentUser() user: JwtPayload) {
+    // 根据 JWT 中的角色 ID 查询角色，再合并菜单权限
+    const roleIds = user.roles.map((id) => String(id));
+    const roleList = await this.roleRepository.findBy({
+      id: In(roleIds.map(Number)),
+    });
+
+    if (!roleList || roleList.length === 0) {
+      return {
+        code: 200,
+        message: '未获取到菜单',
+        data: [],
+      };
+    }
+
+    const menuIds: (string | number)[] = roleList
+      .map((role) => role.useMenus)
+      .flat();
+    return this.menuService.getMenuList([...new Set(menuIds)]);
+  }
+
+  /**
+   * 获取全部菜单
+   */
+  @Get()
+  @ApiOperation({ summary: '获取全部菜单' })
+  async getAllMenus(@Query() query: MenuListQueryDto) {
+    return this.menuService.getAllMenus(query);
+  }
+
+  /**
+   * 新增菜单
+   */
+  @Post()
+  @ApiOperation({ summary: '新增菜单' })
+  async createMenu(@Body() createMenuDto: CreateMenuDto) {
+    return this.menuService.createMenu(createMenuDto);
+  }
+
+  /**
+   * 编辑菜单
+   */
+  @Put(':id')
+  @ApiOperation({ summary: '编辑菜单' })
+  async updateMenu(
+    @Param('id') id: string,
+    @Body() updateMenuDto: Omit<UpdateMenuDto, 'id'>,
+  ) {
+    return this.menuService.updateMenu({ ...updateMenuDto, id });
+  }
+
+  /**
+   * 删除菜单
+   */
+  @Delete(':id')
+  @ApiOperation({ summary: '删除菜单' })
+  async deleteMenu(@Param('id') id: string) {
+    return this.menuService.deleteMenu(id);
+  }
+}

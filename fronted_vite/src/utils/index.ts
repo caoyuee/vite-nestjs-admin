@@ -262,7 +262,7 @@ export function getKeepAliveRouterName(
  * @param {*} callValue 当前单元格值
  * @returns {String}
  * */
-export function formatTableColumn(row: number, col: number, callValue: any) {
+export function formatTableColumn(_row: number, _col: number, callValue: any) {
   // 如果当前值为数组，使用 / 拼接（根据需求自定义）
   if (isArray(callValue))
     return callValue.length ? callValue.join(" / ") : "--";

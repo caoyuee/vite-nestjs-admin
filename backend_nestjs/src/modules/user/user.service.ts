@@ -292,7 +292,7 @@ export class UserService {
     return {
       code: 200,
       message: 'success',
-      data: { list: userList, total },
+      data: { list: userList, total, pageNum, pageSize },
     };
   }
 

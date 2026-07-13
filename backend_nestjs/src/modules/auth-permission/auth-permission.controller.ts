@@ -48,3 +48,31 @@ export class AuthPermissionController {
     return this.authPermissionService.getAuthBtns(query);
   }
 }
+
+/**
+ * 语义化权限控制器
+ *
+ * @class SystemPermissionController
+ * @description 按统一接口契约暴露 `/api/system/permissions` 权限资源接口。
+ */
+@ApiTags('权限')
+@Controller('api/system/permissions')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+export class SystemPermissionController {
+  /**
+   * 构造函数
+   *
+   * @param authPermissionService - 权限业务服务
+   */
+  constructor(private readonly authPermissionService: AuthPermissionService) {}
+
+  /**
+   * 获取权限列表
+   */
+  @Get()
+  @ApiOperation({ summary: '获取权限列表' })
+  async getPermissions(@Query() query: AuthQueryDto) {
+    return this.authPermissionService.getAuthBtns(query);
+  }
+}

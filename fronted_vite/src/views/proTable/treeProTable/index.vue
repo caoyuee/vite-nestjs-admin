@@ -37,7 +37,7 @@
 
 <script setup lang="tsx" name="treeProTable">
 import { onMounted, reactive, ref } from "vue";
-import { User } from "@/api/interface";
+import type { User } from "@/api/interface";
 import { genderType } from "@/utils/dict";
 import { useHandleData } from "@/hooks/useHandleData";
 import { ElMessage, ElNotification } from "element-plus";
@@ -46,7 +46,7 @@ import TreeFilter from "@/components/TreeFilter/index.vue";
 import ImportExcel from "@/components/ImportExcel/index.vue";
 import UserDrawer from "@/views/proTable/components/UserDrawer.vue";
 import { CirclePlus, Delete, EditPen, View } from "@element-plus/icons-vue";
-import { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
+import type { ColumnProps, ProTableInstance } from "@/components/ProTable/interface";
 import { getUserTreeList, deleteUser, editUser, addUser, getUserStatus, getUserDepartment } from "@/api/modules/user";
 
 onMounted(() => {

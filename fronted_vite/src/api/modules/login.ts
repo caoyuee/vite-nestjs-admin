@@ -9,7 +9,7 @@ import http from "@/api";
  */
 // 用户登录
 export const loginApi = (params: Login.ReqLoginForm) => {
-  return http.post<Login.ResLogin>(PORT1 + `/user/login`, params, {
+  return http.post<Login.ResLogin>(PORT1 + `/auth/login`, params, {
     loading: false,
   }); // 正常 post json 请求  ==>  application/json
   // return http.post<Login.ResLogin>(PORT1 + `/login`, params, { loading: false }); // 控制当前请求不显示 loading
@@ -21,7 +21,7 @@ export const loginApi = (params: Login.ReqLoginForm) => {
 // 获取菜单列表
 export const getAuthMenuListApi = () => {
   return http.get<Menu.MenuOptions[]>(
-    PORT1 + `/user/menuList`,
+    PORT1 + `/menus/current`,
     {},
     { loading: false }
   );
@@ -32,7 +32,7 @@ export const getAuthMenuListApi = () => {
 // 获取按钮权限
 export const getAuthButtonListApi = () => {
   return http.get<Login.ResAuthButtons>(
-    PORT1 + `/user/getRoleInfo`,
+    PORT1 + `/roles/current-permissions`,
     {},
     { loading: false }
   );
@@ -42,7 +42,7 @@ export const getAuthButtonListApi = () => {
 
 export const getUserInfoApi = () => {
   return http.get<Login.UserInfo>(
-    PORT1 + `/user/userInfo`,
+    PORT1 + `/users/me`,
     {},
     { loading: false }
   );
@@ -51,5 +51,5 @@ export const getUserInfoApi = () => {
 
 // 用户退出登录
 export const logoutApi = () => {
-  return http.post(PORT1 + `/user/logout`);
+  return http.post(PORT1 + `/auth/logout`);
 };

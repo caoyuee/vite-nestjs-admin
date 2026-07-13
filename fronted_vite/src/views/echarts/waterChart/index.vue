@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts" name="waterChart">
-import echarts, { ECOption } from "@/components/ECharts/config";
+import echarts, { type ECOption } from "@/components/ECharts/config";
 import ECharts from "@/components/ECharts/index.vue";
 
 const option = {

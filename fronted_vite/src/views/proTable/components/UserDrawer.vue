@@ -73,21 +73,38 @@ const rules = reactive({
 interface DrawerProps {
   title: string;
   isView: boolean;
-  row: Partial<User.ResUserList>;
+  row: User.ResUserList;
   api?: (params: any) => Promise<any>;
   getTableList?: () => void;
 }
+
+const createDefaultUserRow = (): User.ResUserList => ({
+  id: "",
+  username: "",
+  gender: 1,
+  user: { detail: { age: 0 } },
+  idCard: "",
+  email: "",
+  address: "",
+  createTime: "",
+  status: 1,
+  avatar: "",
+  photo: []
+});
 
 const drawerVisible = ref(false);
 const drawerProps = ref<DrawerProps>({
   isView: false,
   title: "",
-  row: {}
+  row: createDefaultUserRow()
 });
 
 // 接收父组件传过来的参数
-const acceptParams = (params: DrawerProps) => {
-  drawerProps.value = params;
+const acceptParams = (params: Omit<DrawerProps, "row"> & { row: Partial<User.ResUserList> }) => {
+  drawerProps.value = {
+    ...params,
+    row: { ...createDefaultUserRow(), ...params.row }
+  };
   drawerVisible.value = true;
 };
 

@@ -60,7 +60,6 @@
 <script setup lang="ts" name="systemLog">
 import { ref, reactive } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { Refresh, Delete } from "@element-plus/icons-vue";
 import ProTable from "@/components/ProTable/index.vue";
 import type { ProTableInstance, ColumnProps } from "@/components/ProTable/interface";
 import { getSystemLogs, clearSystemLogs } from "@/api/modules/system";

@@ -30,7 +30,7 @@ import type {
   DatasetComponentOption
 } from "echarts/components";
 import type { ComposeOption } from "echarts/core";
-import "echarts-liquidfill";
+import "echarts6-liquidfill";
 
 export type ECOption = ComposeOption<
   | BarSeriesOption
