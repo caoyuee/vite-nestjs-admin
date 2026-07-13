@@ -120,6 +120,8 @@ const headerRender = (scope: HeaderRenderScope<User.ResUserList>) => {
   );
 };
 
+const normalizeUserStatus = (status: unknown): 0 | 1 => (Number(status) === 1 ? 1 : 0);
+
 // 表格配置项
 const columns = reactive<ColumnProps<User.ResUserList>[]>([
   { type: "selection", fixed: "left", width: 70 },
@@ -176,18 +178,19 @@ const columns = reactive<ColumnProps<User.ResUserList>[]>([
     search: { el: "tree-select", props: { filterable: true } },
     fieldNames: { label: "userLabel", value: "userStatus" },
     render: scope => {
+      const status = normalizeUserStatus(scope.row.status);
       return (
         <>
           {BUTTONS.value.status ? (
             <el-switch
-              model-value={scope.row.status}
-              active-text={scope.row.status ? "启用" : "禁用"}
-              active-value={1}
-              inactive-value={0}
+              modelValue={status}
+              activeText={status === 1 ? "启用" : "禁用"}
+              activeValue={1}
+              inactiveValue={0}
               onClick={() => changeStatus(scope.row)}
             />
           ) : (
-            <el-tag type={scope.row.status ? "success" : "danger"}>{scope.row.status ? "启用" : "禁用"}</el-tag>
+            <el-tag type={status === 1 ? "success" : "danger"}>{status === 1 ? "启用" : "禁用"}</el-tag>
           )}
         </>
       );
@@ -236,7 +239,8 @@ const resetPass = async (params: User.ResUserList) => {
 
 // 切换用户状态
 const changeStatus = async (row: User.ResUserList) => {
-  await useHandleData(changeUserStatus, { id: row.id, status: row.status == 1 ? 0 : 1 }, `切换【${row.username}】用户状态`);
+  const status = normalizeUserStatus(row.status) === 1 ? 0 : 1;
+  await useHandleData(changeUserStatus, { id: row.id, status }, `切换【${row.username}】用户状态`);
   proTable.value?.getTableList();
 };
 

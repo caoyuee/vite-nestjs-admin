@@ -7,13 +7,21 @@ settings:
 overrides:
   vite: npm:rolldown-vite@7.3.1
 
+patchedDependencies:
+  '@echarts-x/custom-liquid-fill@1.0.2':
+    hash: abe4eced2fde76e670ce045be3171f17dad1ebdbac13a19c5969c4660d634f21
+    path: patches/@echarts-x__custom-liquid-fill@1.0.2.patch
+  element-plus@2.14.3:
+    hash: 8f45e381335acca37adb32d089de419e6fd5f77e82d02b7d63305570d23b5f42
+    path: patches/element-plus@2.14.3.patch
+
 importers:
 
   .:
     dependencies:
       '@echarts-x/custom-liquid-fill':
         specifier: 1.0.2
-        version: 1.0.2(echarts@6.1.0)
+        version: 1.0.2(patch_hash=abe4eced2fde76e670ce045be3171f17dad1ebdbac13a19c5969c4660d634f21)(echarts@6.1.0)
       '@element-plus/icons-vue':
         specifier: ^2.3.2
         version: 2.3.2(vue@3.5.39(typescript@6.0.3))
@@ -40,7 +48,7 @@ importers:
         version: 6.1.0
       element-plus:
         specifier: ^2.14.3
-        version: 2.14.3(vue@3.5.39(typescript@6.0.3))
+        version: 2.14.3(patch_hash=8f45e381335acca37adb32d089de419e6fd5f77e82d02b7d63305570d23b5f42)(vue@3.5.39(typescript@6.0.3))
       georaster:
         specifier: ^1.6.0
         version: 1.6.0(typescript@6.0.3)(webpack@4.47.0)
@@ -4389,7 +4397,7 @@ snapshots:
 
   '@dimforge/rapier3d-compat@0.12.0': {}
 
-  '@echarts-x/custom-liquid-fill@1.0.2(echarts@6.1.0)':
+  '@echarts-x/custom-liquid-fill@1.0.2(patch_hash=abe4eced2fde76e670ce045be3171f17dad1ebdbac13a19c5969c4660d634f21)(echarts@6.1.0)':
     dependencies:
       echarts: 6.1.0
 
@@ -5977,7 +5985,7 @@ snapshots:
 
   electron-to-chromium@1.5.389: {}
 
-  element-plus@2.14.3(vue@3.5.39(typescript@6.0.3)):
+  element-plus@2.14.3(patch_hash=8f45e381335acca37adb32d089de419e6fd5f77e82d02b7d63305570d23b5f42)(vue@3.5.39(typescript@6.0.3)):
     dependencies:
       '@ctrl/tinycolor': 4.2.0
       '@element-plus/icons-vue': 2.3.2(vue@3.5.39(typescript@6.0.3))

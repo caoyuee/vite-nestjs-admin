@@ -108,6 +108,7 @@ export const createLiquidFillSeries = ({
   return {
     type: "custom",
     renderItem: "liquidFill",
+    coordinateSystem: "none",
     data: customData,
     label: label?.normal ? { show: false } : label,
     itemStyle,

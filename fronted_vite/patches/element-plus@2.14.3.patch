@@ -1,0 +1,19 @@
+diff --git a/es/components/tree/src/tree-node.mjs b/es/components/tree/src/tree-node.mjs
+index b27dce54359386362d05a1c36e254435017d4679..fcd3dcd6890a2405b2cf29220adc02dd9996c731 100644
+--- a/es/components/tree/src/tree-node.mjs
++++ b/es/components/tree/src/tree-node.mjs
+@@ -59,12 +59,14 @@ function _sfc_render(_ctx, _cache, $props, $setup, $data, $options) {
+ 		}, 8, ["class", "onClick"])) : createCommentVNode("v-if", true),
+ 		_ctx.showCheckbox ? (openBlock(), createBlock(_component_el_checkbox, {
+ 			key: 1,
++			value: _ctx.getNodeKey(_ctx.node) ?? _ctx.node.id,
+ 			"model-value": _ctx.node.checked,
+ 			indeterminate: _ctx.node.indeterminate,
+ 			disabled: !!_ctx.node.disabled,
+ 			onClick: _cache[0] || (_cache[0] = withModifiers(() => {}, ["stop"])),
+ 			onChange: _ctx.handleCheckChange
+ 		}, null, 8, [
++			"value",
+ 			"model-value",
+ 			"indeterminate",
+ 			"disabled",

@@ -1,0 +1,19 @@
+diff --git a/dist/liquid-fill.esm.mjs b/dist/liquid-fill.esm.mjs
+index 99a776ddda7592172198f7024874ae8fdb8f9280..4fa2184ed48f40dca468ff9fd92f1cdf0effbaf9 100644
+--- a/dist/liquid-fill.esm.mjs
++++ b/dist/liquid-fill.esm.mjs
+@@ -313,7 +313,13 @@ var renderItem = function (params, api) {
+     var width = api.getWidth();
+     var height = api.getHeight();
+     var size = Math.min(width, height);
+-    var elementStyle = api.style();
++    var itemStyle = itemPayload.itemStyle || {};
++    var elementStyle = {
++        fill: itemStyle.color || api.visual('color'),
++        opacity: itemStyle.opacity,
++        shadowBlur: itemStyle.shadowBlur,
++        shadowColor: itemStyle.shadowColor,
++    };
+     var styleAny = elementStyle;
+     var center = itemPayload.center || ['50%', '50%'];
+     var cxVal = typeof center[0] === 'string'
