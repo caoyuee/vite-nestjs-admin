@@ -13,8 +13,11 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
+const emptyStringToUndefined = ({ value }: { value: unknown }) =>
+  value === '' ? undefined : value;
 
 /**
  * 创建部门参数
@@ -51,18 +54,21 @@ export class CreateDepartmentDto {
 
   @ApiPropertyOptional({ description: '负责人' })
   @IsOptional()
+  @Transform(emptyStringToUndefined)
   @IsString()
   @MaxLength(100)
   leader?: string;
 
   @ApiPropertyOptional({ description: '联系电话' })
   @IsOptional()
+  @Transform(emptyStringToUndefined)
   @IsString()
   @MaxLength(30)
   phone?: string;
 
   @ApiPropertyOptional({ description: '邮箱' })
   @IsOptional()
+  @Transform(emptyStringToUndefined)
   @IsEmail({}, { message: '邮箱格式不正确' })
   @MaxLength(100)
   email?: string;
@@ -74,6 +80,7 @@ export class CreateDepartmentDto {
 
   @ApiPropertyOptional({ description: '备注' })
   @IsOptional()
+  @Transform(emptyStringToUndefined)
   @IsString()
   @MaxLength(500)
   remark?: string;

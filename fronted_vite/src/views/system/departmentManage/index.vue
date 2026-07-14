@@ -77,7 +77,7 @@ const createDefaultDepartment = (): Department.CreateDepartment => ({
 
 const dataCallback = (data: ResPage<Department.DepartmentItem>) => {
   departmentTree.value = data.list ?? [];
-  return data;
+  return departmentTree.value;
 };
 
 const openDrawer = (title: string, row: Partial<Department.DepartmentItem> = {}) => {
