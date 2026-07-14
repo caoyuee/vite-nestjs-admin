@@ -70,7 +70,7 @@ const openDrawer = (title: string, row: Partial<Role.RoleItem> = {}) => {
 };
 
 const handleDelRole = async (row: Partial<Role.RoleItem>) => {
-  await useHandleData(delRole, row.id, `删除【${row.name}】账号`);
+  await useHandleData(delRole, row.id, `删除【${row.name}】角色`);
   proTable.value?.getTableList?.();
 
 };

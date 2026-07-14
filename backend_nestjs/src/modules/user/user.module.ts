@@ -17,6 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SystemUsersController, UserController } from './user.controller';
 import { UserService } from './user.service';
 import { User } from '../../entities/user.entity';
+import { Department } from '../../entities/department.entity';
 
 /**
  * 用户模块
@@ -32,7 +33,7 @@ import { User } from '../../entities/user.entity';
 @Module({
   // 导入 TypeORM 模块并注册 User 实体
   // 这样在本模块中就可以注入 UserRepository
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [TypeOrmModule.forFeature([User, Department])],
 
   // 注册控制器
   controllers: [UserController, SystemUsersController],

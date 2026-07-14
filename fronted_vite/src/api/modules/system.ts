@@ -1,4 +1,4 @@
-import type { ResPage, Menu, Account, Role, Auth, System, Dictionary } from "@/api/interface/index";
+import type { ResPage, Menu, SystemUser, Role, Auth, System, Dictionary, Department } from "@/api/interface/index";
 import { PORT1 } from "@/api/config/servicePort";
 import http from "@/api";
 
@@ -38,20 +38,20 @@ export const delMenu = (id: number | string) => {
   return http.delete<void>(PORT1 + `/menus/${id}`);
 };
 
-//账号列表
-export const getAccountList = (params: Account.QueryUser) => {
-  return http.get<ResPage<Account.UserItem>>(PORT1 + `/users`, params);
+// 用户列表
+export const getSystemUserList = (params: SystemUser.QueryUser) => {
+  return http.get<ResPage<SystemUser.UserItem>>(PORT1 + `/users`, params);
 };
-// 新增账号
-export const addAccount = (data: Account.BaseUser) => {
+// 新增用户
+export const createSystemUser = (data: SystemUser.CreateUser) => {
   return http.post<void>(PORT1 + `/users`, data);
 };
-// 编辑账号
-export const editAccount = (data: Partial<Account.UpdateUser>) => {
+// 编辑用户
+export const updateSystemUser = (data: Partial<SystemUser.UpdateUser>) => {
   return http.put<void>(PORT1 + `/users/${data.id}`, data);
 };
-// 删除账号
-export const delAccount = (id: number | string) => {
+// 删除用户
+export const deleteSystemUser = (id: number | string) => {
   return http.delete<void>(PORT1 + `/users/${id}`);
 };
 
@@ -67,11 +67,11 @@ export const addRole = (data: Role.BaseRole) => {
 export const authRole = (data: Role.AuthData) => {
   return http.put<void>(PORT1 + `/roles/${data.id}/permissions`, data);
 };
-// 编辑账号
+// 编辑角色
 export const editRole = (data: Partial<Role.UpdateRole>) => {
   return http.put<void>(PORT1 + `/roles/${data.id}`, data);
 };
-// 删除账号
+// 删除角色
 export const delRole = (id: number | string) => {
   return http.delete<void>(PORT1 + `/roles/${id}`);
 };
@@ -114,4 +114,25 @@ export const delDictionary = (id: number | string) => {
 //按类型获取字典选项
 export const getDictionaryByType = (dictType: string) => {
   return http.get<Dictionary.DictionaryItem[]>(PORT1 + `/dictionaries/type/${dictType}`);
+};
+
+//部门列表
+export const getDepartmentList = (params: Department.QueryDepartment) => {
+  return http.get<ResPage<Department.DepartmentItem>>(PORT1 + `/departments`, params);
+};
+//部门详情
+export const getDepartmentDetail = (id: number | string) => {
+  return http.get<Department.DepartmentItem>(PORT1 + `/departments/${id}`);
+};
+//新增部门
+export const addDepartment = (data: Department.CreateDepartment) => {
+  return http.post<void>(PORT1 + `/departments`, data);
+};
+//编辑部门
+export const editDepartment = (data: Partial<Department.UpdateDepartment>) => {
+  return http.put<void>(PORT1 + `/departments/${data.id}`, data);
+};
+//删除部门
+export const delDepartment = (id: number | string) => {
+  return http.delete<void>(PORT1 + `/departments/${id}`);
 };

@@ -25,10 +25,11 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere } from 'typeorm';
+import { Repository, FindOptionsWhere, In } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 
 import { User } from '../../entities/user.entity';
+import { Department } from '../../entities/department.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserListQueryDto } from './dto/user-list-query.dto';
@@ -61,7 +62,61 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(Department)
+    private readonly departmentRepository: Repository<Department>,
   ) {}
+
+  /**
+   * 校验部门存在
+   *
+   * @description
+   * 用户创建和编辑时使用同一套部门校验逻辑，避免绑定到不存在的组织节点。
+   */
+  private async ensureDepartmentExists(departmentId: number) {
+    const department = await this.departmentRepository.findOne({
+      where: { id: departmentId },
+    });
+
+    if (!department) {
+      throw new BadRequestException('所属部门不存在');
+    }
+
+    return department;
+  }
+
+  /**
+   * 为用户列表补充部门名称
+   */
+  private async appendDepartmentNames(users: User[]) {
+    const departmentIds = Array.from(
+      new Set(
+        users
+          .map((user) => user.departmentId)
+          .filter((id): id is number => typeof id === 'number'),
+      ),
+    );
+
+    const departments =
+      departmentIds.length > 0
+        ? await this.departmentRepository.find({
+            where: { id: In(departmentIds) },
+          })
+        : [];
+    const departmentNameMap = new Map(
+      departments.map((department) => [department.id, department.name]),
+    );
+
+    return users.map((user) => {
+      const { password: _password, ...userWithoutPassword } = user;
+      return {
+        ...userWithoutPassword,
+        departmentName:
+          user.departmentId !== null && user.departmentId !== undefined
+            ? (departmentNameMap.get(user.departmentId) ?? '未分配')
+            : '未分配',
+      };
+    });
+  }
 
   /**
    * 获取用户信息
@@ -121,11 +176,14 @@ export class UserService {
       throw new BadRequestException('用户已存在，请直接登录');
     }
 
+    await this.ensureDepartmentExists(createUserDto.departmentId);
+
     // 步骤 2：创建用户实体
     // new User() 创建一个空的实体对象
     const user = new User();
     user.name = createUserDto.name;
     user.username = createUserDto.username;
+    user.departmentId = createUserDto.departmentId;
     user.status = createUserDto.status ?? true; // ?? 表示如果为 null/undefined 则使用默认值
     user.email = createUserDto.email ?? null;
     user.phone = createUserDto.phone ?? null;
@@ -185,6 +243,10 @@ export class UserService {
     if (updateUserDto.name !== undefined) updateData.name = updateUserDto.name;
     if (updateUserDto.username !== undefined)
       updateData.username = updateUserDto.username;
+    if (updateUserDto.departmentId !== undefined) {
+      await this.ensureDepartmentExists(updateUserDto.departmentId);
+      updateData.departmentId = updateUserDto.departmentId;
+    }
     if (updateUserDto.roles !== undefined)
       updateData.roles = updateUserDto.roles.map((id) => String(id));
     if (updateUserDto.status !== undefined)
@@ -270,6 +332,8 @@ export class UserService {
     if (filters.email) where.email = filters.email;
     if (filters.phone) where.phone = filters.phone;
     if (filters.status !== undefined) where.status = filters.status;
+    if (filters.departmentId !== undefined)
+      where.departmentId = filters.departmentId;
 
     // 执行分页查询
     // findAndCount 返回 [数据列表, 总数]
@@ -283,11 +347,8 @@ export class UserService {
       order: { createTime: 'DESC' }, // 按创建时间倒序
     });
 
-    // 移除密码字段
-    const userList = users.map((user) => {
-      const { password: _password, ...userWithoutPassword } = user;
-      return userWithoutPassword;
-    });
+    // 移除密码字段并补充部门名称
+    const userList = await this.appendDepartmentNames(users);
 
     return {
       code: 200,

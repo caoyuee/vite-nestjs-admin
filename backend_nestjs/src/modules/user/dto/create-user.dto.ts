@@ -23,7 +23,10 @@ import {
   IsOptional, // 标记字段为可选的
   IsBoolean, // 验证字段必须是布尔值
   IsArray, // 验证字段必须是数组
+  IsInt,
+  Min,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 // 从 @nestjs/swagger 导入 API 文档装饰器
 // Swagger 会根据这些装饰器自动生成 API 文档
@@ -75,6 +78,17 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty({ message: '姓名不能为空' })
   name: string;
+
+  /**
+   * 所属部门 ID
+   *
+   * 新增用户必须绑定到一个有效部门，便于后续按组织结构管理用户。
+   */
+  @ApiProperty({ description: '所属部门ID' })
+  @Type(() => Number)
+  @IsInt({ message: '所属部门ID必须是整数' })
+  @Min(1, { message: '请选择所属部门' })
+  departmentId: number;
 
   /**
    * 邮箱字段（可选）

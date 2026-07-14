@@ -153,10 +153,10 @@ export namespace Menu {
     updateTime?: Date | null | string;
   }
 }
-//账号管理模块
-export namespace Account {
+// 用户管理模块
+export namespace SystemUser {
   /**
-   * 账号相关类型配置
+   * 用户相关类型配置
    *
    * @export
    * @interface UserItem
@@ -166,6 +166,7 @@ export namespace Account {
     username: string;
     password?: string;
     name: string;
+    departmentId: number;
     email: string;
     phone: string;
     avatar: string;
@@ -179,6 +180,7 @@ export namespace Account {
     email?: string;
     phone?: string;
     status?: boolean;
+    departmentId?: number;
     [key: string]: unknown;
   }
   export interface CreateUser extends BaseUser {
@@ -191,6 +193,7 @@ export namespace Account {
 
   export interface UserItem extends BaseUser {
     id: string;
+    departmentName?: string;
     createTime: Date | string;
     updateTime: Date | null | string;
   }
@@ -284,6 +287,41 @@ export namespace Dictionary {
     id: number;
     createTime: Date | string;
     updateTime: Date | null | string;
+  }
+}
+
+//部门管理模块
+export namespace Department {
+  export interface BaseDepartment {
+    parentId: number;
+    name: string;
+    code: string;
+    sort: number;
+    leader?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    status: boolean;
+    remark?: string | null;
+  }
+
+  export interface QueryDepartment extends ReqPage {
+    name?: string;
+    code?: string;
+    status?: boolean;
+    [key: string]: unknown;
+  }
+
+  export interface CreateDepartment extends BaseDepartment { }
+
+  export interface UpdateDepartment extends Partial<BaseDepartment> {
+    id: number;
+  }
+
+  export interface DepartmentItem extends BaseDepartment {
+    id: number;
+    createTime: Date | string;
+    updateTime: Date | null | string;
+    children?: DepartmentItem[];
   }
 }
 

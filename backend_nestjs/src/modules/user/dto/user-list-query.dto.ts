@@ -88,6 +88,16 @@ export class UserListQueryDto {
   name?: string;
 
   /**
+   * 所属部门筛选（可选）
+   */
+  @ApiPropertyOptional({ description: '所属部门ID' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  departmentId?: number;
+
+  /**
    * 邮箱筛选（可选）
    */
   @ApiPropertyOptional({ description: '邮箱' })

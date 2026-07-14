@@ -67,6 +67,14 @@ export class User extends BaseEntity {
   username: string;
 
   /**
+   * 所属部门 ID
+   *
+   * 新增用户时业务上必填；数据库层允许为空用于兼容历史用户数据。
+   */
+  @Column({ name: 'department_id', type: 'int', nullable: true })
+  departmentId: number | null;
+
+  /**
    * 密码（加密存储）
    *
    * 存储的是加密后的密码（bcrypt），不是明文密码

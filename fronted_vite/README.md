@@ -1,190 +1,164 @@
-# YOU GUESS
+# Vite Admin Frontend
 
-### 介绍 📖
-本项目基于：Geeker-Admin
-Geeker-Admin 一款基于 Vue3.4、TypeScript、Vite5、Pinia、Element-Plus 开源的后台管理框架，使用目前最新技术栈开发。项目提供强大的 [ProTable](https://juejin.cn/post/7166068828202336263) 组件，在一定程度上提高您的开发效率。另外本项目还封装了一些常用组件、Hooks、指令、动态路由、按钮级别权限控制等功能。
+`fronted_vite` 是本仓库的 Vue 3 管理后台前端，配套后端为 `../backend_nestjs`。项目来源于 Geeker-Admin 风格模板，但已经接入本仓库的 NestJS API、接口契约、构建检查和本地资源。
 
+## 技术栈
 
-### 项目功能 🔨
+- Vue 3.5 + `<script setup lang="ts">`
+- TypeScript 6
+- rolldown-vite 7 / Vite API
+- Vue Router 5
+- Pinia 3 + pinia-plugin-persistedstate
+- Element Plus 2
+- Axios
+- ECharts 6 + 自定义水球图补丁
+- Leaflet / GeoTIFF / GeoRaster
+- Three.js / GLTFLoader / OrbitControls
+- WangEditor
+- SCSS、ESLint、Prettier
 
-- 使用 Vue3.5 + TypeScript 开发，单文件组件**＜script setup＞**
-- 采用 Vite7 作为项目开发、打包工具（配置 gzip/brotli 打包、tsx 语法、跨域代理…）
-- 使用 Pinia 替代 Vuex，轻量、简单、易用，集成 Pinia 持久化插件
-- 使用 TypeScript 对 Axios 整个二次封装（请求拦截、取消、常用请求封装…）
-- 基于 Element 二次封装 [ProTable](https://juejin.cn/post/7166068828202336263) 组件，表格页面全部为配置项 Columns
-- 支持 Element 组件大小切换、多主题布局、暗黑模式、i18n 国际化
-- 使用 VueRouter 配置动态路由权限拦截、路由懒加载，支持页面按钮权限控制
-- 使用 KeepAlive 对页面进行缓存，支持多级嵌套路由缓存
-- 常用自定义指令开发（权限、复制、水印、拖拽、节流、防抖、长按…）
+## 环境要求
 
-### 安装使用步骤 📔
+- Node.js 18+
+- pnpm 10.20.0+
+- 后端服务：`http://127.0.0.1:3000`
 
-- **Clone：**
+本项目统一使用 `pnpm`，不要使用 `npm` 或 `yarn`。
 
-```text
-# Gitee
-git clone https://gitee.com/HalseySpicy/Geeker-Admin.git
-# GitHub
-git clone https://github.com/HalseySpicy/Geeker-Admin.git
-```
+## 安装
 
-- **Install：**
-
-```text
+```bash
+cd fronted_vite
 pnpm install
 ```
 
-- **Run：**
+项目使用 pnpm patch 修复了部分三方库兼容问题，安装依赖时会自动应用：
 
-```text
+- `@echarts-x/custom-liquid-fill@1.0.2`
+- `element-plus@2.14.3`
+
+## 本地开发
+
+先启动后端，再启动前端：
+
+```bash
+cd ../backend_nestjs
+pnpm start:dev
+
+cd ../fronted_vite
 pnpm dev
-pnpm serve
 ```
 
-- **Build：**
+前端默认端口来自 `.env`：
 
 ```text
-# 开发环境
-pnpm build:dev
-
-# 测试环境
-pnpm build:test
-
-# 生产环境
-pnpm build:pro
+VITE_PORT=8848
 ```
 
-- **Lint：**
+开发环境接口代理来自 `.env.development`：
 
 ```text
-# eslint 检测代码
-pnpm lint:eslint
-
-# prettier 格式化代码
-pnpm lint:prettier
-
-# stylelint 格式化样式
-pnpm lint:stylelint
+VITE_API_URL=/api
+VITE_PROXY=[["/api","http://127.0.0.1:3000/api"],["/resource","http://127.0.0.1:3000/resource"]]
 ```
 
-- **commit：**
+因此前端页面默认访问：
+
+- 前端页面：`http://localhost:8848`
+- API 代理：`/api -> http://127.0.0.1:3000/api`
+- 静态资源代理：`/resource -> http://127.0.0.1:3000/resource`
+
+`pnpm dev` 会先执行 `pnpm check`，也就是 TypeScript 与 ESLint 检查通过后才启动 Vite。
+
+## 常用命令
+
+```bash
+pnpm check         # vue-tsc + ESLint 检查
+pnpm lint          # ESLint 自动修复
+pnpm format        # Prettier 格式化
+pnpm format:check  # 检查格式
+pnpm dev           # 检查并启动开发服务
+pnpm build         # 检查并构建生产产物
+pnpm preview       # 预览 dist 产物
+```
+
+## 环境变量
+
+| 文件 | 用途 |
+| --- | --- |
+| `.env` | 应用标题、端口、是否自动打开浏览器、devtools、包分析等通用配置 |
+| `.env.development` | 本地开发接口地址、代理和路由模式 |
+| `.env.test` | 测试构建配置 |
+| `.env.production` | 生产构建配置 |
+
+生产部署前请根据真实后端地址调整 `.env.production` 的 `VITE_API_URL`，不要直接沿用模板 Mock 地址。
+
+## 目录结构
 
 ```text
-# 提交代码（提交前会自动执行 lint:lint-staged 命令）
-pnpm commit
+fronted_vite/
+├── build/                  # Vite 环境变量、代理和插件辅助配置
+├── patches/                # pnpm patch 文件
+├── public/                 # 不参与打包的静态资源
+├── src/
+│   ├── api/                # Axios 实例、接口模块和接口类型
+│   ├── assets/             # 图片、字体、图标、WebGL 资源、示例 JSON
+│   ├── components/         # 公共组件，如 ProTable、ECharts、Upload、TreeFilter
+│   ├── config/             # 前端全局配置
+│   ├── directives/         # 权限、复制、水印、拖拽、节流、防抖等指令
+│   ├── enums/              # 枚举常量
+│   ├── hooks/              # 业务 hooks
+│   ├── languages/          # i18n 语言包
+│   ├── layouts/            # 后台布局、菜单、标签页、头部组件
+│   ├── routers/            # 静态路由、动态路由和守卫
+│   ├── stores/             # Pinia store
+│   ├── styles/             # 全局样式和主题
+│   ├── typings/            # 全局类型声明
+│   ├── utils/              # 工具函数
+│   └── views/              # 页面视图
+├── vite.config.ts          # Vite 配置
+└── package.json            # 脚本和依赖
 ```
 
-### 项目截图 📷
+## 主要页面能力
 
-- 登录页：
+- 登录、首页、权限页和系统管理页面
+- 用户、角色、菜单、字典、日志等后台管理页面
+- ProTable 示例：基础表格、复杂表格、树形表格、筛选表格、批量导入导出
+- 表单示例、上传示例、富文本示例、常用指令示例
+- 数据大屏、ECharts 图表、Leaflet/GeoTIFF 地图、Three.js/WebGL 模型页面
 
-![login_light](https://i.imgtg.com/2023/04/13/8tknp.png)
+## 接口约定
 
-![login_dark](https://i.imgtg.com/2023/04/13/8tmpP.png)
+前端 API 封装位于 `src/api/modules/`，接口类型位于 `src/api/interface/`。新增或调整接口时，必须同步检查后端 `backend_nestjs/src/modules/` 下的 Controller、DTO 和返回值。
 
-- 首页：
+后端 JSON 响应统一格式：
 
-![home_light](https://i.imgtg.com/2023/04/13/8tl1j.png)
-
-![home_dark](https://i.imgtg.com/2023/04/13/8tpfb.png)
-
-- 表格页：
-
-![table_light](https://i.imgtg.com/2023/04/13/8tfMx.png)
-
-![table_dark](https://i.imgtg.com/2023/04/13/8tv8F.png)
-
-- 数据可视化
-
-![dashboard](https://i.imgtg.com/2023/04/14/82Grx.png)
-
-- 数据大屏：
-
-![dataScreen](https://i.imgtg.com/2023/01/16/QP8HF.png)
-
-### 文件资源目录 📚
-
-```text
-YOU GUESS
-├─ .husky                  # husky 配置文件
-├─ .vscode                 # VSCode 推荐配置
-├─ build                   # Vite 配置项
-├─ public                  # 静态资源文件（该文件夹不会被打包）
-├─ src
-│  ├─ api                  # API 接口管理
-│  ├─ assets               # 静态资源文件
-│  ├─ components           # 全局组件
-│  ├─ config               # 全局配置项
-│  ├─ directives           # 全局指令文件
-│  ├─ enums                # 项目常用枚举
-│  ├─ hooks                # 常用 Hooks 封装
-│  ├─ languages            # 语言国际化 i18n
-│  ├─ layouts              # 框架布局模块
-│  ├─ routers              # 路由管理
-│  ├─ stores               # pinia store
-│  ├─ styles               # 全局样式文件
-│  ├─ typings              # 全局 ts 声明
-│  ├─ utils                # 常用工具库
-│  ├─ views                # 项目所有页面
-│  ├─ App.vue              # 项目主组件
-│  ├─ main.ts              # 项目入口文件
-│  └─ vite-env.d.ts        # 指定 ts 识别 vue
-├─ .editorconfig           # 统一不同编辑器的编码风格
-├─ .env                    # vite 常用配置
-├─ .env.development        # 开发环境配置
-├─ .env.production         # 生产环境配置
-├─ .env.test               # 测试环境配置
-├─ .eslintignore           # 忽略 Eslint 校验
-├─ .eslintrc.cjs           # Eslint 校验配置文件
-├─ .gitignore              # 忽略 git 提交
-├─ .prettierignore         # 忽略 Prettier 格式化
-├─ .prettierrc.cjs         # Prettier 格式化配置
-├─ .stylelintignore        # 忽略 stylelint 格式化
-├─ .stylelintrc.cjs        # stylelint 样式格式化配置
-├─ CHANGELOG.md            # 项目更新日志
-├─ commitlint.config.cjs   # git 提交规范配置
-├─ index.html              # 入口 html
-├─ LICENSE                 # 开源协议文件
-├─ lint-staged.config.cjs  # lint-staged 配置文件
-├─ package-lock.json       # 依赖包包版本锁
-├─ package.json            # 依赖包管理
-├─ postcss.config.cjs      # postcss 配置
-├─ README.md               # README 介绍
-├─ tsconfig.json           # typescript 全局配置
-└─ vite.config.ts          # vite 全局配置文件
+```ts
+{
+  code: number;
+  message: string;
+  data: T | null;
+}
 ```
 
-### 浏览器支持 🌎
+分页数据统一放在 `data` 中：
 
-- 本地开发推荐使用 Chrome 最新版浏览器 [Download](https://www.google.com/intl/zh-CN/chrome/)。
-- 生产环境支持现代浏览器，不再支持 IE 浏览器，更多浏览器可以查看 [Can I Use Es Module](https://caniuse.com/?search=ESModule)。
+```ts
+{
+  list: T[];
+  total: number;
+  pageNum: number;
+  pageSize: number;
+}
+```
 
-| ![IE](https://i.imgtg.com/2023/04/11/8z7ot.png) | ![Edge](https://i.imgtg.com/2023/04/11/8zr3p.png) | ![Firefox](https://i.imgtg.com/2023/04/11/8zKiU.png) | ![Chrome](https://i.imgtg.com/2023/04/11/8zNrx.png) | ![Safari](https://i.imgtg.com/2023/04/11/8zeGj.png) |
-| :---------------------------------------------: | :-----------------------------------------------: | :--------------------------------------------------: | :-------------------------------------------------: | :-------------------------------------------------: |
-|                   not support                   |                  last 2 versions                  |                   last 2 versions                    |                   last 2 versions                   |                   last 2 versions                   |
+更完整的接口契约请看根目录 `docs/API_CONTRACT_RULES.md`。
 
-### 项目后台接口 🧩
+## 构建与部署
 
-项目后台接口完全采用 Mock 数据，感谢以下 Mock 平台支持：
+```bash
+pnpm build
+```
 
-- FastMock： https://www.fastmock.site
-- EasyMock：https://mock.mengxuegu.com
-
-### 微信交流群 👨‍👨‍👦‍👦
-
-微信一群、二群、三群、四群已满，加作者微信进入五群（支持知识付费）🤪
-
-|                                               微信二维码                                                |
-| :-----------------------------------------------------------------------------------------------------: |
-| <img src="https://pic.ziyuan.wang/user/guest/2024/02/WX20240228-162952@2x_d164375fc0c16.png" width=170> |
-
-### 捐赠 🍵
-
-如果你正在使用这个项目或者喜欢这个项目的，可以通过以下方式支持我：
-
-- Star、Fork、Watch 一键三连 🚀
-- 通过微信、支付宝一次性捐款 ❤
-
-|                                        微信                                        |                                       支付宝                                       |
-| :--------------------------------------------------------------------------------: | :--------------------------------------------------------------------------------: |
-| <img src="https://i.imgtg.com/2023/01/16/QRzBX.png" alt="Alipay QRcode" width=170> | <img src="https://i.imgtg.com/2023/01/16/QRFZt.png" alt="Wechat QRcode" width=170> |
+构建产物输出到 `dist/`。如果使用根目录 `docker-compose.yml`，前端容器会从 `fronted_vite/Dockerfile` 构建，并通过 `8080:80` 暴露。

@@ -17,7 +17,10 @@ import {
   IsOptional,
   IsBoolean,
   IsArray,
+  IsInt,
+  Min,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 /**
@@ -56,6 +59,18 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   name?: string;
+
+  /**
+   * 所属部门 ID（可选）
+   *
+   * 编辑时传入则校验部门存在并更新绑定关系。
+   */
+  @ApiPropertyOptional({ description: '所属部门ID' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: '所属部门ID必须是整数' })
+  @Min(1, { message: '请选择所属部门' })
+  departmentId?: number;
 
   /**
    * 邮箱（可选）

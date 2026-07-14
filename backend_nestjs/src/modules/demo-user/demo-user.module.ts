@@ -11,7 +11,7 @@ import { DemoUserService } from './demo-user.service';
  * 演示用户模块
  *
  * @class DemoUserModule
- * @description 不依赖真实用户表，避免演示数据污染后台账号管理。
+ * @description 不依赖真实用户表，避免演示数据污染后台用户管理。
  */
 @Module({
   controllers: [DemoUserController],

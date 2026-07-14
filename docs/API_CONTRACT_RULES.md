@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | 认证 | `/api/system/auth` | 登录、退出登录 |
 | 当前用户 | `/api/system/users/me` | 当前登录用户资料、当前用户密码 |
-| 用户账号 | `/api/system/users` | 后台账号管理 |
+| 用户管理 | `/api/system/users` | 后台用户管理 |
 | 菜单 | `/api/system/menus` | 菜单管理、当前用户菜单 |
 | 角色 | `/api/system/roles` | 角色管理、角色授权 |
 | 权限 | `/api/system/permissions` | 按钮权限、表格权限 |
